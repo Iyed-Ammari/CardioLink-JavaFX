@@ -1,4 +1,4 @@
-module com.example.cardiolink {
+module com.cardiolink {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -10,7 +10,8 @@ module com.example.cardiolink {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires java.sql;
 
-    opens com.example.cardiolink to javafx.fxml;
-    exports com.example.cardiolink;
+    opens com.cardiolink to javafx.fxml;
+    exports com.cardiolink;
 }
