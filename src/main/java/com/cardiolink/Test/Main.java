@@ -1,29 +1,92 @@
 package com.cardiolink.Test;
 
-import com.cardiolink.Models.Message;
-import com.cardiolink.Services.ServiceMessage;
-import com.cardiolink.utils.MyDatabase;
+import com.cardiolink.Models.Post;
+import com.cardiolink.Services.ServicePost;
 
-import java.sql.SQLDataException;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // kol wehed ch yaaml instance m service mteeo lehne (betbiaa baaed ma tasnaa service mtaa l model mteeo fl package Services ahwka)
-        // par exemple : ServicePersonne servicePersonne = new ServicePersonne();
-        ServiceMessage serviceMessage = new ServiceMessage();
-        try {
-            // mbaaed lehne testi les services mteek yekhdmo comme il faut wle, normalement aamlt liaison bl base de donnée deja w ntouma aandkom menha ml projet mtaa symfony donc mch mochkl
-            // EXEMPLE :
-//            servicePersonne.ajouter(new Personne("Yassine","Dhaya",90));
-//            servicePersonne.ajouter(new Personne("Rihem","MATTOUSI",190));
-//            servicePersonne.ajouter(new Personne("Falten","Foulen",70));
-//            servicePersonne.modifier(new Personne("TEsting","Hmed",33,1));
-//            System.out.println(servicePersonne.recuperer());
 
-            serviceMessage.add(new Message());
-        } catch (SQLDataException e) {
-            throw new RuntimeException(e);
+        ServicePost servicePost = new ServicePost();
+
+        try {
+
+            // =========================
+            // 1. AJOUT
+            // =========================
+            System.out.println("=== AJOUT ===");
+
+            Post p = new Post();
+            p.setTitle("Post test CRUD");
+            p.setContent("Contenu test CRUD");
+            p.setCreated_at(LocalDateTime.now());
+            p.setUser_id(2);
+
+            servicePost.add(p);
+
+            System.out.println("Post ajouté !");
+
+            // =========================
+            // 2. AFFICHAGE
+            // =========================
+            System.out.println("\n=== LISTE DES POSTS ===");
+
+            List<Post> posts = servicePost.getAll();
+
+            for (Post post : posts) {
+                System.out.println(post);
+            }
+
+            // =========================
+            // 3. SUPPRESSION
+            // =========================
+            System.out.println("\n=== SUPPRESSION ===");
+
+            if (!posts.isEmpty()) {
+
+                int lastId = posts.get(posts.size() - 1).getId();
+
+                servicePost.delete(lastId);
+
+                System.out.println("Post supprimé avec id = " + lastId);
+            }
+
+            // =========================
+            // 4. AFFICHAGE APRÈS SUPPRESSION
+            // =========================
+            System.out.println("\n=== APRÈS SUPPRESSION ===");
+
+            List<Post> postsAfter = servicePost.getAll();
+
+            for (Post post : postsAfter) {
+                System.out.println(post);
+            }
+
+            // =========================
+            // 5. MODIFICATION
+            // =========================
+            System.out.println("\n=== MODIFICATION ===");
+
+            List<Post> postsForUpdate = servicePost.getAll();
+
+            if (!postsForUpdate.isEmpty()) {
+
+                Post lastPost = postsForUpdate.get(postsForUpdate.size() - 1);
+
+                lastPost.setTitle("Titre modifié");
+                lastPost.setContent("Contenu modifié");
+                lastPost.setCreated_at(LocalDateTime.now());
+                lastPost.setUser_id(2);
+
+                servicePost.update(lastPost);
+
+                System.out.println("Post modifié avec succès !");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Erreur : " + e.getMessage());
         }
     }
 }
-
