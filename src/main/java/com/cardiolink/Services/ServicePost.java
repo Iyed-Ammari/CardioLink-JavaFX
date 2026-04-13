@@ -136,10 +136,178 @@ public class ServicePost implements Iservice<Post> {
                 p.setUser_id(rs.getInt("user_id"));
             }
 
+
+
         } catch (SQLException e) {
             throw new SQLDataException(e.getMessage());
         }
 
         return p;
+    }
+    public List<Post> sortPosts(String criteria) throws SQLDataException {
+
+        List<Post> posts = new ArrayList<>();
+
+        String query = "SELECT * FROM post";
+
+        if (criteria.equalsIgnoreCase("date")) {
+            query += " ORDER BY created_at DESC";
+        }
+        else if (criteria.equalsIgnoreCase("title")) {
+            query += " ORDER BY title ASC";
+        }
+        else {
+            query += " ORDER BY id DESC";
+        }
+
+        try {
+
+            Statement st = cnx.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while (rs.next()) {
+
+                Post p = new Post();
+                p.setId(rs.getInt("id"));
+                p.setTitle(rs.getString("title"));
+                p.setContent(rs.getString("content"));
+                p.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
+                p.setUser_id(rs.getInt("user_id"));
+
+                posts.add(p);
+            }
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+
+        return posts;
+    }
+    public List<Post> searchByTitle(String keyword) throws SQLDataException {
+
+        List<Post> posts = new ArrayList<>();
+
+        try {
+
+            String query = "SELECT * FROM post WHERE title LIKE ? ORDER BY title ASC";
+
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setString(1, keyword + "%");
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Post p = new Post();
+                p.setId(rs.getInt("id"));
+                p.setTitle(rs.getString("title"));
+                p.setContent(rs.getString("content"));
+                p.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
+                p.setUser_id(rs.getInt("user_id"));
+
+                posts.add(p);
+            }
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+
+        return posts;
+    }
+    public int countPostsByUser(int userId) throws SQLDataException {
+
+        int count = 0;
+
+        try {
+
+            String query = "SELECT COUNT(*) FROM post WHERE user_id=?";
+
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, userId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+
+        return count;
+    }
+    public List<Post> getRecentPosts() throws SQLDataException {
+
+        List<Post> posts = new ArrayList<>();
+
+        try {
+
+            String query = "SELECT * FROM post WHERE created_at >= NOW() - INTERVAL 7 DAY";
+
+            Statement st = cnx.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while (rs.next()) {
+
+                Post p = new Post();
+
+                p.setId(rs.getInt("id"));
+                p.setTitle(rs.getString("title"));
+                p.setContent(rs.getString("content"));
+                p.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
+                p.setUser_id(rs.getInt("user_id"));
+
+                posts.add(p);
+            }
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+
+        return posts;
+    }
+    public List<Post> filterByPeriod(String period) throws SQLDataException {
+
+        List<Post> posts = new ArrayList<>();
+
+        String query = "SELECT * FROM post WHERE created_at >= ";
+
+        if (period.equalsIgnoreCase("24h")) {
+            query += "NOW() - INTERVAL 1 DAY";
+        }
+        else if (period.equalsIgnoreCase("7d")) {
+            query += "NOW() - INTERVAL 7 DAY";
+        }
+        else if (period.equalsIgnoreCase("30d")) {
+            query += "NOW() - INTERVAL 30 DAY";
+        }
+        else {
+            query += "NOW() - INTERVAL 365 DAY"; // fallback
+        }
+
+        try {
+
+            Statement st = cnx.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while (rs.next()) {
+
+                Post p = new Post();
+
+                p.setId(rs.getInt("id"));
+                p.setTitle(rs.getString("title"));
+                p.setContent(rs.getString("content"));
+                p.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
+                p.setUser_id(rs.getInt("user_id"));
+
+                posts.add(p);
+            }
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+
+        return posts;
     }
 }

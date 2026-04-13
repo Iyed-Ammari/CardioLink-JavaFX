@@ -142,4 +142,46 @@ public class ServiceComment implements Iservice<Comment> {
 
         return c;
     }
+    public List<Comment> sortComments(String criteria) throws SQLDataException {
+
+        List<Comment> comments = new ArrayList<>();
+
+        String query = "SELECT * FROM comment";
+
+        if (criteria.equalsIgnoreCase("date")) {
+            query += " ORDER BY created_at DESC";
+        }
+        else if (criteria.equalsIgnoreCase("content")) {
+            query += " ORDER BY content ASC";
+        }
+        else {
+            query += " ORDER BY id DESC";
+        }
+
+        try {
+
+            Statement st = cnx.createStatement();
+            ResultSet rs = st.executeQuery(query);
+
+            while (rs.next()) {
+
+                Comment c = new Comment();
+
+                c.setId(rs.getInt("id"));
+                c.setContent(rs.getString("content"));
+                c.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
+                c.setPost_id(rs.getInt("post_id"));
+                c.setUser_id(rs.getInt("user_id"));
+
+                comments.add(c);
+            }
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+
+        return comments;
+    }
+
+
 }
