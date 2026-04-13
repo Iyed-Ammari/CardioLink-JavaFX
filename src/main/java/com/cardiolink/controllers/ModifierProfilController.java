@@ -7,9 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.shape.Circle;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -22,14 +20,12 @@ public class ModifierProfilController implements UserAwareController {
     @FXML private PasswordField passwordField;
     @FXML private Label         errorLabel;
     @FXML private Label         successLabel;
-    @FXML private Label         photoNameLabel;
-    @FXML private Label         photoInitial;
     @FXML private Label         avatarLabel;
     @FXML private Circle        avatarCircle;
-    @FXML private Circle        photoCircle;
+    @FXML private Button        btnSuivis;
+    @FXML private Button        btnDossier;
 
     private User currentUser;
-    private File selectedPhoto;
     private final UserService userService = new UserService();
 
     @Override
@@ -40,22 +36,17 @@ public class ModifierProfilController implements UserAwareController {
             prenomField.setText(user.getPrenom()   != null ? user.getPrenom()  : "");
             telField.setText(user.getTel()         != null ? user.getTel()     : "");
             adresseField.setText(user.getAdresse() != null ? user.getAdresse() : "");
+
             String initial = user.getNom() != null && !user.getNom().isEmpty()
                     ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
             avatarLabel.setText(initial);
-            photoInitial.setText(initial);
-        }
-    }
 
-    @FXML private void choosePhoto() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Choisir une photo de profil");
-        chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif"));
-        File file = chooser.showOpenDialog(nomField.getScene().getWindow());
-        if (file != null) {
-            selectedPhoto = file;
-            photoNameLabel.setText(file.getName());
+            // Cacher les liens Patient si Médecin
+            boolean isPatient = "ROLE_PATIENT".equals(user.getRoleClean());
+            btnSuivis.setVisible(isPatient);
+            btnSuivis.setManaged(isPatient);
+            btnDossier.setVisible(isPatient);
+            btnDossier.setManaged(isPatient);
         }
     }
 
@@ -67,26 +58,30 @@ public class ModifierProfilController implements UserAwareController {
         String adresse  = adresseField.getText().trim();
         String password = passwordField.getText().trim();
 
-        if (nom.isEmpty())                                  { showError("Le nom est obligatoire !"); return; }
-        if (!nom.matches("[a-zA-ZÀ-ÿ\\s-]+"))              { showError("Le nom ne doit contenir que des lettres !"); return; }
-        if (prenom.isEmpty())                               { showError("Le prénom est obligatoire !"); return; }
-        if (!prenom.matches("[a-zA-ZÀ-ÿ\\s-]+"))           { showError("Le prénom ne doit contenir que des lettres !"); return; }
-        if (!tel.isEmpty() && !tel.matches("^[\\+]?[0-9\\s-]{8,15}$")) { showError("Numéro de téléphone invalide !"); return; }
-        if (!password.isEmpty() && password.length() < 4)  { showError("Minimum 4 caractères pour le mot de passe !"); return; }
+        if (nom.isEmpty())
+        { showError("Le nom est obligatoire !"); return; }
+        if (!nom.matches("[a-zA-ZÀ-ÿ\\s-]+"))
+        { showError("Le nom ne doit contenir que des lettres !"); return; }
+        if (prenom.isEmpty())
+        { showError("Le prénom est obligatoire !"); return; }
+        if (!prenom.matches("[a-zA-ZÀ-ÿ\\s-]+"))
+        { showError("Le prénom ne doit contenir que des lettres !"); return; }
+        if (!tel.isEmpty() && !tel.matches("^[\\+]?[0-9\\s-]{8,15}$"))
+        { showError("Numéro de téléphone invalide !"); return; }
+        if (!password.isEmpty() && password.length() < 4)
+        { showError("Minimum 4 caractères pour le mot de passe !"); return; }
 
         currentUser.setNom(nom);
         currentUser.setPrenom(prenom);
         currentUser.setTel(tel);
         currentUser.setAdresse(adresse);
-        if (!password.isEmpty())   currentUser.setPassword(password);
-        if (selectedPhoto != null) currentUser.setImageUrl(selectedPhoto.getAbsolutePath());
+        if (!password.isEmpty()) currentUser.setPassword(password);
 
         try {
             userService.updateUser(currentUser);
             showSuccess("✅ Profil mis à jour avec succès !");
             String initial = nom.isEmpty() ? "?" : String.valueOf(nom.charAt(0)).toUpperCase();
             avatarLabel.setText(initial);
-            photoInitial.setText(initial);
         } catch (SQLException e) {
             showError("Erreur lors de la mise à jour : " + e.getMessage());
             e.printStackTrace();
@@ -103,7 +98,17 @@ public class ModifierProfilController implements UserAwareController {
         navigateTo("/com/cardiolink/fxml/suivis_patient.fxml", "CardioLink - Mes Suivis", 1100, 650);
     }
     @FXML private void goDossier() {
-        navigateTo("/com/cardiolink/fxml/dossier_medical.fxml", "CardioLink - Mon Dossier Médical", 1100, 650);
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/cardiolink/fxml/dossier_medical.fxml"));
+            Scene scene = new Scene(loader.load(), 1100, 650);
+            Stage stage = (Stage) nomField.getScene().getWindow();
+            stage.setTitle("CardioLink - Mon Dossier Médical");
+            stage.setScene(scene);
+            stage.show();
+            DossierMedicalPatientController ctrl = loader.getController();
+            ctrl.setCurrentUser(currentUser);
+        } catch (IOException e) { e.printStackTrace(); }
     }
     @FXML private void goProfil() {
         try {
@@ -144,7 +149,7 @@ public class ModifierProfilController implements UserAwareController {
         } catch (IOException e) { e.printStackTrace(); }
     }
 
-    private void clearMessages()        { errorLabel.setText(""); successLabel.setText(""); }
-    private void showError(String msg)  { errorLabel.setText("⚠ " + msg); successLabel.setText(""); }
-    private void showSuccess(String msg){ successLabel.setText(msg); errorLabel.setText(""); }
+    private void clearMessages()         { errorLabel.setText(""); successLabel.setText(""); }
+    private void showError(String msg)   { errorLabel.setText("⚠ " + msg); successLabel.setText(""); }
+    private void showSuccess(String msg) { successLabel.setText(msg); errorLabel.setText(""); }
 }

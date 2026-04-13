@@ -8,8 +8,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import java.io.IOException;
-import java.sql.SQLException;
 
 public class LoginController {
 
@@ -18,139 +16,75 @@ public class LoginController {
     @FXML private Label         errorLabel;
 
     private final UserService userService = new UserService();
-
     @FXML
     private void handleLogin() {
         String email    = emailField.getText().trim();
         String password = passwordField.getText().trim();
 
-        if (email.isEmpty() && password.isEmpty()) {
-            showError("Veuillez remplir tous les champs !");
-            highlight(emailField, true);
-            highlight(passwordField, true);
-            return;
-        }
-        if (email.isEmpty()) {
-            showError("L'email est obligatoire !");
-            highlight(emailField, true);
-            highlight(passwordField, false);
-            return;
-        }
-        if (password.isEmpty()) {
-            showError("Le mot de passe est obligatoire !");
-            highlight(passwordField, true);
-            highlight(emailField, false);
-            return;
+        if (email.isEmpty() || password.isEmpty()) {
+            showError("Veuillez remplir tous les champs !"); return;
         }
         if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            showError("Format d'email invalide ! Ex: nom@domaine.com");
-            highlight(emailField, true);
-            return;
+            showError("Format d'email invalide !"); return;
         }
         if (password.length() < 4) {
-            showError("Le mot de passe doit contenir au moins 4 caractères !");
-            highlight(passwordField, true);
-            return;
+            showError("Mot de passe minimum 4 caractères !"); return;
         }
 
         try {
             User user = userService.login(email, password);
 
             if (user != null) {
-                highlight(emailField, false);
-                highlight(passwordField, false);
-                errorLabel.setText("");
-
-                String fxmlPath;
-                String title;
-
-                switch (user.getRoleClean()) {
-                    case "ROLE_ADMIN":
-                        fxmlPath = "/com/cardiolink/fxml/dashboard_admin.fxml";
-                        title    = "CardioLink - Admin Dashboard";
-                        break;
-                    case "ROLE_MEDECIN":
-                        fxmlPath = "/com/cardiolink/fxml/dashboard_medecin.fxml";
-                        title    = "CardioLink - Médecin Dashboard";
-                        break;
-                    case "ROLE_PATIENT":
-                    default:
-                        fxmlPath = "/com/cardiolink/fxml/dashboard_patient.fxml";
-                        title    = "CardioLink - Patient Dashboard";
-                        break;
-                }
-
-                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-                Scene scene = new Scene(loader.load(), 1100, 650);
                 Stage stage = (Stage) emailField.getScene().getWindow();
-                stage.setTitle(title);
-                stage.setScene(scene);
-                stage.show();
+                String role = user.getRoleClean();
 
-                if (loader.getController() instanceof UserAwareController) {
-                    ((UserAwareController) loader.getController()).setCurrentUser(user);
+                if ("ROLE_ADMIN".equals(role)) {
+                    // ✅ Admin → directement dashboard_admin
+                    FXMLLoader loader = new FXMLLoader(
+                            getClass().getResource("/com/cardiolink/fxml/dashboard_admin.fxml"));
+                    Scene scene = new Scene(loader.load(), 1100, 650);
+                    AdminDashboardController ctrl = loader.getController();
+                    stage.setScene(scene);
+                    stage.setTitle("CardioLink - Admin Dashboard");
+                    stage.show();
+                    ctrl.setCurrentUser(user);
+
+                } else {
+                    // ✅ Patient et Médecin → Welcome page
+                    FXMLLoader loader = new FXMLLoader(
+                            getClass().getResource("/com/cardiolink/fxml/dashboard_patient.fxml"));
+                    Scene scene = new Scene(loader.load(), 1100, 650);
+                    PatientDashboardController ctrl = loader.getController();
+                    stage.setScene(scene);
+                    stage.setTitle("CardioLink");
+                    stage.show();
+                    ctrl.setCurrentUser(user);
                 }
 
             } else {
                 showError("Email ou mot de passe incorrect !");
-                highlight(emailField, true);
-                highlight(passwordField, true);
                 passwordField.clear();
             }
 
-        } catch (SQLException e) {
-            showError("Erreur de connexion à la base de données !");
-            e.printStackTrace();
-        } catch (IOException e) {
-            showError("Erreur lors du chargement du dashboard !");
+        } catch (Exception e) {
+            showError("Erreur de connexion !");
             e.printStackTrace();
         }
     }
-
     @FXML
     private void goToRegister(MouseEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/cardiolink/fxml/register.fxml")
-            );
+                    getClass().getResource("/com/cardiolink/fxml/register.fxml"));
             Scene scene = new Scene(loader.load(), 900, 650);
             Stage stage = (Stage) emailField.getScene().getWindow();
             stage.setTitle("CardioLink - Register");
             stage.setScene(scene);
             stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void highlight(Control field, boolean error) {
-        if (error) {
-            field.setStyle(field.getStyle()
-                    .replace("-fx-border-color: #7F77DD;", "")
-                    .replace("-fx-border-color: #dedede;", "")
-                    + " -fx-border-color: #E24B4A; -fx-border-width: 1.5;"
-            );
-        } else {
-            if (field == emailField) {
-                field.setStyle(
-                        "-fx-background-color: #f0f0fb;" +
-                                "-fx-border-color: #7F77DD; -fx-border-width: 1.5;" +
-                                "-fx-border-radius: 8; -fx-background-radius: 8;" +
-                                "-fx-padding: 10 14; -fx-font-size: 13px;"
-                );
-            } else {
-                field.setStyle(
-                        "-fx-background-color: #f5f5fb;" +
-                                "-fx-border-color: #dedede; -fx-border-width: 1.5;" +
-                                "-fx-border-radius: 8; -fx-background-radius: 8;" +
-                                "-fx-padding: 10 14; -fx-font-size: 13px;"
-                );
-            }
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void showError(String msg) {
         errorLabel.setText("⚠ " + msg);
-        errorLabel.setStyle("-fx-text-fill: #E24B4A; -fx-font-size: 12px;");
     }
 }

@@ -17,21 +17,22 @@
             <HBox alignment="CENTER_LEFT" spacing="8">
                 <Label text="❤" style="-fx-text-fill: #E24B4A; -fx-font-size: 22px;"/>
                 <Label text="CardioLink"
-                       style="-fx-font-size: 18px; -fx-font-weight: bold;
-                              -fx-text-fill: linear-gradient(to right, #E24B4A, #7F77DD);"/>
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
             </HBox>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="🏠 Home"               onAction="#goHome"
+            <Button text="🏠 Home" onAction="#goHome"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
-            <Button text="👥 Community"           onAction="#goCommunity"
+            <Button text="👥 Community" onAction="#goCommunity"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
-            <Button text="📊 Mes Suivis"          onAction="#goSuivis"
+            <!-- Boutons patient uniquement -->
+            <Button fx:id="btnSuivis" text="📊 Mes Suivis" onAction="#goSuivis"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
-            <Button text="🗂 Mon Dossier Médical" onAction="#goDossier"
+            <Button fx:id="btnDossier" text="🗂 Mon Dossier Médical" onAction="#goDossier"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
-            <Button text="👤 Mon Profil"          onAction="#goProfil"
+            <!-- Commun -->
+            <Button text="👤 Mon Profil" onAction="#goProfil"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
-            <Button text="🚪 Logout"              onAction="#handleLogout"
+            <Button text="🚪 Logout" onAction="#handleLogout"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #888;"/>
             <StackPane>
                 <Circle fx:id="avatarCircle" radius="18"
@@ -52,9 +53,9 @@
                         <Label fx:id="welcomeLabel" text="Welcome to CardioLink"
                                style="-fx-font-size: 36px; -fx-font-weight: bold;
                                       -fx-text-fill: #1a1a2e; -fx-wrap-text: true;"/>
-                        <Label text="Your comprehensive cardiac health management platform.&#10;Monitor, track, and manage your cardiovascular health with&#10;ease. Making healthcare smarter, faster, and more accessible&#10;for everyone."
-                               style="-fx-font-size: 14px; -fx-text-fill: #555;
-                                      -fx-wrap-text: true; -fx-line-spacing: 4;"/>
+                        <Label text="Your comprehensive cardiac health management platform. Monitor, track, and manage your cardiovascular health with ease. Making healthcare smarter, faster, and more accessible for everyone."
+                               wrapText="true"
+                               style="-fx-font-size: 14px; -fx-text-fill: #555; -fx-line-spacing: 4;"/>
                         <HBox spacing="16" style="-fx-padding: 10 0 0 0;">
                             <Button text="View Dashboard" onAction="#viewDashboard"
                                     style="-fx-background-color: linear-gradient(to right, #E24B4A, #7F77DD);
@@ -95,8 +96,8 @@
                             <Label text="Expert Care"
                                    style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
                             <Label text="Connect with top cardiologists and get expert medical advice."
-                                   style="-fx-font-size: 12px; -fx-text-fill: #777; -fx-text-alignment: center;"
-                                   wrapText="true"/>
+                                   wrapText="true"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #777; -fx-text-alignment: center;"/>
                         </VBox>
                         <VBox alignment="CENTER" spacing="10" minWidth="200" maxWidth="240"
                               style="-fx-background-color: white; -fx-background-radius: 16;
@@ -106,8 +107,8 @@
                             <Label text="Health Tracking"
                                    style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
                             <Label text="Monitor your vital signs and track your health progress."
-                                   style="-fx-font-size: 12px; -fx-text-fill: #777; -fx-text-alignment: center;"
-                                   wrapText="true"/>
+                                   wrapText="true"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #777; -fx-text-alignment: center;"/>
                         </VBox>
                         <VBox alignment="CENTER" spacing="10" minWidth="200" maxWidth="240"
                               style="-fx-background-color: white; -fx-background-radius: 16;
@@ -117,8 +118,8 @@
                             <Label text="Emergency SOS"
                                    style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
                             <Label text="Instant emergency assistance at the touch of a button."
-                                   style="-fx-font-size: 12px; -fx-text-fill: #777; -fx-text-alignment: center;"
-                                   wrapText="true"/>
+                                   wrapText="true"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #777; -fx-text-alignment: center;"/>
                         </VBox>
                     </HBox>
                 </VBox>

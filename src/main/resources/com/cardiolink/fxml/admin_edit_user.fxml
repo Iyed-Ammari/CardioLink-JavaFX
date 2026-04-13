@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cardiolink.controllers.AdminEditUserController"
+            prefWidth="1100" prefHeight="650"
+            style="-fx-background-color: #f8f8ff;">
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox alignment="TOP_LEFT" spacing="18" style="-fx-padding: 40 200;">
+
+                <Label text="✏  Modifier l'utilisateur"
+                       style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
+                <Hyperlink text="← Retour liste" onAction="#goBack"
+                           style="-fx-text-fill: #7F77DD; -fx-font-size: 13px; -fx-padding: 0;"/>
+
+                <VBox spacing="6">
+                    <Label text="Nom" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <TextField fx:id="nomField" maxWidth="680"
+                               style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                      -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;
+                                      -fx-padding: 10 14; -fx-font-size: 14px;"/>
+                </VBox>
+                <VBox spacing="6">
+                    <Label text="Prénom" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <TextField fx:id="prenomField" maxWidth="680"
+                               style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                      -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;
+                                      -fx-padding: 10 14; -fx-font-size: 14px;"/>
+                </VBox>
+                <VBox spacing="6">
+                    <Label text="Téléphone" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <TextField fx:id="telField" maxWidth="680"
+                               style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                      -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;
+                                      -fx-padding: 10 14; -fx-font-size: 14px;"/>
+                </VBox>
+                <VBox spacing="6">
+                    <Label text="Adresse" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <TextField fx:id="adresseField" maxWidth="680"
+                               style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                      -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;
+                                      -fx-padding: 10 14; -fx-font-size: 14px;"/>
+                </VBox>
+                <VBox spacing="6">
+                    <Label text="Rôle" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <ComboBox fx:id="roleCombo" maxWidth="680"
+                              style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                     -fx-border-radius: 8; -fx-font-size: 14px;"/>
+                </VBox>
+                <VBox spacing="6">
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Label text="Nouveau mot de passe"
+                               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                        <Label text="(laisser vide pour ne pas changer)"
+                               style="-fx-font-size: 12px; -fx-text-fill: #999;"/>
+                    </HBox>
+                    <PasswordField fx:id="passwordField" maxWidth="680"
+                                   style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                          -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;
+                                          -fx-padding: 10 14; -fx-font-size: 14px;"/>
+                </VBox>
+
+                <Label fx:id="errorLabel"   text="" style="-fx-text-fill: #E24B4A; -fx-font-size: 13px;"/>
+                <Label fx:id="successLabel" text="" style="-fx-text-fill: #27ae60; -fx-font-size: 13px;"/>
+
+                <Button text="💾  Enregistrer"
+                        onAction="#handleSave"
+                        style="-fx-background-color: linear-gradient(to right, #E24B4A, #7F77DD);
+                               -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;
+                               -fx-padding: 14 40; -fx-background-radius: 25; -fx-cursor: hand;"/>
+                <VBox minHeight="30"/>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

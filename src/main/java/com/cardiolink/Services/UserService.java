@@ -115,4 +115,34 @@ public class UserService {
                 rs.getString("image_url")
         );
     }
+    // Activer / Désactiver un user
+    public void setActive(int userId, boolean active) throws SQLException {
+        String sql = "UPDATE user SET is_active = ? WHERE id = ?";
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setBoolean(1, active);
+        ps.setInt(2, userId);
+        ps.executeUpdate();
+    }
+
+    // Trouver par email (après création)
+    public User findByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM user WHERE email = ?";
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, email);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return mapUser(rs);
+        return null;
+    }
+
+    // Inscriptions ce mois
+    public long countRegistrationsThisMonth() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM user WHERE MONTH(created_at) = MONTH(NOW()) AND YEAR(created_at) = YEAR(NOW())";
+        Connection conn = DatabaseConnection.getConnection();
+        Statement st = conn.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        if (rs.next()) return rs.getLong(1);
+        return 0;
+    }
 }
