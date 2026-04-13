@@ -2,91 +2,77 @@ package com.cardiolink.Test;
 
 import com.cardiolink.Models.Post;
 import com.cardiolink.Services.ServicePost;
+import com.cardiolink.Models.Comment;
+import com.cardiolink.Services.ServiceComment;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-
+        ServiceComment serviceComment = new ServiceComment();
         ServicePost servicePost = new ServicePost();
 
         try {
 
             // =========================
-            // 1. AJOUT
+            // AJOUT MANUEL
             // =========================
-            System.out.println("=== AJOUT ===");
+            System.out.println("=== AJOUT COMMENT ===");
 
-            Post p = new Post();
-            p.setTitle("Post test CRUD");
-            p.setContent("Contenu test CRUD");
-            p.setCreated_at(LocalDateTime.now());
-            p.setUser_id(2);
+            Comment c = new Comment();
+            c.setContent("Commentaire test manuel");
+            c.setCreated_at(LocalDateTime.now());
 
-            servicePost.add(p);
+            // FK manuel pour test
+            c.setUser_id(2);
+            c.setPost_id(97);
 
-            System.out.println("Post ajouté !");
+            serviceComment.add(c);
 
             // =========================
-            // 2. AFFICHAGE
+            // AFFICHAGE
             // =========================
-            System.out.println("\n=== LISTE DES POSTS ===");
+            System.out.println("\n=== LISTE COMMENTS ===");
 
-            List<Post> posts = servicePost.getAll();
+            List<Comment> comments = serviceComment.getAll();
 
-            for (Post post : posts) {
-                System.out.println(post);
+            for (Comment com : comments) {
+                System.out.println(com);
             }
 
             // =========================
-            // 3. SUPPRESSION
-            // =========================
-            System.out.println("\n=== SUPPRESSION ===");
-
-            if (!posts.isEmpty()) {
-
-                int lastId = posts.get(posts.size() - 1).getId();
-
-                servicePost.delete(lastId);
-
-                System.out.println("Post supprimé avec id = " + lastId);
-            }
-
-            // =========================
-            // 4. AFFICHAGE APRÈS SUPPRESSION
-            // =========================
-            System.out.println("\n=== APRÈS SUPPRESSION ===");
-
-            List<Post> postsAfter = servicePost.getAll();
-
-            for (Post post : postsAfter) {
-                System.out.println(post);
-            }
-
-            // =========================
-            // 5. MODIFICATION
+            // MODIFICATION
             // =========================
             System.out.println("\n=== MODIFICATION ===");
 
-            List<Post> postsForUpdate = servicePost.getAll();
+            if (!comments.isEmpty()) {
 
-            if (!postsForUpdate.isEmpty()) {
+                Comment last = comments.get(comments.size() - 1);
 
-                Post lastPost = postsForUpdate.get(postsForUpdate.size() - 1);
+                last.setContent("Comment modifié manuel");
 
-                lastPost.setTitle("Titre modifié");
-                lastPost.setContent("Contenu modifié");
-                lastPost.setCreated_at(LocalDateTime.now());
-                lastPost.setUser_id(2);
+                serviceComment.update(last);
 
-                servicePost.update(lastPost);
+                System.out.println("Comment modifié !");
+            }
 
-                System.out.println("Post modifié avec succès !");
+            // =========================
+            // SUPPRESSION
+            // =========================
+            System.out.println("\n=== SUPPRESSION ===");
+
+            if (!comments.isEmpty()) {
+
+                int lastId = comments.get(comments.size() - 1).getId();
+
+                serviceComment.delete(lastId);
+
+                System.out.println("Comment supprimé !");
             }
 
         } catch (Exception e) {
-            System.out.println("Erreur : " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 }
