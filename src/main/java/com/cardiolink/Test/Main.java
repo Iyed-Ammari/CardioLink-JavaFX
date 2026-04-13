@@ -1,74 +1,107 @@
 package com.cardiolink.Test;
 
-import com.cardiolink.Models.Post;
-import com.cardiolink.Services.ServicePost;
 import com.cardiolink.Models.Comment;
+import com.cardiolink.Models.Post;
 import com.cardiolink.Services.ServiceComment;
+import com.cardiolink.Services.ServicePost;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        ServiceComment serviceComment = new ServiceComment();
+
         ServicePost servicePost = new ServicePost();
+        ServiceComment serviceComment = new ServiceComment();
 
         try {
 
             // =========================
-            // AJOUT MANUEL
+            // AJOUT POST
             // =========================
-            System.out.println("=== AJOUT COMMENT ===");
+            System.out.println("=== AJOUT POST ===");
+
+            Post p = new Post();
+            p.setTitle("Post test");
+            p.setContent("Contenu test");
+            p.setCreated_at(LocalDateTime.now());
+            p.setUser_id(2);
+
+            servicePost.add(p);
+
+
+            // RELOAD POSTS
+            List<Post> posts = servicePost.getAll();
+            Post lastPost = posts.get(posts.size() - 1);
+
+
+            // =========================
+            // AJOUT COMMENT
+            // =========================
+            System.out.println("\n=== AJOUT COMMENT ===");
 
             Comment c = new Comment();
-            c.setContent("Commentaire test manuel");
+            c.setContent("Comment test");
             c.setCreated_at(LocalDateTime.now());
-
-            // FK manuel pour test
             c.setUser_id(2);
-            c.setPost_id(97);
+            c.setPost_id(lastPost.getId());
 
             serviceComment.add(c);
 
-            // =========================
-            // AFFICHAGE
-            // =========================
-            System.out.println("\n=== LISTE COMMENTS ===");
 
+            // =========================
+            // MODIFICATION POST
+            // =========================
+            System.out.println("\n=== UPDATE POST ===");
+
+            lastPost.setTitle("Post modifié");
+            lastPost.setContent("Contenu modifié");
+
+            servicePost.update(lastPost);
+
+
+            // =========================
+            // MODIFICATION COMMENT
+            // =========================
             List<Comment> comments = serviceComment.getAll();
+            Comment lastComment = comments.get(comments.size() - 1);
 
-            for (Comment com : comments) {
-                System.out.println(com);
+            System.out.println("\n=== UPDATE COMMENT ===");
+
+            lastComment.setContent("Comment modifié");
+
+            serviceComment.update(lastComment);
+
+
+            // =========================
+            // SUPPRESSION COMMENT
+            // =========================
+            System.out.println("\n=== DELETE COMMENT ===");
+
+            serviceComment.delete(lastComment);
+
+
+            // =========================
+            // SUPPRESSION POST
+            // =========================
+            System.out.println("\n=== DELETE POST ===");
+
+            servicePost.delete(lastPost);
+
+
+            // =========================
+            // AFFICHAGE FINAL
+            // =========================
+            System.out.println("\n=== POSTS RESTANTS ===");
+
+            for (Post post : servicePost.getAll()) {
+                System.out.println(post);
             }
 
-            // =========================
-            // MODIFICATION
-            // =========================
-            System.out.println("\n=== MODIFICATION ===");
+            System.out.println("\n=== COMMENTS RESTANTS ===");
 
-            if (!comments.isEmpty()) {
-
-                Comment last = comments.get(comments.size() - 1);
-
-                last.setContent("Comment modifié manuel");
-
-                serviceComment.update(last);
-
-                System.out.println("Comment modifié !");
-            }
-
-            // =========================
-            // SUPPRESSION
-            // =========================
-            System.out.println("\n=== SUPPRESSION ===");
-
-            if (!comments.isEmpty()) {
-
-                int lastId = comments.get(comments.size() - 1).getId();
-
-                serviceComment.delete(lastId);
-
-                System.out.println("Comment supprimé !");
+            for (Comment comment : serviceComment.getAll()) {
+                System.out.println(comment);
             }
 
         } catch (Exception e) {

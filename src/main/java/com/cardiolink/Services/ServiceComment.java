@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceComment {
+public class ServiceComment implements Iservice<Comment> {
 
     private Connection cnx;
 
@@ -15,82 +15,131 @@ public class ServiceComment {
         cnx = MyDatabase.getInstance().getConnection();
     }
 
-    // ADD
-    public void add(Comment comment) throws SQLException {
+    @Override
+    public void add(Comment comment) throws SQLDataException {
+        try {
 
-        String query = "INSERT INTO comment (content, created_at, post_id, user_id) VALUES (?, ?, ?, ?)";
+            String query = "INSERT INTO comment (content, created_at, post_id, user_id) VALUES (?, ?, ?, ?)";
 
-        PreparedStatement ps = cnx.prepareStatement(query);
+            PreparedStatement ps = cnx.prepareStatement(query);
 
-        ps.setString(1, comment.getContent());
-        ps.setTimestamp(2, Timestamp.valueOf(comment.getCreated_at()));
-        ps.setInt(3, comment.getPost_id());
-        ps.setInt(4, comment.getUser_id());
+            ps.setString(1, comment.getContent());
+            ps.setTimestamp(2, Timestamp.valueOf(comment.getCreated_at()));
+            ps.setInt(3, comment.getPost_id());
+            ps.setInt(4, comment.getUser_id());
 
-        ps.executeUpdate();
+            ps.executeUpdate();
 
-        System.out.println("Comment ajouté !");
+            System.out.println("Comment ajouté !");
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
     }
 
+    @Override
+    public void update(Comment comment) throws SQLDataException {
+        try {
 
-    // READ ALL
-    public List<Comment> getAll() throws SQLException {
+            String query = "UPDATE comment SET content=?, created_at=?, post_id=?, user_id=? WHERE id=?";
+
+            PreparedStatement ps = cnx.prepareStatement(query);
+
+            ps.setString(1, comment.getContent());
+            ps.setTimestamp(2, Timestamp.valueOf(comment.getCreated_at()));
+            ps.setInt(3, comment.getPost_id());
+            ps.setInt(4, comment.getUser_id());
+            ps.setInt(5, comment.getId());
+
+            ps.executeUpdate();
+
+            System.out.println("Comment modifié !");
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void delete(Comment comment) throws SQLDataException {
+        try {
+
+            String query = "DELETE FROM comment WHERE id=?";
+
+            PreparedStatement ps = cnx.prepareStatement(query);
+
+            ps.setInt(1, comment.getId());
+
+            ps.executeUpdate();
+
+            System.out.println("Comment supprimé !");
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Comment> getAll() throws SQLDataException {
 
         List<Comment> comments = new ArrayList<>();
 
-        String query = "SELECT * FROM comment";
+        try {
 
-        Statement st = cnx.createStatement();
-        ResultSet rs = st.executeQuery(query);
+            String query = "SELECT * FROM comment";
 
-        while (rs.next()) {
+            Statement st = cnx.createStatement();
+            ResultSet rs = st.executeQuery(query);
 
-            Comment c = new Comment();
+            while (rs.next()) {
 
-            c.setId(rs.getInt("id"));
-            c.setContent(rs.getString("content"));
-            c.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
-            c.setPost_id(rs.getInt("post_id"));
-            c.setUser_id(rs.getInt("user_id"));
+                Comment c = new Comment();
 
-            comments.add(c);
+                c.setId(rs.getInt("id"));
+                c.setContent(rs.getString("content"));
+                c.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
+                c.setPost_id(rs.getInt("post_id"));
+                c.setUser_id(rs.getInt("user_id"));
+
+                comments.add(c);
+            }
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
         }
 
         return comments;
     }
 
+    @Override
+    public Comment getById(int id) throws SQLDataException {
 
-    // UPDATE
-    public void update(Comment comment) throws SQLException {
+        Comment c = null;
 
-        String query = "UPDATE comment SET content=?, created_at=?, post_id=?, user_id=? WHERE id=?";
+        try {
 
-        PreparedStatement ps = cnx.prepareStatement(query);
+            String query = "SELECT * FROM comment WHERE id=?";
 
-        ps.setString(1, comment.getContent());
-        ps.setTimestamp(2, Timestamp.valueOf(comment.getCreated_at()));
-        ps.setInt(3, comment.getPost_id());
-        ps.setInt(4, comment.getUser_id());
-        ps.setInt(5, comment.getId());
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, id);
 
-        ps.executeUpdate();
+            ResultSet rs = ps.executeQuery();
 
-        System.out.println("Comment modifié !");
+            if (rs.next()) {
+
+                c = new Comment();
+
+                c.setId(rs.getInt("id"));
+                c.setContent(rs.getString("content"));
+                c.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
+                c.setPost_id(rs.getInt("post_id"));
+                c.setUser_id(rs.getInt("user_id"));
+            }
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+
+        return c;
     }
-
-
-    // DELETE
-    public void delete(int id) throws SQLException {
-
-        String query = "DELETE FROM comment WHERE id=?";
-
-        PreparedStatement ps = cnx.prepareStatement(query);
-
-        ps.setInt(1, id);
-
-        ps.executeUpdate();
-
-        System.out.println("Comment supprimé !");
-    }
-
 }
