@@ -17,14 +17,13 @@
             <HBox alignment="CENTER" spacing="50"
                   style="-fx-padding: 80 80 60 80; -fx-background-color: #eef0fb;">
                 <VBox spacing="22" HBox.hgrow="ALWAYS" maxWidth="500">
-                    <Label fx:id="welcomeName" text="Welcome, Admin !"
+                    <Label fx:id="welcomeName" text="Welcome to CardioLink"
                            style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
                     <Label text="Your comprehensive cardiac health management platform. Monitor, track, and manage your cardiovascular health with ease. Making healthcare smarter, faster, and more accessible for everyone."
                            wrapText="true"
                            style="-fx-font-size: 14px; -fx-text-fill: #555; -fx-line-spacing: 5;"/>
                     <HBox spacing="16" style="-fx-padding: 10 0 0 0;">
-                        <!-- ✅ FIX : goToDashboard → showHome -->
-                        <Button text="View Dashboard" onAction="#showHome"
+                        <Button text="View Dashboard" onAction="#goToDashboard"
                                 style="-fx-background-color: linear-gradient(to right, #E24B4A, #7F77DD);
                                        -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;
                                        -fx-padding: 14 30; -fx-background-radius: 30; -fx-cursor: hand;"/>

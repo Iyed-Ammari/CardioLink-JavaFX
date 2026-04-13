@@ -84,6 +84,8 @@ public class AdminDashboardController implements UserAwareController {
             String initial = user.getNom() != null && !user.getNom().isEmpty()
                     ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "A";
             sidebarInitial.setText(initial);
+            // ── Welcome message identique pour tous les rôles ──
+            welcomeName.setText("Welcome to CardioLink");
         }
         roleFilter.setItems(FXCollections.observableArrayList(
                 "-- Tous les rôles --", "ROLE_PATIENT", "ROLE_MEDECIN", "ROLE_ADMIN"));
@@ -91,24 +93,21 @@ public class AdminDashboardController implements UserAwareController {
         setupUsersTable();
         usersTable.setItems(FXCollections.observableArrayList(allUsers));
         loadStats();
+        // Afficher welcome en premier
+        welcomeView.setVisible(true);
+        dashboardPane.setVisible(false);
+    }
+
+    // ── Welcome ↔ Dashboard ──────────────────────────────────
+    @FXML private void goToDashboard() {
         welcomeView.setVisible(false);
         dashboardPane.setVisible(true);
         showHome();
     }
 
-    @FXML
-    public void showWelcomePage() {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/cardiolink/fxml/dashboard_patient.fxml"));
-            Scene scene = new Scene(loader.load(), 1100, 650);
-            PatientDashboardController ctrl = loader.getController();
-            Stage stage = (Stage) btnHome.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("CardioLink");
-            stage.show();
-            ctrl.setCurrentUser(currentUser);
-        } catch (IOException e) { e.printStackTrace(); }
+    @FXML public void showWelcomePage() {
+        dashboardPane.setVisible(false);
+        welcomeView.setVisible(true);
     }
 
     // ── Stats ─────────────────────────────────────────────────
@@ -160,14 +159,10 @@ public class AdminDashboardController implements UserAwareController {
                 btnVoir.setStyle(base     + "-fx-background-color: #e8e8ff; -fx-text-fill: #7F77DD;");
                 btnModifier.setStyle(base + "-fx-background-color: #fff3e0; -fx-text-fill: #e67e22;");
                 btnSuppr.setStyle(base    + "-fx-background-color: #ffe8e8; -fx-text-fill: #E24B4A;");
-                btnVoir.setOnAction(e     ->
-                        showUserDetail(getTableView().getItems().get(getIndex())));
-                btnModifier.setOnAction(e ->
-                        goEditUser(getTableView().getItems().get(getIndex())));
-                btnToggle.setOnAction(e   ->
-                        toggleUser(getTableView().getItems().get(getIndex())));
-                btnSuppr.setOnAction(e    ->
-                        deleteUser(getTableView().getItems().get(getIndex())));
+                btnVoir.setOnAction(e     -> showUserDetail(getTableView().getItems().get(getIndex())));
+                btnModifier.setOnAction(e -> goEditUser(getTableView().getItems().get(getIndex())));
+                btnToggle.setOnAction(e   -> toggleUser(getTableView().getItems().get(getIndex())));
+                btnSuppr.setOnAction(e    -> deleteUser(getTableView().getItems().get(getIndex())));
             }
             @Override protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
@@ -357,16 +352,13 @@ public class AdminDashboardController implements UserAwareController {
 
     private void goEditDossier(DossierMedical d) {
         try {
-            // ✅ FIX : extraire le User patient depuis allUsers
             User patient = allUsers.stream()
                     .filter(u -> u.getId() == d.getUserId())
                     .findFirst().orElse(null);
-
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/com/cardiolink/fxml/admin_edit_dossier.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             AdminEditDossierController ctrl = loader.getController();
-            // ✅ On passe patient (User) et non allUsers (List)
             ctrl.setData(currentUser, d, patient);
             Stage stage = (Stage) btnHome.getScene().getWindow();
             stage.setScene(scene);
@@ -473,6 +465,7 @@ public class AdminDashboardController implements UserAwareController {
             String initial = admin.getNom() != null && !admin.getNom().isEmpty()
                     ? String.valueOf(admin.getNom().charAt(0)).toUpperCase() : "A";
             sidebarInitial.setText(initial);
+            welcomeName.setText("Welcome to CardioLink");
         }
         roleFilter.setItems(FXCollections.observableArrayList(
                 "-- Tous les rôles --", "ROLE_PATIENT", "ROLE_MEDECIN", "ROLE_ADMIN"));

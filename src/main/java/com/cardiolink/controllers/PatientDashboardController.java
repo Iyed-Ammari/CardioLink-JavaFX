@@ -23,29 +23,19 @@ public class PatientDashboardController implements UserAwareController {
     @Override
     public void setCurrentUser(User user) {
         this.currentUser = user;
-        if (user == null) return;
+        if (user != null) {
+            // Même message pour tous les rôles
+            welcomeLabel.setText("Welcome to CardioLink");
 
-        String role    = user.getRoleClean();
-        String initial = user.getNom() != null && !user.getNom().isEmpty()
-                ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
-        avatarLabel.setText(initial);
+            String initial = user.getNom() != null && !user.getNom().isEmpty()
+                    ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+            avatarLabel.setText(initial);
 
-        switch (role) {
-            case "ROLE_ADMIN" -> {
-                welcomeLabel.setText("Welcome, Admin " + user.getPrenom() + " !");
-                btnSuivis.setVisible(false);  btnSuivis.setManaged(false);
-                btnDossier.setVisible(false); btnDossier.setManaged(false);
-            }
-            case "ROLE_MEDECIN" -> {
-                welcomeLabel.setText("Welcome, Dr. " + user.getPrenom() + " !");
-                btnSuivis.setVisible(false);  btnSuivis.setManaged(false);
-                btnDossier.setVisible(false); btnDossier.setManaged(false);
-            }
-            case "ROLE_PATIENT" -> {
-                welcomeLabel.setText("Welcome, " + user.getPrenom() + " !");
-                btnSuivis.setVisible(true);  btnSuivis.setManaged(true);
-                btnDossier.setVisible(true); btnDossier.setManaged(true);
-            }
+            boolean isPatient = "ROLE_PATIENT".equals(user.getRoleClean());
+            btnSuivis.setVisible(isPatient);
+            btnSuivis.setManaged(isPatient);
+            btnDossier.setVisible(isPatient);
+            btnDossier.setManaged(isPatient);
         }
     }
 
