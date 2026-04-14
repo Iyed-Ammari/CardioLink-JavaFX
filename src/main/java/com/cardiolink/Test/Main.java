@@ -1,29 +1,44 @@
 package com.cardiolink.Test;
 
-import com.cardiolink.Models.Message;
-import com.cardiolink.Services.ServiceMessage;
-import com.cardiolink.utils.MyDatabase;
-
-import java.sql.SQLDataException;
+import com.cardiolink.Models.Suivi;
+import com.cardiolink.Models.Intervention;
+import com.cardiolink.Services.SuiviService;
+import com.cardiolink.Services.InterventionService;
 
 public class Main {
     public static void main(String[] args) {
-        // kol wehed ch yaaml instance m service mteeo lehne (betbiaa baaed ma tasnaa service mtaa l model mteeo fl package Services ahwka)
-        // par exemple : ServicePersonne servicePersonne = new ServicePersonne();
-        ServiceMessage serviceMessage = new ServiceMessage();
-        try {
-            // mbaaed lehne testi les services mteek yekhdmo comme il faut wle, normalement aamlt liaison bl base de donnée deja w ntouma aandkom menha ml projet mtaa symfony donc mch mochkl
-            // EXEMPLE :
-//            servicePersonne.ajouter(new Personne("Yassine","Dhaya",90));
-//            servicePersonne.ajouter(new Personne("Rihem","MATTOUSI",190));
-//            servicePersonne.ajouter(new Personne("Falten","Foulen",70));
-//            servicePersonne.modifier(new Personne("TEsting","Hmed",33,1));
-//            System.out.println(servicePersonne.recuperer());
+        SuiviService ss = new SuiviService();
+        InterventionService is = new InterventionService();
 
-            serviceMessage.add(new Message());
-        } catch (SQLDataException e) {
-            throw new RuntimeException(e);
+        try {
+            System.out.println("=== TEST SUIVI ===");
+            // 1. Ajouter un suivi (patient_id 4)
+            Suivi s = new Suivi(0, "Fréquence Cardiaque", 130.0f, "bpm", 4);
+            ss.add(s);
+
+            // On récupère le dernier suivi ajouté pour avoir son ID réel
+            Suivi suiviEnBase = ss.getAll().get(ss.getAll().size() - 1);
+            System.out.println("Suivi créé avec ID: " + suiviEnBase.getId());
+
+            System.out.println("\n=== TEST INTERVENTION ===");
+            // 2. Ajouter une intervention liée au suivi
+            Intervention inter = new Intervention(0, "Alerte SOS", "Tachycardie détectée", 4); // medecin_id 4 par ex
+            inter.setSuiviOrigine(suiviEnBase);
+            is.add(inter);
+
+            // 3. Affichage
+            System.out.println("\nListe des interventions :");
+            is.getAll().forEach(i -> System.out.println("ID: " + i.getId() + " | Type: " + i.getType() + " | Statut: " + i.getStatut()));
+
+            // 4. Test Update Intervention
+            if(!is.getAll().isEmpty()) {
+                Intervention aModifier = is.getAll().get(0);
+                aModifier.setStatut("En cours");
+                is.update(aModifier);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
-
