@@ -8,10 +8,9 @@ module com.cardiolink {
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
-    requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires java.sql;
 
-    opens com.cardiolink to javafx.fxml;
-    exports com.cardiolink;
+    opens com.cardiolink.Test to javafx.fxml;
+    exports com.cardiolink.Test;
 }
