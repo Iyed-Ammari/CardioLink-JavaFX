@@ -6,9 +6,9 @@ import java.math.RoundingMode;
 public class LigneCommande {
 
     private Integer id;
+    private Integer commandeId;
     private int quantite;
     private BigDecimal prixUnitaire;
-    private Commande commande;
     private Produit produit;
 
     public LigneCommande() {
@@ -16,13 +16,13 @@ public class LigneCommande {
         this.prixUnitaire = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
     }
 
-    public LigneCommande(Integer id, int quantite, BigDecimal prixUnitaire,
-                         Commande commande, Produit produit) {
+    public LigneCommande(Integer id, Integer commandeId, int quantite,
+                         BigDecimal prixUnitaire, Produit produit) {
         this();
         this.id = id;
+        this.commandeId = commandeId;
         setQuantite(quantite);
         setPrixUnitaire(prixUnitaire);
-        this.commande = commande;
         this.produit = produit;
     }
 
@@ -34,6 +34,17 @@ public class LigneCommande {
         this.id = id;
     }
 
+    public Integer getCommandeId() {
+        return commandeId;
+    }
+
+    public void setCommandeId(Integer commandeId) {
+        if (commandeId == null || commandeId <= 0) {
+            throw new IllegalArgumentException("commandeId invalide.");
+        }
+        this.commandeId = commandeId;
+    }
+
     public int getQuantite() {
         return quantite;
     }
@@ -43,10 +54,6 @@ public class LigneCommande {
             throw new IllegalArgumentException("La quantité doit être >= 1.");
         }
         this.quantite = quantite;
-
-        if (this.commande != null) {
-            this.commande.recalculateTotal();
-        }
     }
 
     public BigDecimal getPrixUnitaire() {
@@ -54,26 +61,10 @@ public class LigneCommande {
     }
 
     public void setPrixUnitaire(BigDecimal prixUnitaire) {
-        if (prixUnitaire == null) {
-            throw new IllegalArgumentException("Le prix unitaire est obligatoire.");
-        }
-        if (prixUnitaire.compareTo(BigDecimal.ZERO) < 0) {
+        if (prixUnitaire == null || prixUnitaire.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Le prix unitaire doit être >= 0.");
         }
-
         this.prixUnitaire = prixUnitaire.setScale(2, RoundingMode.HALF_UP);
-
-        if (this.commande != null) {
-            this.commande.recalculateTotal();
-        }
-    }
-
-    public Commande getCommande() {
-        return commande;
-    }
-
-    public void setCommande(Commande commande) {
-        this.commande = commande;
     }
 
     public Produit getProduit() {
@@ -94,9 +85,11 @@ public class LigneCommande {
     public String toString() {
         return "LigneCommande{" +
                 "id=" + id +
+                ", commandeId=" + commandeId +
+                ", produit=" + (produit != null ? produit.getNom() : "null") +
                 ", quantite=" + quantite +
                 ", prixUnitaire=" + prixUnitaire +
-                ", totalLigne=" + getTotalLigne() +
+                ", total=" + getTotalLigne() +
                 '}';
     }
 }
