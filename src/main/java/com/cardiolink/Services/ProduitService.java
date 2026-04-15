@@ -12,7 +12,6 @@ public class ProduitService implements Iservice<Produit> {
 
     private final Connection cnx = MyDatabase.getInstance().getConnection();
 
-    // ─── Mapping DB → Produit (robuste, ne plante jamais) ───────────────────
     private Produit mapResultSet(ResultSet rs) throws SQLException {
         Produit p = new Produit();
         p.setId(rs.getInt("id"));
@@ -73,7 +72,7 @@ public class ProduitService implements Iservice<Produit> {
         }
     }
 
-    // ─── Validation métier ───────────────────────────────────────────────────
+    // ─── Validation métier
     private void valider(Produit p) {
         if (p == null)
             throw new IllegalArgumentException("Le produit ne peut pas être null.");
@@ -95,7 +94,7 @@ public class ProduitService implements Iservice<Produit> {
             throw new IllegalArgumentException("La catégorie ne doit pas dépasser 50 caractères.");
     }
 
-    // ─── Unicité du nom ──────────────────────────────────────────────────────
+    // ─── Unicité du nom
     public boolean existsByNom(String nom) {
         String sql = "SELECT COUNT(*) FROM produit WHERE LOWER(TRIM(nom)) = LOWER(TRIM(?))";
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
@@ -123,7 +122,7 @@ public class ProduitService implements Iservice<Produit> {
         return false;
     }
 
-    // ─── CRUD selon Iservice ────────────────────────────────────────────────
+    // ─── CRUD selon Iservice
     @Override
     public void add(Produit produit) {
         valider(produit);
@@ -245,7 +244,6 @@ public class ProduitService implements Iservice<Produit> {
         return null;
     }
 
-    // ─── Méthodes legacy conservées pour ne pas casser le reste du projet ───
     public void add2(Produit produit) {
         add(produit);
     }
@@ -254,7 +252,7 @@ public class ProduitService implements Iservice<Produit> {
         return getAll();
     }
 
-    // ─── Requêtes métier ─────────────────────────────────────────────────────
+
     private boolean isUsedInCommande(int produitId) {
         String sql = "SELECT COUNT(*) FROM ligne_commande WHERE produit_id = ?";
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {

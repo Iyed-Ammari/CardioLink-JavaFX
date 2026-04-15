@@ -36,19 +36,13 @@ public class Produit {
         setCategorie(categorie);
     }
 
-    // ── id ──────────────────────────────────────────────────────────────────
+
     public Integer getId()           { return id; }
     public void    setId(Integer id) { this.id = id; }
 
-    // ── nom ─────────────────────────────────────────────────────────────────
     public String getNom() { return nom; }
 
-    /**
-     * ✅ Accepte les vrais noms médicaux : "Stéthoscope Pro MAX", "ECG 12 dérivations",
-     *    "SpO2 Pro", "Oxymètre de Pouls"
-     *    Commence par lettre ou chiffre, peut contenir lettres, chiffres,
-     *    espaces, apostrophes, tirets, parenthèses, +, °, %, /
-     */
+
     public void setNom(String nom) {
         if (nom == null || nom.trim().isEmpty())
             throw new IllegalArgumentException("Le nom du produit est obligatoire.");
@@ -68,7 +62,7 @@ public class Produit {
         this.nom = v;
     }
 
-    // ── description ─────────────────────────────────────────────────────────
+
     public String getDescription() { return description; }
 
     public void setDescription(String description) {
@@ -76,7 +70,6 @@ public class Produit {
                 ? null : description.trim();
     }
 
-    // ── prix ────────────────────────────────────────────────────────────────
     public BigDecimal getPrix() { return prix; }
 
     public void setPrix(BigDecimal prix) {
@@ -87,7 +80,7 @@ public class Produit {
         this.prix = prix.setScale(2, RoundingMode.HALF_UP);
     }
 
-    // ── stock ────────────────────────────────────────────────────────────────
+
     public Integer getStock() { return stock; }
 
     public void setStock(Integer stock) {
@@ -98,20 +91,9 @@ public class Produit {
         this.stock = stock;
     }
 
-    // ── imageUrl ─────────────────────────────────────────────────────────────
     public String getImageUrl() { return imageUrl; }
 
-    /**
-     * ✅ CORRECTION : regex couvre tous les cas Windows / Linux / HTTP :
-     *
-     *  - https://... ou http://...
-     *  - file:///C:/Users/...  (Windows — généré par File.toURI().toString())
-     *  - file:///home/user/... (Linux)
-     *  - file:/C:/... ou file://C:/... (variantes Windows moins communes)
-     *  - /uploads/produits/...
-     *
-     *  Note : on utilise (?i) pour ignorer la casse de "file" et "http".
-     */
+
     public void setImageUrl(String imageUrl) {
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
             this.imageUrl = null;
@@ -120,7 +102,6 @@ public class Produit {
 
         String v = imageUrl.trim();
 
-        // ✅ Regex corrigée : file:/ suivi de 0 à N slashes puis n'importe quoi
         if (!v.matches("(?i)^(https?://.+|file:/{1,3}.+|/uploads/.+)$")) {
             throw new IllegalArgumentException(
                     "L'image doit être une URL http(s), un fichier local (file:/...) ou un chemin /uploads/..."
@@ -130,7 +111,6 @@ public class Produit {
         this.imageUrl = v;
     }
 
-    // ── catégorie ────────────────────────────────────────────────────────────
     public String getCategorie() { return categorie; }
 
     public void setCategorie(String categorie) {
@@ -141,7 +121,7 @@ public class Produit {
         this.categorie = categorie.trim().toUpperCase();
     }
 
-    // ── utilitaires ──────────────────────────────────────────────────────────
+
     public String getStockStatus() {
         return (this.stock != null && this.stock == 0) ? "RUPTURE" : "DISPONIBLE";
     }
