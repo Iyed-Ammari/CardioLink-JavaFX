@@ -10,10 +10,18 @@ public class MainFX extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Cette ligne dit à Java de lancer le MENU en premier
+        // Lance l'accueil CardioLink
         Parent root = FXMLLoader.load(getClass().getResource("/MenuRDV.fxml"));
-        primaryStage.setTitle("CardioLink - Accueil");
-        primaryStage.setScene(new Scene(root));
+
+        primaryStage.setTitle("CardioLink - Système de Gestion Cardiologique");
+
+        Scene scene = new Scene(root);
+        primaryStage.setScene(scene);
+
+        // Empêche la fenêtre d'être trop petite au démarrage
+        primaryStage.setMinWidth(900);
+        primaryStage.setMinHeight(650);
+
         primaryStage.show();
     }
 

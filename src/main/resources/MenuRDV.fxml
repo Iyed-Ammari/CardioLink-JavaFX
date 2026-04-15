@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #1a1c2e;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.MenuRDV">
+<AnchorPane prefHeight="650.0" prefWidth="1100.0" style="-fx-background-color: #1a1c2e;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.MenuRDV">
     <children>
         <VBox alignment="CENTER" spacing="50.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
@@ -26,13 +26,13 @@
                     </children>
                 </VBox>
 
-                <HBox alignment="CENTER" spacing="40.0">
+                <HBox alignment="CENTER" spacing="30.0">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="250.0" prefWidth="300.0" style="-fx-background-color: #25273c; -fx-background-radius: 20; -fx-border-color: #826cfd; -fx-border-radius: 20; -fx-border-width: 2; -fx-cursor: hand;" textFill="WHITE">
+                        <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="280.0" prefWidth="320.0" style="-fx-background-color: #25273c; -fx-background-radius: 20; -fx-border-color: #826cfd; -fx-border-radius: 20; -fx-border-width: 2; -fx-cursor: hand;" textFill="WHITE">
                             <graphic>
                                 <VBox alignment="CENTER" spacing="15.0">
                                     <children>
-                                        <Label text="➕" style="-fx-font-size: 50;" />
+                                        <Label style="-fx-font-size: 50;" text="➕" />
                                         <Label text="Prendre un RDV" textFill="WHITE">
                                             <font>
                                                 <Font name="System Bold" size="20.0" />
@@ -44,11 +44,27 @@
                             </graphic>
                         </Button>
 
-                        <Button mnemonicParsing="false" onAction="#goToList" prefHeight="250.0" prefWidth="300.0" style="-fx-background-color: #25273c; -fx-background-radius: 20; -fx-border-color: #ff5f6d; -fx-border-radius: 20; -fx-border-width: 2; -fx-cursor: hand;" textFill="WHITE">
+                        <Button mnemonicParsing="false" onAction="#goToOrdonnances" prefHeight="280.0" prefWidth="320.0" style="-fx-background-color: #25273c; -fx-background-radius: 20; -fx-border-color: #826cfd; -fx-border-radius: 20; -fx-border-width: 2; -fx-cursor: hand;" textFill="WHITE">
                             <graphic>
                                 <VBox alignment="CENTER" spacing="15.0">
                                     <children>
-                                        <Label text="📅" style="-fx-font-size: 50;" />
+                                        <Label style="-fx-font-size: 50;" text="📄" />
+                                        <Label text="Ordonnances" textFill="WHITE">
+                                            <font>
+                                                <Font name="System Bold" size="20.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="Gérer les prescriptions médicales" textFill="#b0b0b0" />
+                                    </children>
+                                </VBox>
+                            </graphic>
+                        </Button>
+
+                        <Button mnemonicParsing="false" onAction="#goToList" prefHeight="280.0" prefWidth="320.0" style="-fx-background-color: #25273c; -fx-background-radius: 20; -fx-border-color: #ff5f6d; -fx-border-radius: 20; -fx-border-width: 2; -fx-cursor: hand;" textFill="WHITE">
+                            <graphic>
+                                <VBox alignment="CENTER" spacing="15.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 50;" text="📅" />
                                         <Label text="Mes Rendez-vous" textFill="WHITE">
                                             <font>
                                                 <Font name="System Bold" size="20.0" />
