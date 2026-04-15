@@ -41,7 +41,7 @@ public class LoginController {
                 if ("ROLE_ADMIN".equals(role)) {
                     // ✅ Admin → directement dashboard_admin
                     FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource("/com/cardiolink/fxml/dashboard_admin.fxml"));
+                            getClass().getResource("/dashboard_admin.fxml"));
                     Scene scene = new Scene(loader.load(), 1100, 650);
                     AdminDashboardController ctrl = loader.getController();
                     stage.setScene(scene);
@@ -52,7 +52,7 @@ public class LoginController {
                 } else {
                     // ✅ Patient et Médecin → Welcome page
                     FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource("/com/cardiolink/fxml/dashboard_patient.fxml"));
+                            getClass().getResource("/dashboard_patient.fxml"));
                     Scene scene = new Scene(loader.load(), 1100, 650);
                     PatientDashboardController ctrl = loader.getController();
                     stage.setScene(scene);
@@ -75,7 +75,7 @@ public class LoginController {
     private void goToRegister(MouseEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/cardiolink/fxml/register.fxml"));
+                    getClass().getResource("/register.fxml"));
             Scene scene = new Scene(loader.load(), 900, 650);
             Stage stage = (Stage) emailField.getScene().getWindow();
             stage.setTitle("CardioLink - Register");

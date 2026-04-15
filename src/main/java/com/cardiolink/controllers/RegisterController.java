@@ -133,7 +133,7 @@ public class RegisterController {
     private void goToLogin(MouseEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/cardiolink/fxml/login.fxml")
+                    getClass().getResource("/login.fxml")
             );
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) emailField.getScene().getWindow();

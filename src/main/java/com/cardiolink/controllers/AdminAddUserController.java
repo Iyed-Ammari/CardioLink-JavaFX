@@ -150,7 +150,7 @@ public class AdminAddUserController {
     private void goBack() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/cardiolink/fxml/dashboard_admin.fxml"));
+                    getClass().getResource("/dashboard_admin.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             AdminDashboardController ctrl = loader.getController();
             Stage stage = (Stage) nomField.getScene().getWindow();
