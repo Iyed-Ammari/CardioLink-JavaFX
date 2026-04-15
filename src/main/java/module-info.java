@@ -22,3 +22,14 @@ module com.cardiolink {
 
     exports com.cardiolink;
 }
+    requires com.almasb.fxgl.all;
+    requires java.sql;
+    requires org.java_websocket;
+    requires org.json;
+
+    opens com.cardiolink.Test to javafx.fxml;
+    exports com.cardiolink.Test;
+    opens com.cardiolink.Controllers to javafx.fxml;
+    exports com.cardiolink.Controllers;
+    opens com.cardiolink.Models to javafx.base;
+}

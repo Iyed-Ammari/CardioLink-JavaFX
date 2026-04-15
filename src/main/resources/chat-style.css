@@ -1,0 +1,77 @@
+/* chat-style.css */
+.root {
+    -fx-background-color: #F8F9FA; /* Fond gris clair comme sur le web */
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* Header et zones de texte */
+.chat-header {
+    -fx-background-color: #FFFFFF;
+    -fx-padding: 15px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+.chat-input-container {
+    -fx-background-color: #FFFFFF;
+    -fx-padding: 15px;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1 0 0 0; /* Bordure uniquement en haut */
+}
+
+/* Design de la ListView */
+.chat-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-control-inner-background: transparent;
+}
+
+/* Enlever la sélection bleue dégueulasse de JavaFX par défaut */
+.chat-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 5px 15px;
+}
+.chat-list .list-cell:filled:selected:focused, .chat-list .list-cell:filled:selected {
+    -fx-background-color: transparent;
+}
+
+/* Bulles de messages */
+.message-bubble {
+    -fx-padding: 10px 15px;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.message-me {
+    -fx-background-color: #2F60F5; /* Ton primary-blue */
+    -fx-text-fill: white;
+    -fx-background-radius: 15px 15px 0px 15px; /* Coin bas-droite pointu */
+}
+
+.message-other {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1A1A1A;
+    -fx-background-radius: 15px 15px 15px 0px; /* Coin bas-gauche pointu */
+}
+
+/* Champ de saisie et bouton */
+.chat-input {
+    -fx-background-color: #F8F9FA;
+    -fx-background-radius: 20px;
+    -fx-border-color: #D0D0D0;
+    -fx-border-radius: 20px;
+    -fx-padding: 8px 15px;
+}
+.chat-input:focused {
+    -fx-border-color: #2F60F5;
+}
+
+.send-button {
+    -fx-background-color: #2F60F5;
+    -fx-text-fill: white;
+    -fx-background-radius: 20px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.send-button:hover {
+    -fx-background-color: #1E4AE9;
+}
