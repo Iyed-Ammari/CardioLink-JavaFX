@@ -9,17 +9,16 @@ module com.cardiolink {
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
-    // requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires java.sql;
 
-    opens com.cardiolink.Models to javafx.fxml;
-    opens com.cardiolink.Services to javafx.fxml;
-    opens com.cardiolink.utils to javafx.fxml;
-    opens com.cardiolink.Test to javafx.fxml;
+    // OPEN seulement pour JavaFX (FXML + TableView)
+    opens com.cardiolink to javafx.fxml;
+    opens com.cardiolink.controllers to javafx.fxml;
+    opens com.cardiolink.Models to javafx.base;
 
+    // EXPORTS seulement pour API principale
+    exports com.cardiolink;
     exports com.cardiolink.Models;
     exports com.cardiolink.Services;
-    exports com.cardiolink.utils;
-    exports com.cardiolink.Test;
 }

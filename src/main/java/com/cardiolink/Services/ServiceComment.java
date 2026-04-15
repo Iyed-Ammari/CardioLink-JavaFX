@@ -4,6 +4,7 @@ import com.cardiolink.Models.Comment;
 import com.cardiolink.utils.MyDatabase;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +16,10 @@ public class ServiceComment implements Iservice<Comment> {
         cnx = MyDatabase.getInstance().getConnection();
     }
 
+    // ================= ADD =================
     @Override
     public void add(Comment comment) throws SQLDataException {
+
         try {
 
             String query = "INSERT INTO comment (content, created_at, post_id, user_id) VALUES (?, ?, ?, ?)";
@@ -24,61 +27,99 @@ public class ServiceComment implements Iservice<Comment> {
             PreparedStatement ps = cnx.prepareStatement(query);
 
             ps.setString(1, comment.getContent());
-            ps.setTimestamp(2, Timestamp.valueOf(comment.getCreated_at()));
+            ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(3, comment.getPost_id());
             ps.setInt(4, comment.getUser_id());
 
             ps.executeUpdate();
 
-            System.out.println("Comment ajouté !");
-
         } catch (SQLException e) {
             throw new SQLDataException(e.getMessage());
         }
     }
 
+    // ================= UPDATE (ONLY CONTENT) =================
     @Override
-    public void update(Comment comment) throws SQLDataException {
+    public void update(Comment c) throws SQLDataException {
+
         try {
 
-            String query = "UPDATE comment SET content=?, created_at=?, post_id=?, user_id=? WHERE id=?";
+            Comment existing = getById(c.getId());
 
-            PreparedStatement ps = cnx.prepareStatement(query);
+            if (existing != null && existing.getUser_id() == c.getUser_id()) {
 
-            ps.setString(1, comment.getContent());
-            ps.setTimestamp(2, Timestamp.valueOf(comment.getCreated_at()));
-            ps.setInt(3, comment.getPost_id());
-            ps.setInt(4, comment.getUser_id());
-            ps.setInt(5, comment.getId());
+                String query = "UPDATE comment SET content=? WHERE id=?";
 
-            ps.executeUpdate();
+                PreparedStatement ps = cnx.prepareStatement(query);
 
-            System.out.println("Comment modifié !");
+                ps.setString(1, c.getContent());
+                ps.setInt(2, c.getId());
+
+                ps.executeUpdate();
+            }
 
         } catch (SQLException e) {
             throw new SQLDataException(e.getMessage());
         }
     }
 
+    // ================= DELETE (SECURE OWNER ONLY) =================
     @Override
-    public void delete(Comment comment) throws SQLDataException {
+    public void delete(Comment c) throws SQLDataException {
+
         try {
 
-            String query = "DELETE FROM comment WHERE id=?";
+            Comment existing = getById(c.getId());
 
-            PreparedStatement ps = cnx.prepareStatement(query);
+            if (existing != null && existing.getUser_id() == c.getUser_id()) {
 
-            ps.setInt(1, comment.getId());
+                String query = "DELETE FROM comment WHERE id=?";
 
-            ps.executeUpdate();
+                PreparedStatement ps = cnx.prepareStatement(query);
+                ps.setInt(1, c.getId());
 
-            System.out.println("Comment supprimé !");
+                ps.executeUpdate();
+            }
 
         } catch (SQLException e) {
             throw new SQLDataException(e.getMessage());
         }
     }
 
+    // ================= GET BY ID =================
+    @Override
+    public Comment getById(int id) throws SQLDataException {
+
+        Comment c = null;
+
+        try {
+
+            String query = "SELECT * FROM comment WHERE id=?";
+
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                c = new Comment();
+
+                c.setId(rs.getInt("id"));
+                c.setContent(rs.getString("content"));
+                c.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
+                c.setPost_id(rs.getInt("post_id"));
+                c.setUser_id(rs.getInt("user_id"));
+            }
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+
+        return c;
+    }
+
+    // ================= GET ALL =================
     @Override
     public List<Comment> getAll() throws SQLDataException {
 
@@ -111,37 +152,41 @@ public class ServiceComment implements Iservice<Comment> {
         return comments;
     }
 
-    @Override
-    public Comment getById(int id) throws SQLDataException {
+    // ================= GET BY POST =================
+    public List<Comment> getByPostId(int postId) throws SQLDataException {
 
-        Comment c = null;
+        List<Comment> comments = new ArrayList<>();
 
         try {
 
-            String query = "SELECT * FROM comment WHERE id=?";
+            String query = "SELECT * FROM comment WHERE post_id=? ORDER BY created_at DESC";
 
             PreparedStatement ps = cnx.prepareStatement(query);
-            ps.setInt(1, id);
+            ps.setInt(1, postId);
 
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
+            while (rs.next()) {
 
-                c = new Comment();
+                Comment c = new Comment();
 
                 c.setId(rs.getInt("id"));
                 c.setContent(rs.getString("content"));
                 c.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
                 c.setPost_id(rs.getInt("post_id"));
                 c.setUser_id(rs.getInt("user_id"));
+
+                comments.add(c);
             }
 
         } catch (SQLException e) {
             throw new SQLDataException(e.getMessage());
         }
 
-        return c;
+        return comments;
     }
+
+    // ================= SORT =================
     public List<Comment> sortComments(String criteria) throws SQLDataException {
 
         List<Comment> comments = new ArrayList<>();
@@ -150,11 +195,9 @@ public class ServiceComment implements Iservice<Comment> {
 
         if (criteria.equalsIgnoreCase("date")) {
             query += " ORDER BY created_at DESC";
-        }
-        else if (criteria.equalsIgnoreCase("content")) {
+        } else if (criteria.equalsIgnoreCase("content")) {
             query += " ORDER BY content ASC";
-        }
-        else {
+        } else {
             query += " ORDER BY id DESC";
         }
 
@@ -182,6 +225,4 @@ public class ServiceComment implements Iservice<Comment> {
 
         return comments;
     }
-
-
 }
