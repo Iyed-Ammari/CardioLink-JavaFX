@@ -1,76 +1,76 @@
 package com.cardiolink.controllers;
 
-import com.cardiolink.Models.Post;
 import com.cardiolink.Models.Comment;
-import com.cardiolink.Services.ServicePost;
+import com.cardiolink.Models.Post;
 import com.cardiolink.Services.ServiceComment;
+import com.cardiolink.Services.ServicePost;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
+
 import java.util.List;
 
 public class ForumController {
 
-    // ================= VIEW =================
     @FXML private VBox postContainer;
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterBox;
-
     @FXML private TextField titleField;
-    @FXML private TextField contentField;
-    @FXML
-    private VBox statsBox;
-    // ================= SERVICE =================
+    @FXML private TextArea contentField;
+    @FXML private VBox statsBox;
+
+    // Éléments de la Modale de modification
+    @FXML private VBox editBox;
+    @FXML private TextField editTitleField;
+    @FXML private TextArea editContentField;
+    @FXML private VBox editCommentBox;
+    @FXML private TextArea editCommentField;
+
+    private Comment selectedComment; // Pour stocker le commentaire en cours de modif
+    private Post selectedPost;
     private final ServicePost servicePost = new ServicePost();
     private final ServiceComment serviceComment = new ServiceComment();
+    private final int CURRENT_USER_ID = 2; // Simulé pour CardioLink
 
-    private final int CURRENT_USER_ID = 2;
-
-    // ================= INIT =================
     @FXML
     public void initialize() {
-
-        filterBox.getItems().addAll(
-                "All",
-                "Title",
-                "Date",
-                "24h",
-                "7d",
-                "30d"
-        );
-
+        // Configuration du filtrage
+        filterBox.getItems().clear();
+        filterBox.getItems().addAll("Tout", "Titre", "Date", "24h", "7j");
+        filterBox.setValue("Tout");
         filterBox.setOnAction(e -> filterPosts());
 
-        loadPosts();
-        loadStats();
-
+        // Recherche dynamique en temps réel
         searchField.textProperty().addListener((obs, oldV, newV) -> {
             try {
-                if (newV == null || newV.isEmpty()) {
+                if (newV == null || newV.trim().isEmpty()) {
                     loadPosts();
                 } else {
                     render(servicePost.searchByTitle(newV));
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
         });
+
+        loadPosts();
+        loadStats();
     }
 
-    // ================= LOAD POSTS =================
+    // ================= GESTION DES PUBLICATIONS (POSTS) =================
+
     @FXML
     public void loadPosts() {
         try {
             render(servicePost.getAll());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // ================= ADD POST =================
     @FXML
     public void addPost() {
+        if (contentField.getText().trim().isEmpty()) return;
         try {
             Post p = new Post();
             p.setTitle(titleField.getText());
@@ -79,254 +79,239 @@ public class ForumController {
             p.setCreated_at(java.time.LocalDateTime.now());
 
             servicePost.add(p);
-
             titleField.clear();
             contentField.clear();
-
             loadPosts();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            loadStats();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // ================= FILTER =================
-    @FXML
-    public void filterPosts() {
-        try {
-
-            String choice = filterBox.getValue();
-
-            if (choice == null || choice.equals("All")) {
-                loadPosts();
-
-            } else if (choice.equals("Title")) {
-                render(servicePost.sortPosts("title"));
-
-            } else if (choice.equals("Date")) {
-                render(servicePost.sortPosts("date"));
-
-            } else {
-                render(servicePost.filterByPeriod(choice));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // ================= RENDER =================
     private void render(List<Post> posts) {
-
         postContainer.getChildren().clear();
-
         for (Post p : posts) {
-
-            VBox card = new VBox();
-            card.setSpacing(8);
-            card.setStyle("-fx-background-color:white; -fx-padding:15; -fx-background-radius:15;");
-
-            // ================= POST INFO =================
-            Label title = new Label(p.getTitle());
-            Label content = new Label(p.getContent());
-            Label date = new Label(String.valueOf(p.getCreated_at()));
-            Label user = new Label("User " + p.getUser_id());
-
-            card.getChildren().addAll(title, content, date, user);
-
-            // ================= LOAD COMMENTS =================
-            try {
-                List<Comment> comments = serviceComment.getByPostId(p.getId());
-
-                for (Comment c : comments) {
-
-                    VBox commentBox = new VBox();
-                    commentBox.setSpacing(5);
-                    commentBox.setStyle("-fx-background-color:#f5f6fa; -fx-padding:10; -fx-background-radius:10;");
-
-                    Label cUser = new Label("User " + c.getUser_id());
-                    Label cContent = new Label(c.getContent());
-
-                    commentBox.getChildren().addAll(cUser, cContent);
-
-                    // ================= ACTIONS (OWNER ONLY) =================
-                    if (c.getUser_id() == CURRENT_USER_ID) {
-
-                        HBox actions = new HBox();
-                        actions.setSpacing(10);
-
-                        Button editBtn = new Button("Modifier");
-                        Button delBtn = new Button("Delete");
-
-                        // ===== DELETE =====
-                        delBtn.setOnAction(e -> {
-                            try {
-                                serviceComment.delete(c);
-                                loadPosts();
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        });
-
-                        // ===== EDIT =====
-                        editBtn.setOnAction(e -> {
-                            TextInputDialog dialog = new TextInputDialog(c.getContent());
-                            dialog.setHeaderText("Modifier commentaire");
-
-                            dialog.showAndWait().ifPresent(newText -> {
-                                try {
-
-                                    if (newText == null || newText.trim().isEmpty()) return;
-
-                                    c.setContent(newText);
-                                    serviceComment.update(c);
-
-                                    loadPosts(); // refresh UI
-
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                }
-                            });
-                        });
-
-                        actions.getChildren().addAll(editBtn, delBtn);
-                        commentBox.getChildren().add(actions);
-                    }
-
-                    card.getChildren().add(commentBox);
-                }
-
-// ================= ADD COMMENT =================
-                TextField commentInput = new TextField();
-                commentInput.setPromptText("Write a comment...");
-
-                Button send = new Button("Send");
-
-                send.setOnAction(e -> {
-                    try {
-
-                        String text = commentInput.getText();
-
-                        if (text == null || text.trim().isEmpty()) {
-                            return;
-                        }
-
-                        Comment c = new Comment();
-                        c.setContent(text);
-                        c.setPost_id(p.getId());
-                        c.setUser_id(CURRENT_USER_ID);
-                        c.setCreated_at(java.time.LocalDateTime.now());
-
-                        serviceComment.add(c);
-
-                        loadPosts();
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                });
-
-                card.getChildren().addAll(commentInput, send);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // ================= POST ACTIONS =================
-            if (p.getUser_id() == CURRENT_USER_ID) {
-
-                Button editBtn = new Button("Modifier");
-                Button deleteBtn = new Button("Supprimer");
-
-                editBtn.setOnAction(e -> editPost(p));
-                deleteBtn.setOnAction(e -> deletePost(p));
-
-                card.getChildren().addAll(editBtn, deleteBtn);
-            }
-
-            postContainer.getChildren().add(card);
+            postContainer.getChildren().add(createPostCard(p));
         }
     }
 
-    // ================= DELETE POST =================
-    private void deletePost(Post p) {
+    private VBox createPostCard(Post p) {
+
+        VBox card = new VBox(15);
+
+        card.setMaxWidth(540);
+
+        card.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 18; " +
+
+                "-fx-border-color: #e5e7eb; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 15, 0, 0, 5);");
+
+        // --- EN-TÊTE ---
+
+        HBox header = new HBox(12);
+
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        StackPane avatar = new StackPane(new Circle(20, Color.web("#2F60F5")), new Text("U") {{ setFill(Color.WHITE); }});
+
+        VBox infos = new VBox(new Label("Utilisateur " + p.getUser_id()) {{ setStyle("-fx-font-weight: bold;"); }},
+
+                new Label("le " + p.getCreated_at()) {{ setStyle("-fx-font-size: 10; -fx-text-fill: gray;"); }});
+
+        header.getChildren().addAll(avatar, infos);
+
+
+
+        // --- CORPS ---
+
+        VBox body = new VBox(8);
+
+        if (p.getTitle() != null && !p.getTitle().isEmpty()) {
+
+            body.getChildren().add(new Label(p.getTitle()) {{ setStyle("-fx-font-weight: bold; -fx-font-size: 16;"); }});
+
+        }
+
+        body.getChildren().add(new Label(p.getContent()) {{ setWrapText(true); }});
+
+        // --- ZONE COMMENTAIRES (Style Facebook) ---
+        VBox commentArea = new VBox(10);
+        commentArea.setStyle("-fx-background-color: #f8fafc; -fx-padding: 12; -fx-background-radius: 12;");
+
+        VBox commentsList = new VBox(8);
+        try {
+            List<Comment> comments = serviceComment.getByPostId(p.getId());
+            for (Comment c : comments) {
+                commentsList.getChildren().add(createCommentItem(c));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+
+        // Barre d'ajout de commentaire
+        HBox inputBar = new HBox(8);
+        TextField commInput = new TextField();
+        commInput.setPromptText("Écrire un commentaire...");
+        commInput.setStyle("-fx-background-radius: 15; -fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-radius: 15;");
+        HBox.setHgrow(commInput, Priority.ALWAYS);
+
+        Button sendComm = new Button("➤");
+        sendComm.setStyle("-fx-background-color: #2F60F5; -fx-text-fill: white; -fx-background-radius: 50; -fx-cursor: hand;");
+        sendComm.setOnAction(e -> handleAddComment(p.getId(), commInput.getText()));
+
+        inputBar.getChildren().addAll(commInput, sendComm);
+        commentArea.getChildren().addAll(commentsList, inputBar);
+
+        // --- ACTIONS DU POST (Propriétaire uniquement) ---
+        HBox actions = new HBox(10);
+        actions.setAlignment(Pos.CENTER_RIGHT);
+        if (p.getUser_id() == CURRENT_USER_ID) {
+            Button btnEdit = new Button("Modifier") {{ setOnAction(e -> openEditModal(p)); setStyle("-fx-background-color: #f3f4f6; -fx-cursor: hand;"); }};
+            Button btnDel = new Button("Supprimer") {{ setOnAction(e -> handleDeletePost(p)); setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-cursor: hand;"); }};
+            actions.getChildren().addAll(btnEdit, btnDel);
+        }
+
+        card.getChildren().addAll(header, body, commentArea, actions);
+        return card;
+    }
+
+    // ================= GESTION DES COMMENTAIRES INDIVIDUELS =================
+
+    private HBox createCommentItem(Comment c) {
+        HBox row = new HBox(5);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        VBox bubble = new VBox(2);
+        bubble.setStyle("-fx-background-color: #e4e6eb; -fx-padding: 8 12; -fx-background-radius: 15;");
+        bubble.getChildren().addAll(
+                new Label("User " + c.getUser_id()) {{ setStyle("-fx-font-weight: bold; -fx-font-size: 11;"); }},
+                new Label(c.getContent()) {{ setWrapText(true); setStyle("-fx-font-size: 13;"); }}
+        );
+
+        row.getChildren().add(bubble);
+
+        // Menu 3 points pour modif/suppr (Si propriétaire du commentaire)
+        if (c.getUser_id() == CURRENT_USER_ID) {
+            MenuButton options = new MenuButton("⋮");
+            options.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: #65676b;");
+
+            MenuItem editItem = new MenuItem("Modifier");
+            MenuItem deleteItem = new MenuItem("Supprimer");
+
+            editItem.setOnAction(e -> handleEditComment(c));
+            deleteItem.setOnAction(e -> handleDeleteComment(c));
+
+            options.getItems().addAll(editItem, deleteItem);
+            row.getChildren().add(options);
+        }
+        return row;
+    }
+
+    // ================= LOGIQUE MODALE & ACTIONS SERVICES =================
+
+    private void openEditModal(Post p) {
+        this.selectedPost = p;
+        editTitleField.setText(p.getTitle());
+        editContentField.setText(p.getContent());
+        editBox.setVisible(true);
+        editBox.setManaged(true);
+        postContainer.setOpacity(0.3);
+    }
+
+    @FXML
+    public void updatePost() {
+        if (selectedPost != null) {
+            try {
+                selectedPost.setTitle(editTitleField.getText());
+                selectedPost.setContent(editContentField.getText());
+                servicePost.update(selectedPost);
+                cancelEdit();
+                loadPosts();
+            } catch (Exception e) { e.printStackTrace(); }
+        }
+    }
+
+    @FXML
+    public void cancelEdit() {
+        editBox.setVisible(false);
+        editBox.setManaged(false);
+        postContainer.setOpacity(1.0);
+        selectedPost = null;
+    }
+
+    private void handleAddComment(int postId, String text) {
+        if (text.trim().isEmpty()) return;
+        try {
+            Comment c = new Comment();
+            c.setContent(text);
+            c.setPost_id(postId);
+            c.setUser_id(CURRENT_USER_ID);
+            serviceComment.add(c);
+            loadPosts();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    private void handleEditComment(Comment c) {
+        this.selectedComment = c;
+        editCommentField.setText(c.getContent());
+
+        editCommentBox.setVisible(true);
+        editCommentBox.setManaged(true);
+        postContainer.setOpacity(0.3); // Effet visuel de focus
+    }
+
+    private void handleDeleteComment(Comment c) {
+        try {
+            serviceComment.delete(c);
+            loadPosts();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    private void handleDeletePost(Post p) {
         try {
             servicePost.delete(p);
             loadPosts();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            loadStats();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // ================= EDIT POST =================
-    private void editPost(Post p) {
+    @FXML
+    public void filterPosts() {
         try {
-
-            TextInputDialog d1 = new TextInputDialog(p.getTitle());
-            d1.setHeaderText("Modifier titre");
-
-            d1.showAndWait().ifPresent(title -> {
-
-                TextInputDialog d2 = new TextInputDialog(p.getContent());
-                d2.setHeaderText("Modifier contenu");
-
-                d2.showAndWait().ifPresent(content -> {
-
-                    try {
-                        p.setTitle(title);
-                        p.setContent(content);
-
-                        servicePost.update(p);
-                        loadPosts();
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                });
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            String choice = filterBox.getValue();
+            if (choice == null || choice.equals("Tout")) loadPosts();
+            else if (choice.equals("Titre")) render(servicePost.sortPosts("title"));
+            else if (choice.equals("Date")) render(servicePost.sortPosts("date"));
+            else render(servicePost.filterByPeriod(choice));
+        } catch (Exception e) { e.printStackTrace(); }
     }
+
     private void loadStats() {
-
         try {
-            statsBox.getChildren().clear();
-
-            int myPosts = servicePost.countPostsByUser(CURRENT_USER_ID);
-            int recentPosts = servicePost.getRecentPosts().size();
-
-            VBox card1 = createStatCard("Mes Posts", String.valueOf(myPosts));
-            VBox card2 = createStatCard("Posts récents (7j)", String.valueOf(recentPosts));
-
-            statsBox.getChildren().addAll(card1, card2);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+            if (statsBox != null) {
+                statsBox.getChildren().clear();
+                int count = servicePost.countPostsByUser(CURRENT_USER_ID);
+                VBox statCard = new VBox(
+                        new Label("Mes Publications"),
+                        new Label(String.valueOf(count)) {{ setStyle("-fx-font-weight: bold; -fx-font-size: 24; -fx-text-fill: #2F60F5;"); }}
+                );
+                statCard.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-alignment: center; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);");
+                statsBox.getChildren().add(statCard);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
     }
-    private VBox createStatCard(String title, String value) {
+    @FXML
+    public void updateComment() {
+        if (selectedComment != null && !editCommentField.getText().trim().isEmpty()) {
+            try {
+                selectedComment.setContent(editCommentField.getText());
+                serviceComment.update(selectedComment);
 
-        VBox card = new VBox();
-        card.setSpacing(5);
-
-        card.setStyle(
-                "-fx-background-color: white;" +
-                        "-fx-padding: 15;" +
-                        "-fx-background-radius: 15;" +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);"
-        );
-
-        Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-size: 14; -fx-text-fill: #666;");
-
-        Label valueLabel = new Label(value);
-        valueLabel.setStyle("-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #2f6bff;");
-
-        card.getChildren().addAll(titleLabel, valueLabel);
-
-        return card;
+                cancelEditComment(); // Ferme la modale
+                loadPosts();         // Rafraîchit l'affichage
+            } catch (Exception e) { e.printStackTrace(); }
+        }
+    }
+    @FXML
+    public void cancelEditComment() {
+        editCommentBox.setVisible(false);
+        editCommentBox.setManaged(false);
+        postContainer.setOpacity(1.0);
+        selectedComment = null;
     }
 }

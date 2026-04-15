@@ -63,22 +63,28 @@ public class ServicePost implements Iservice<Post> {
     @Override
     public void delete(Post post) throws SQLDataException {
         try {
+            // 1. On supprime d'abord tous les commentaires liés à ce post
+            // pour éviter l'erreur de contrainte (Foreign Key constraint)
+            String queryComments = "DELETE FROM comment WHERE post_id=?";
+            PreparedStatement psComm = cnx.prepareStatement(queryComments);
+            psComm.setInt(1, post.getId());
+            psComm.executeUpdate();
 
-            String query = "DELETE FROM post WHERE id=?";
+            // 2. Maintenant on peut supprimer le post
+            String queryPost = "DELETE FROM post WHERE id=?";
+            PreparedStatement psPost = cnx.prepareStatement(queryPost);
+            psPost.setInt(1, post.getId());
 
-            PreparedStatement ps = cnx.prepareStatement(query);
+            int rowsAffected = psPost.executeUpdate();
 
-            ps.setInt(1, post.getId());
-
-            ps.executeUpdate();
-
-            System.out.println("Post supprimé !");
+            if (rowsAffected > 0) {
+                System.out.println("Post et ses commentaires associés supprimés !");
+            }
 
         } catch (SQLException e) {
-            throw new SQLDataException(e.getMessage());
+            throw new SQLDataException("Erreur lors de la suppression : " + e.getMessage());
         }
     }
-
     @Override
     public List<Post> getAll() throws SQLDataException {
 
