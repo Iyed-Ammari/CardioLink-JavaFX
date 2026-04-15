@@ -70,20 +70,51 @@ public class ForumController {
 
     @FXML
     public void addPost() {
-        if (contentField.getText().trim().isEmpty()) return;
+        // 1. Récupération des saisies
+        String titre = titleField.getText().trim();
+        String contenu = contentField.getText().trim();
+
+        // 2. VALIDATION (Le garde-barrière du MVC)
+        StringBuilder errors = new StringBuilder();
+        if (titre.isEmpty()) {
+            errors.append("- Le titre est obligatoire.\n");
+        }
+        if (contenu.isEmpty()) {
+            errors.append("- Le contenu ne peut pas être vide.\n");
+        }
+
+        // Si des erreurs sont présentes, on affiche l'alerte et on arrête
+        if (errors.length() > 0) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Validation");
+            alert.setHeaderText("Champs manquants");
+            alert.setContentText(errors.toString());
+            alert.showAndWait();
+            return; // On sort de la méthode, le service n'est pas appelé
+        }
+
+        // 3. LOGIQUE MÉTIER (Appel au Service)
         try {
             Post p = new Post();
-            p.setTitle(titleField.getText());
-            p.setContent(contentField.getText());
+            p.setTitle(titre);
+            p.setContent(contenu);
             p.setUser_id(CURRENT_USER_ID);
             p.setCreated_at(java.time.LocalDateTime.now());
 
             servicePost.add(p);
+
+            // 4. MISE À JOUR DE LA VUE
             titleField.clear();
             contentField.clear();
             loadPosts();
             loadStats();
-        } catch (Exception e) { e.printStackTrace(); }
+
+            System.out.println("Publication réussie !");
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Optionnel : Alerte en cas d'erreur SQL
+            new Alert(Alert.AlertType.ERROR, "Erreur lors de l'enregistrement en base de données.").show();
+        }
     }
 
     private void render(List<Post> posts) {
@@ -216,13 +247,43 @@ public class ForumController {
     @FXML
     public void updatePost() {
         if (selectedPost != null) {
+            // 1. Récupération des saisies dans la modale
+            String nouveauTitre = editTitleField.getText().trim();
+            String nouveauContenu = editContentField.getText().trim();
+
+            // 2. VALIDATION
+            StringBuilder errors = new StringBuilder();
+            if (nouveauTitre.isEmpty()) {
+                errors.append("- Le titre ne peut pas être vide.\n");
+            }
+            if (nouveauContenu.isEmpty()) {
+                errors.append("- Le contenu ne peut pas être vide.\n");
+            }
+
+            if (errors.length() > 0) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Modification");
+                alert.setHeaderText("Données invalides");
+                alert.setContentText(errors.toString());
+                alert.showAndWait();
+                return; // On arrête tout
+            }
+
+            // 3. MISE À JOUR (Service)
             try {
-                selectedPost.setTitle(editTitleField.getText());
-                selectedPost.setContent(editContentField.getText());
+                selectedPost.setTitle(nouveauTitre);
+                selectedPost.setContent(nouveauContenu);
+
                 servicePost.update(selectedPost);
-                cancelEdit();
-                loadPosts();
-            } catch (Exception e) { e.printStackTrace(); }
+
+                // 4. FERMETURE ET RAFRAÎCHISSEMENT
+                cancelEdit(); // Ferme la modale et remet l'opacité à 1.0
+                loadPosts();  // Recharge la liste pour voir les modifs
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Erreur lors de la mise à jour.").show();
+            }
         }
     }
 
@@ -235,17 +296,38 @@ public class ForumController {
     }
 
     private void handleAddComment(int postId, String text) {
-        if (text.trim().isEmpty()) return;
-        try {
-            Comment c = new Comment();
-            c.setContent(text);
-            c.setPost_id(postId);
-            c.setUser_id(CURRENT_USER_ID);
-            serviceComment.add(c);
-            loadPosts();
-        } catch (Exception e) { e.printStackTrace(); }
-    }
+        // 1. Validation de la saisie (Contrôle obligatoire)
+        if (text == null || text.trim().isEmpty()) {
+            // Affichage d'un message d'erreur clair
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Erreur de saisie");
+            alert.setHeaderText(null);
+            alert.setContentText("Le commentaire ne peut pas être vide !");
+            alert.showAndWait();
+            return; // On arrête l'exécution ici
+        }
 
+        try {
+            // 2. Préparation de l'objet (Modèle)
+            Comment c = new Comment();
+            c.setContent(text.trim()); // .trim() enlève les espaces inutiles au début/fin
+            c.setPost_id(postId);
+            c.setUser_id(CURRENT_USER_ID); // ID de l'utilisateur connecté
+
+            // 3. Appel du Service (Logique métier / SQL)
+            serviceComment.add(c);
+
+            // 4. Mise à jour de la Vue
+            loadPosts(); // On recharge les posts pour afficher le nouveau commentaire
+
+        } catch (Exception e) {
+            // Message d'erreur technique si le service échoue
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Erreur lors de l'ajout du commentaire en base de données.");
+            alert.show();
+        }
+    }
     private void handleEditComment(Comment c) {
         this.selectedComment = c;
         editCommentField.setText(c.getContent());
@@ -297,14 +379,26 @@ public class ForumController {
     }
     @FXML
     public void updateComment() {
-        if (selectedComment != null && !editCommentField.getText().trim().isEmpty()) {
+        if (selectedComment != null) {
+            String nouveauContenu = editCommentField.getText().trim();
+
+            // VALIDATION
+            if (nouveauContenu.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Le contenu du commentaire est obligatoire.");
+                alert.showAndWait();
+                return; // On empêche la fermeture et l'envoi au service
+            }
+
             try {
-                selectedComment.setContent(editCommentField.getText());
+                selectedComment.setContent(nouveauContenu);
                 serviceComment.update(selectedComment);
 
-                cancelEditComment(); // Ferme la modale
-                loadPosts();         // Rafraîchit l'affichage
-            } catch (Exception e) { e.printStackTrace(); }
+                // On ferme la modale de commentaire uniquement si c'est OK
+                cancelEditComment();
+                loadPosts();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     @FXML
@@ -313,5 +407,25 @@ public class ForumController {
         editCommentBox.setManaged(false);
         postContainer.setOpacity(1.0);
         selectedComment = null;
+    }
+    private boolean estSaisieValide(String titre, String contenu) {
+        String messageErreur = "";
+
+        if (titre == null || titre.trim().isEmpty()) {
+            messageErreur += "- Le titre est obligatoire.\n";
+        }
+        if (contenu == null || contenu.trim().isEmpty()) {
+            messageErreur += "- Le contenu ne peut pas être vide.\n";
+        }
+
+        if (!messageErreur.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur de saisie");
+            alert.setHeaderText("Champs invalides");
+            alert.setContentText(messageErreur);
+            alert.showAndWait();
+            return false;
+        }
+        return true;
     }
 }
