@@ -1,0 +1,25 @@
+.button-search {
+    -fx-background-color: linear-gradient(to right, #e94560, #a031a1);
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+}
+
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #2e2e4e;
+}
+
+.table-view .column-header {
+    -fx-background-color: #16213e;
+    -fx-text-fill: white;
+}
+
+.table-row-cell {
+    -fx-background-color: #1a1a2e;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.table-row-cell:filled:hover {
+    -fx-background-color: #252545;
+}

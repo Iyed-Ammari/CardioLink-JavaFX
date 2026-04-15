@@ -10,19 +10,29 @@ public class MainFX extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Lance l'accueil CardioLink
-        Parent root = FXMLLoader.load(getClass().getResource("/MenuRDV.fxml"));
+        try {
+            // Chemin vers ton nouveau fichier FXML pour le médecin
+            // Assure-toi que le fichier OrdonnanceMedecin.fxml est bien dans le dossier resources
+            Parent root = FXMLLoader.load(getClass().getResource("/OrdonnanceMedecin.fxml"));
 
-        primaryStage.setTitle("CardioLink - Système de Gestion Cardiologique");
+            primaryStage.setTitle("CardioLink - Espace Médecin (Gestion des Ordonnances)");
 
-        Scene scene = new Scene(root);
-        primaryStage.setScene(scene);
+            Scene scene = new Scene(root);
 
-        // Empêche la fenêtre d'être trop petite au démarrage
-        primaryStage.setMinWidth(900);
-        primaryStage.setMinHeight(650);
+            // Appliquer le CSS si nécessaire
+            // scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
-        primaryStage.show();
+            primaryStage.setScene(scene);
+
+            // Dimensions adaptées pour un tableau d'ordonnances
+            primaryStage.setMinWidth(1000);
+            primaryStage.setMinHeight(650);
+
+            primaryStage.show();
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement de l'interface Ordonnance : " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
