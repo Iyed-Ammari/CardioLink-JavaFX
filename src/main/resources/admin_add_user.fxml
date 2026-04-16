@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cardiolink.controllers.AdminAddUserController"
+            prefWidth="1100" prefHeight="650"
+            style="-fx-background-color: #f8f8ff;">
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox alignment="TOP_LEFT" spacing="16" style="-fx-padding: 40 200;">
+
+                <Label text="➕ Ajouter un utilisateur"
+                       style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
+
+                <!-- ✅ Correct -->
+                <Hyperlink text="← Retour" onAction="#goBack"
+                           style="-fx-text-fill: #7F77DD; -fx-font-size: 13px; -fx-padding: 0;"/>
+
+                <!-- Nom -->
+                <VBox spacing="6">
+                    <Label text="Nom *"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <TextField fx:id="nomField" promptText="Nom" maxWidth="400"
+                               style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                      -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- Prénom -->
+                <VBox spacing="6">
+                    <Label text="Prénom *"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <TextField fx:id="prenomField" promptText="Prénom" maxWidth="400"
+                               style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                      -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- Email -->
+                <VBox spacing="6">
+                    <Label text="Email *"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <TextField fx:id="emailField" promptText="email@exemple.com" maxWidth="400"
+                               style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                      -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- Téléphone -->
+                <VBox spacing="6">
+                    <Label text="Téléphone"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <TextField fx:id="telField" promptText="+216 XX XXX XXX" maxWidth="400"
+                               style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                      -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- Adresse -->
+                <VBox spacing="6">
+                    <Label text="Adresse"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <TextField fx:id="adresseField" promptText="Adresse" maxWidth="400"
+                               style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                      -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- Mot de passe -->
+                <VBox spacing="6">
+                    <Label text="Mot de passe *"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <PasswordField fx:id="passwordField" maxWidth="400"
+                                   style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                          -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- Rôle -->
+                <VBox spacing="6">
+                    <Label text="Rôle *"
+                           style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                    <ComboBox fx:id="roleCombo" maxWidth="400"
+                              style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                     -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- ===== SECTION DOSSIER (visible si ROLE_PATIENT) ===== -->
+                <VBox fx:id="dossierSection" spacing="16"
+                      style="-fx-background-color: #f0f0ff; -fx-padding: 20;
+                             -fx-border-color: #7F77DD; -fx-border-radius: 8;
+                             -fx-border-width: 1;" maxWidth="680">
+
+                    <Label text="📋 Dossier Médical (Patient)"
+                           style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #7F77DD;"/>
+
+                    <!-- Groupe Sanguin -->
+                    <VBox spacing="6">
+                        <Label text="Groupe Sanguin"
+                               style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                        <ComboBox fx:id="groupeSanguinCombo" maxWidth="400"
+                                  style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                         -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                    </VBox>
+
+                    <!-- Antécédents -->
+                    <VBox spacing="6">
+                        <Label text="Antécédents"
+                               style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                        <TextArea fx:id="antecedentsArea" maxWidth="600" prefRowCount="3"
+                                  style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                         -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                    </VBox>
+
+                    <!-- Allergies -->
+                    <VBox spacing="6">
+                        <Label text="Allergies"
+                               style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                        <TextArea fx:id="allergiesArea" maxWidth="600" prefRowCount="3"
+                                  style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                         -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                    </VBox>
+
+                    <!-- Poids + Taille -->
+                    <HBox spacing="24">
+                        <VBox spacing="6">
+                            <Label text="Poids (kg)"
+                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextField fx:id="poidsField" prefWidth="180"
+                                       style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                              -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                        </VBox>
+                        <VBox spacing="6">
+                            <Label text="Taille (cm)"
+                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextField fx:id="tailleField" prefWidth="180"
+                                       style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                              -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Tensions + Fréquence -->
+                    <HBox spacing="24">
+                        <VBox spacing="6">
+                            <Label text="Tension Systolique (mmHg)"
+                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextField fx:id="tenSysField" prefWidth="180"
+                                       style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                              -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                        </VBox>
+                        <VBox spacing="6">
+                            <Label text="Tension Diastolique (mmHg)"
+                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextField fx:id="tenDiaField" prefWidth="180"
+                                       style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                              -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                        </VBox>
+                        <VBox spacing="6">
+                            <Label text="Fréquence Cardiaque (bpm)"
+                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextField fx:id="freqField" prefWidth="180"
+                                       style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                                              -fx-border-radius: 8; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Messages -->
+                <Label fx:id="errorLabel"   text=""
+                       style="-fx-text-fill: #E24B4A; -fx-font-size: 13px;"/>
+                <Label fx:id="successLabel" text=""
+                       style="-fx-text-fill: #27ae60; -fx-font-size: 13px;"/>
+
+                <!-- Bouton Créer -->
+                <Button text="✅ Créer l'utilisateur" onAction="#handleCreate"
+                        style="-fx-background-color: linear-gradient(to right, #D4537E, #7F77DD);
+                               -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;
+                               -fx-padding: 13 40; -fx-background-radius: 25; -fx-cursor: hand;"/>
+
+                <VBox minHeight="30"/>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
