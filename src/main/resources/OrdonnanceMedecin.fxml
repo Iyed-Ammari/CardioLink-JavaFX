@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="900.0"
+            style="-fx-background-color: #1a1a2e;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cardiolink.Controllers.OrdonnanceMedecinController">
+
+    <children>
+
+        <Label layoutX="30.0" layoutY="25.0"
+               text="📅 Liste des Ordonnances"
+               textFill="WHITE">
+            <font>
+                <Font size="20.0"/>
+            </font>
+        </Label>
+
+        <TextField fx:id="searchField"
+                   layoutX="30.0" layoutY="80.0"
+                   prefWidth="840.0" prefHeight="40.0"
+                   promptText="Rechercher par patient ou référence..."
+                   style="-fx-background-color: #16213e; -fx-text-fill: white; -fx-border-color: #4e4e8e;" />
+
+        <Button text="Rechercher"
+                layoutX="30.0" layoutY="135.0"
+                prefWidth="150.0" prefHeight="35.0"
+                onAction="#onSearch"
+                style="-fx-background-color: linear-gradient(to right, #e94560, #a031a1);"
+                textFill="WHITE"/>
+
+        <TableView fx:id="tableOrdonnances" layoutX="30.0" layoutY="200.0" prefWidth="840.0" prefHeight="350.0">
+            <columns>
+                <TableColumn fx:id="colDate" text="Date et Heure" prefWidth="150"/>
+                <TableColumn fx:id="colPatient" text="Patient" prefWidth="150"/>
+                <TableColumn fx:id="colRef" text="Référence" prefWidth="120"/>
+                <TableColumn fx:id="colDiagnostic" text="Diagnostic" prefWidth="220"/>
+                <TableColumn fx:id="colActions" text="Actions" prefWidth="180"/>
+            </columns>
+        </TableView>
+
+    </children>
+</AnchorPane>

@@ -87,4 +87,18 @@ public class ServiceOrdonnance implements Iservice<Ordonnance> {
         // Logique similaire au getAll mais avec WHERE id = ?
         return null; // À compléter si besoin d'un unitaire
     }
+    // Dans ServiceOrdonnance.java
+    public boolean existeDeja(String reference) {
+        String query = "SELECT count(*) FROM ordonnance WHERE reference = ?";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setString(1, reference);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

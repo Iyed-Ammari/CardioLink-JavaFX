@@ -46,4 +46,5 @@ public class Rendezvous {
     public String toString() {
         return "Rendezvous{" + "id=" + id + ", dateHeure=" + dateHeure + ", type='" + type + '\'' + ", statut='" + statut + '\'' + '}';
     }
+
 }
