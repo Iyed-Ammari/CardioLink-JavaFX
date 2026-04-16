@@ -90,11 +90,22 @@ public class InterventionService implements Iservice<Intervention> {
 
     private Intervention mapResultSetToIntervention(ResultSet rs) throws SQLException {
         Intervention i = new Intervention();
-        i.setId(rs.getInt("id")); // CRUCIAL
+        i.setId(rs.getInt("id"));
         i.setType(rs.getString("type"));
         i.setDescription(rs.getString("description"));
         i.setStatut(rs.getString("statut"));
         i.setMedecinId(rs.getInt("medecin_id"));
+
+        Timestamp datePlanifiee = rs.getTimestamp("date_planifiee");
+        if (datePlanifiee != null) {
+            i.setDatePlanifiee(datePlanifiee.toLocalDateTime());
+        }
+
+        Timestamp dateCompletion = rs.getTimestamp("date_completion");
+        if (dateCompletion != null) {
+            i.setDateCompletion(dateCompletion.toLocalDateTime());
+        }
+
         return i;
     }
 }

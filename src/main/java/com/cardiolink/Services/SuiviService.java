@@ -86,11 +86,17 @@ public class SuiviService implements Iservice<Suivi> {
 
     private Suivi mapResultSetToSuivi(ResultSet rs) throws SQLException {
         Suivi s = new Suivi();
-        s.setId(rs.getInt("id")); // Crucial pour l'Update/Delete
+        s.setId(rs.getInt("id"));
         s.setTypeDonnee(rs.getString("type_donnee"));
         s.setValeur(rs.getFloat("valeur"));
         s.setUnite(rs.getString("unite"));
         s.setPatientId(rs.getInt("patient_id"));
+
+        Timestamp ts = rs.getTimestamp("date_saisie");
+        if (ts != null) {
+            s.setDateSaisie(ts.toLocalDateTime());
+        }
+
         return s;
     }
 }

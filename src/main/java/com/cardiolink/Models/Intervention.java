@@ -47,4 +47,11 @@ public class Intervention {
         this.statut = "Effectuée";
         this.dateCompletion = LocalDateTime.now();
     }
+    public void setDatePlanifiee(LocalDateTime datePlanifiee) {
+        this.datePlanifiee = datePlanifiee;
+    }
+
+    public void setDateCompletion(LocalDateTime dateCompletion) {
+        this.dateCompletion = dateCompletion;
+    }
 }

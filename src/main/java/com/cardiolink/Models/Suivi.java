@@ -70,4 +70,7 @@ public class Suivi {
         else if (isStable()) niveauUrgence = "Stable";
         else niveauUrgence = "Normal";
     }
+    public void setDateSaisie(LocalDateTime dateSaisie) {
+        this.dateSaisie = dateSaisie;
+    }
 }
