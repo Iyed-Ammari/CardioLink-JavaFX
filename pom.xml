@@ -161,7 +161,11 @@
         </dependency>
 
     </dependencies>
-
+    <dependency>
+        <groupId>eu.hansolo</groupId>
+        <artifactId>tilesfx</artifactId>
+        <version>11.49</version>
+    </dependency>
     <build>
         <plugins>
             <plugin>
