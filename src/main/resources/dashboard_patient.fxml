@@ -27,6 +27,9 @@
             <!-- Boutons patient uniquement -->
             <Button fx:id="btnSuivis" text="📊 Mes Suivis" onAction="#goSuivis"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
+            <Button fx:id="btnRDV" text="📄 Mes RDV" onAction="#goRDV"
+                    style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
+
             <Button fx:id="btnDossier" text="🗂 Mon Dossier Médical" onAction="#goDossier"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
             <!-- Commun -->

@@ -92,6 +92,19 @@ public class PatientDashboardController implements UserAwareController {
             ctrl.setCurrentUser(currentUser);
         } catch (IOException e) { e.printStackTrace(); }
     }
+    @FXML private void goRDV() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/MenuRDV.fxml"));
+            Scene scene = new Scene(loader.load(), 1100, 650);
+            Stage stage = (Stage) avatarLabel.getScene().getWindow();
+            stage.setTitle("CardioLink - Mon Dossier Médical");
+            stage.setScene(scene);
+            stage.show();
+            DossierMedicalPatientController ctrl = loader.getController();
+            ctrl.setCurrentUser(currentUser);
+        } catch (IOException e) { e.printStackTrace(); }
+    }
 
     @FXML private void goProfil() {
         try {
