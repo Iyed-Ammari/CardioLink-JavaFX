@@ -76,8 +76,17 @@ public class PatientDashboardController implements UserAwareController {
         } catch (IOException e) { e.printStackTrace(); }}
 
     @FXML private void goSuivis() {
-        navigateTo("/com/cardiolink/fxml/suivis_patient.fxml", "CardioLink - Mes Suivis", 1100, 650);
-    }
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/AjouterSuivi.fxml"));
+            Scene scene = new Scene(loader.load(), 1100, 650);
+            Stage stage = (Stage) avatarLabel.getScene().getWindow();
+            stage.setTitle("CardioLink - Mon Profil");
+            stage.setScene(scene);
+            stage.show();
+            ProfilPatientController ctrl = loader.getController();
+            ctrl.setCurrentUser(currentUser);
+        } catch (IOException e) { e.printStackTrace(); }}
 
     @FXML private void goDossier() {
         try {
