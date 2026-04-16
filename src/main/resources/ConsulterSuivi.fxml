@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1100.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cardiolink.Controllers.ConsulterSuiviController"
+            style="-fx-background-color: #f3f3f3;">
+
+    <children>
+        <VBox spacing="20.0" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.bottomAnchor="20.0">
+            <children>
+
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <children>
+                        <Button text="Rechercher"
+                                onAction="#rechercherSuivis"
+                                prefWidth="170"
+                                prefHeight="45"
+                                style="-fx-background-color: linear-gradient(to right, #d9416c, #5b6fff);
+                                       -fx-text-fill: white;
+                                       -fx-font-size: 20px;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 12;
+                                       -fx-cursor: hand;"/>
+
+                        <TextField fx:id="txtRecherche"
+                                   promptText="Rechercher par type..."
+                                   prefWidth="240"
+                                   prefHeight="40"/>
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tableSuivis" VBox.vgrow="ALWAYS" prefHeight="550">
+                    <columns>
+                        <TableColumn fx:id="colType" text="Type de donnée" prefWidth="220"/>
+                        <TableColumn fx:id="colValeur" text="Valeur / Unité" prefWidth="180"/>
+                        <TableColumn fx:id="colDate" text="Date de saisie" prefWidth="240"/>
+                        <TableColumn fx:id="colUrgence" text="Urgence" prefWidth="160"/>
+                        <TableColumn fx:id="colActions" text="Actions" prefWidth="220"/>
+                    </columns>
+                </TableView>
+
+                <Label fx:id="lblMessage"
+                       text="Liste des suivis"
+                       style="-fx-font-size: 16px; -fx-text-fill: #333333;"/>
+
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

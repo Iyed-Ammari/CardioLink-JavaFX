@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="320.0" prefWidth="500.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cardiolink.Controllers.ModifierSuiviController"
+            style="-fx-background-color: linear-gradient(to bottom, #11152f, #17193a);">
+
+    <children>
+        <VBox spacing="15" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="25" AnchorPane.rightAnchor="25">
+            <children>
+                <Label text="Modifier un suivi"
+                       style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+                <Label text="Type de donnée" style="-fx-text-fill: white;"/>
+                <ComboBox fx:id="cbType" prefHeight="40"/>
+
+                <Label text="Valeur" style="-fx-text-fill: white;"/>
+                <TextField fx:id="txtValeur" prefHeight="40"/>
+
+                <Label text="Unité" style="-fx-text-fill: white;"/>
+                <TextField fx:id="txtUnite" prefHeight="40"/>
+
+                <HBox spacing="10">
+                    <children>
+                        <Button text="Enregistrer"
+                                onAction="#modifierSuivi"
+                                prefWidth="140"
+                                style="-fx-background-color: linear-gradient(to right, #ff5f8f, #7b8dff);
+                                       -fx-text-fill: white; -fx-background-radius: 10;"/>
+                        <Button text="Annuler"
+                                onAction="#fermerFenetre"
+                                prefWidth="120"/>
+                    </children>
+                </HBox>
+
+                <Label fx:id="lblInfo" style="-fx-text-fill: white;"/>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
