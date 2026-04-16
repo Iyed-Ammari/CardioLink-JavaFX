@@ -119,7 +119,7 @@ public class AdminEditDossierController {
             Stage stage = (Stage) patientNameLabel.getScene().getWindow();
             stage.setScene(scene);
             stage.show();
-            AdminDashboardController ctrl = loader.getController();
+            AdminUserDashboardController ctrl = loader.getController();
             ctrl.initAdmin(currentAdmin, section);
         } catch (IOException e) { e.printStackTrace(); }
     }

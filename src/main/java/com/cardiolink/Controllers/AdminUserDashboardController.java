@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AdminDashboardController implements UserAwareController {
+public class AdminUserDashboardController implements UserAwareController {
 
     @FXML private ScrollPane  welcomeView;
     @FXML private Label       welcomeName;

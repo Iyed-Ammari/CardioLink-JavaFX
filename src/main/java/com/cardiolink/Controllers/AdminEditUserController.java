@@ -81,7 +81,7 @@ public class AdminEditUserController {
             Stage stage = (Stage) nomField.getScene().getWindow();
             stage.setScene(scene);
             stage.show();
-            AdminDashboardController ctrl = loader.getController();
+            AdminUserDashboardController ctrl = loader.getController();
             // ✅ initAdmin avec section "users"
             ctrl.initAdmin(currentAdmin, "users");
         } catch (IOException e) { e.printStackTrace(); }

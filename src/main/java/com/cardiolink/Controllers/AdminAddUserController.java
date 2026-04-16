@@ -152,7 +152,7 @@ public class AdminAddUserController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/dashboard_admin.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
-            AdminDashboardController ctrl = loader.getController();
+            AdminUserDashboardController ctrl = loader.getController();
             Stage stage = (Stage) nomField.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle("CardioLink - Admin Dashboard");
