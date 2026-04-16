@@ -6,44 +6,60 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 import java.io.IOException;
 
 public class MenuRDV {
 
-    // 1. Bouton "Prendre un RDV" -> Redirige vers AjouterRDV.fxml
+    @FXML
+    private ComboBox<String> roleSelector; // L'ID doit correspondre dans le FXML
+
+    @FXML
+    public void initialize() {
+        // Initialisation du menu déroulant
+        if (roleSelector != null) {
+            roleSelector.getItems().addAll("Patient", "Médecin");
+            roleSelector.setValue("Patient"); // Valeur par défaut
+        }
+    }
+
+    // Méthode liée au bouton "Entrer" ou "Valider"
+    @FXML
+    void handleNavigation(ActionEvent event) throws IOException {
+        String selectedRole = roleSelector.getValue();
+
+        if ("Médecin".equals(selectedRole)) {
+            // Redirection vers l'interface de gestion des ordonnances du médecin
+            loadScene(event, "/OrdonnanceMedecin.fxml");
+        } else {
+            // Redirection vers l'interface classique pour le patient
+            loadScene(event, "/AfficherRDV.fxml");
+        }
+    }
+
+    // Boutons existants que vous pouvez adapter ou supprimer selon vos besoins
     @FXML
     void goToAdd(ActionEvent event) throws IOException {
-        loadScene(event, "/AjouterRDV.fxml", "PATIENT");
+        loadScene(event, "/AjouterRDV.fxml");
     }
 
-    // 2. Bouton "Gestion des Ordonnances" -> Reste sur ListeOrdonnances.fxml
-    @FXML
-    void goToOrdonnances(ActionEvent event) throws IOException {
-        loadScene(event, "/ListeOrdonnances.fxml", "MEDECIN");
-    }
-
-    // 3. Bouton "Mes Rendez-vous" -> Redirige vers AfficherRDV.fxml
     @FXML
     void goToList(ActionEvent event) throws IOException {
-        loadScene(event, "/AfficherRDV.fxml", "PATIENT");
+        loadScene(event, "/AfficherRDV.fxml");
     }
 
-    // MÉTHODE DE CHARGEMENT UNIQUE ET CORRIGÉE
-    private void loadScene(ActionEvent event, String fxmlFile, String role) throws IOException {
+    // Fonction utilitaire pour changer de page
+    private void loadScene(ActionEvent event, String fxmlFile) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
         Parent root = loader.load();
-
-        // On vérifie le type de contrôleur pour passer les paramètres si nécessaire
-        Object controller = loader.getController();
-
-        if (controller instanceof ListeOrdonnances) {
-            ((ListeOrdonnances) controller).setRole(role, "Patient Test");
-        }
-        // Vous pouvez ajouter ici des conditions pour d'autres contrôleurs si besoin
-
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
         stage.show();
+    }
+    @FXML
+    void goToOrdonnances(ActionEvent event) throws IOException {
+        // Si c'est pour le médecin, on charge l'interface OrdonnanceMedecin
+        loadScene(event, "/OrdonnanceMedecin.fxml");
     }
 }

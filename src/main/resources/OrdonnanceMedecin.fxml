@@ -33,10 +33,7 @@
                 style="-fx-background-color: linear-gradient(to right, #e94560, #a031a1);"
                 textFill="WHITE"/>
 
-        <TableView fx:id="tableOrdonnances"
-                   layoutX="30.0" layoutY="200.0"
-                   prefWidth="840.0" prefHeight="350.0">
-
+        <TableView fx:id="tableOrdonnances" layoutX="30.0" layoutY="200.0" prefWidth="840.0" prefHeight="350.0">
             <columns>
                 <TableColumn fx:id="colDate" text="Date et Heure" prefWidth="150"/>
                 <TableColumn fx:id="colPatient" text="Patient" prefWidth="150"/>
@@ -44,7 +41,6 @@
                 <TableColumn fx:id="colDiagnostic" text="Diagnostic" prefWidth="220"/>
                 <TableColumn fx:id="colActions" text="Actions" prefWidth="180"/>
             </columns>
-
         </TableView>
 
     </children>

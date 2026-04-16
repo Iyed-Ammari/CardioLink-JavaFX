@@ -1,82 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="1100.0" style="-fx-background-color: #1a1c2e;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.MenuRDV">
+<AnchorPane prefHeight="650.0" prefWidth="950.0" style="-fx-background-color: #1a1a2e;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.MenuRDV">
     <children>
-        <VBox alignment="CENTER" spacing="50.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox prefHeight="650.0" prefWidth="240.0" style="-fx-background-color: #16213e; -fx-border-color: #2e2e4e; -fx-border-width: 0 1 0 0;">
             <children>
-                <VBox alignment="CENTER" spacing="10.0">
+                <Label text="CardioLink" textFill="#e94560">
+                    <font>
+                        <Font name="System Bold" size="28.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets bottom="50.0" left="25.0" top="30.0" />
+                    </VBox.margin>
+                </Label>
+
+                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="50.0" prefWidth="240.0" style="-fx-background-color: #1a1a2e; -fx-text-fill: white; -fx-padding: 0 0 0 20;" text="🏠  Tableau de Bord">
+                    <font>
+                        <Font name="System Semibold" size="14.0" />
+                    </font>
+                </Button>
+
+                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#goToList" prefHeight="50.0" prefWidth="240.0" style="-fx-background-color: transparent; -fx-text-fill: #95a5a6; -fx-padding: 0 0 0 20;" text="📅  Rendez-vous">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Button>
+            </children>
+        </VBox>
+
+        <VBox layoutX="240.0" prefHeight="650.0" prefWidth="710.0">
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="80.0" prefWidth="710.0" style="-fx-background-color: #16213e; -fx-border-color: #2e2e4e; -fx-border-width: 0 0 1 0;">
                     <children>
-                        <Label text="Bienvenue sur CardioLink" textFill="WHITE">
+                        <Label text="Portail d'accès sécurisé" textFill="WHITE">
                             <font>
-                                <Font name="System Bold" size="36.0" />
+                                <Font name="System Bold" size="20.0" />
                             </font>
+                            <HBox.margin>
+                                <Insets left="30.0" />
+                            </HBox.margin>
                         </Label>
-                        <Label text="Que souhaitez-vous faire aujourd'hui ?" textFill="#826cfd">
-                            <font>
-                                <Font size="18.0" />
-                            </font>
-                        </Label>
-                    </children>
-                </VBox>
-
-                <HBox alignment="CENTER" spacing="30.0">
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="280.0" prefWidth="320.0" style="-fx-background-color: #25273c; -fx-background-radius: 20; -fx-border-color: #826cfd; -fx-border-radius: 20; -fx-border-width: 2; -fx-cursor: hand;" textFill="WHITE">
-                            <graphic>
-                                <VBox alignment="CENTER" spacing="15.0">
-                                    <children>
-                                        <Label style="-fx-font-size: 50;" text="➕" />
-                                        <Label text="Prendre un RDV" textFill="WHITE">
-                                            <font>
-                                                <Font name="System Bold" size="20.0" />
-                                            </font>
-                                        </Label>
-                                        <Label text="Planifier une nouvelle consultation" textFill="#b0b0b0" />
-                                    </children>
-                                </VBox>
-                            </graphic>
-                        </Button>
-
-                        <Button mnemonicParsing="false" onAction="#goToOrdonnances" prefHeight="280.0" prefWidth="320.0" style="-fx-background-color: #25273c; -fx-background-radius: 20; -fx-border-color: #826cfd; -fx-border-radius: 20; -fx-border-width: 2; -fx-cursor: hand;" textFill="WHITE">
-                            <graphic>
-                                <VBox alignment="CENTER" spacing="15.0">
-                                    <children>
-                                        <Label style="-fx-font-size: 50;" text="📄" />
-                                        <Label text="Ordonnances" textFill="WHITE">
-                                            <font>
-                                                <Font name="System Bold" size="20.0" />
-                                            </font>
-                                        </Label>
-                                        <Label text="Gérer les prescriptions médicales" textFill="#b0b0b0" />
-                                    </children>
-                                </VBox>
-                            </graphic>
-                        </Button>
-
-                        <Button mnemonicParsing="false" onAction="#goToList" prefHeight="280.0" prefWidth="320.0" style="-fx-background-color: #25273c; -fx-background-radius: 20; -fx-border-color: #ff5f6d; -fx-border-radius: 20; -fx-border-width: 2; -fx-cursor: hand;" textFill="WHITE">
-                            <graphic>
-                                <VBox alignment="CENTER" spacing="15.0">
-                                    <children>
-                                        <Label style="-fx-font-size: 50;" text="📅" />
-                                        <Label text="Mes Rendez-vous" textFill="WHITE">
-                                            <font>
-                                                <Font name="System Bold" size="20.0" />
-                                            </font>
-                                        </Label>
-                                        <Label text="Consulter et gérer vos rendez-vous" textFill="#b0b0b0" />
-                                    </children>
-                                </VBox>
-                            </graphic>
-                        </Button>
                     </children>
                 </HBox>
+
+                <VBox alignment="CENTER" prefHeight="570.0" prefWidth="710.0" spacing="40.0">
+                    <children>
+                        <VBox alignment="CENTER" spacing="10.0">
+                            <children>
+                                <Label text="Bienvenue sur CardioLink" textFill="WHITE">
+                                    <font>
+                                        <Font name="System Bold" size="32.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Veuillez choisir votre profil pour accéder aux services" textFill="#95a5a6">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </VBox>
+
+                        <VBox alignment="CENTER" maxWidth="450.0" spacing="25.0" style="-fx-background-color: #16213e; -fx-padding: 40; -fx-background-radius: 20; -fx-border-color: #2e2e4e; -fx-border-radius: 20;">
+                            <children>
+                                <Label text="Qui êtes-vous ?" textFill="WHITE">
+                                    <font>
+                                        <Font name="System Semibold" size="15.0" />
+                                    </font>
+                                </Label>
+
+                                <ComboBox fx:id="roleSelector" prefHeight="45.0" prefWidth="320.0" promptText="Sélectionner..." style="-fx-background-color: #1a1a2e; -fx-text-fill: white; -fx-border-color: #2e2e4e; -fx-border-radius: 10; -fx-background-radius: 10;" />
+
+                                <Button mnemonicParsing="false" onAction="#handleNavigation" prefHeight="50.0" prefWidth="320.0" style="-fx-background-color: linear-gradient(to right, #e94560, #a031a1); -fx-text-fill: white; -fx-background-radius: 15; -fx-font-weight: bold; -fx-cursor: hand;" text="CONFIRMER ET ENTRER">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets top="15.0" />
+                                    </VBox.margin>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
             </children>
         </VBox>
     </children>

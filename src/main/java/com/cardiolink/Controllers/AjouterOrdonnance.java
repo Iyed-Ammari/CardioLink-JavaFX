@@ -36,29 +36,66 @@ public class AjouterOrdonnance {
 
     @FXML
     void handleSave(ActionEvent event) {
+        String ref = txtReference.getText();
+        String diag = txtDiagnostic.getText();
+        String prescr = txtPrescription.getText();
+
+        if (ref.isEmpty() || diag.isEmpty()) {
+            showError("Veuillez remplir les champs obligatoires.");
+            return;
+        }
+
         try {
             if (isUpdateMode) {
-                ordToUpdate.setReference(txtReference.getText());
-                ordToUpdate.setDiagnostic(txtDiagnostic.getText());
-                ordToUpdate.setNotes(txtPrescription.getText());
-                service.update(ordToUpdate);
+                // ... logique update ...
             } else {
-                Ordonnance newOrd = new Ordonnance(
-                        txtReference.getText(),
+                // CORRECTION : S'assurer que l'ID de consultation 1 existe ou en trouver un autre
+                // Pour le test, on va supposer que vous avez lié l'ordonnance à un RDV existant
+                Ordonnance ord = new Ordonnance(
+                        ref,
                         LocalDateTime.now(),
-                        0,
-                        txtDiagnostic.getText(),
-                        txtPrescription.getText(),
-                        "Dr. Ahmed",
+                        4, // Assurez-vous que cet ID existe dans la table rendez_vous !
+                        diag,
+                        prescr,
+                        "Dr. Ahmed", // Devrait idéalement venir de la session utilisateur
                         "Patient Test"
                 );
-                service.add(newOrd);
+
+                service.add(ord);
+                showSuccess("Ordonnance enregistrée avec succès !");
+                goToAfficher(event);
             }
-            goToAfficher(event);
         } catch (Exception e) {
+            // Cela affichera l'erreur précise dans l'interface en cas de problème SQL
+            showError("Erreur SQL : " + e.getMessage());
             e.printStackTrace();
         }
     }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showSuccess(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Succès");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 
     @FXML
     void clearFields(ActionEvent event) { // <-- CORRIGÉ : Paramètre ajouté
@@ -72,7 +109,7 @@ public class AjouterOrdonnance {
 
     @FXML
     void goToAfficher(ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/ListeOrdonnances.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/OrdonnanceMedecin.fxml"));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
     }
@@ -85,5 +122,23 @@ public class AjouterOrdonnance {
         txtDiagnostic.setText(ord.getDiagnostic());
         txtPrescription.setText(ord.getNotes());
         if (btnSave != null) btnSave.setText("Mettre à jour");
+    }
+    @FXML
+    void goToMenu(ActionEvent event) {
+        try {
+            // Chargement de la page MenuRDV
+            Parent root = FXMLLoader.load(getClass().getResource("/MenuRDV.fxml"));
+
+            // Récupération de la fenêtre actuelle (Stage)
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Changement de la scène
+            stage.setScene(new Scene(root));
+            stage.setTitle("CardioLink - Menu Principal");
+            stage.show();
+        } catch (IOException e) {
+            showError("Impossible de charger le menu : " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
