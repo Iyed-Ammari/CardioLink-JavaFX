@@ -4,7 +4,7 @@
 <?import javafx.geometry.*?>
 
 <HBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.cardiolink.controllers.RegisterController"
+      fx:controller="com.cardiolink.Controllers.RegisterController"
       prefWidth="900" prefHeight="650"
       style="-fx-background-color: #f8f8fb;">
 

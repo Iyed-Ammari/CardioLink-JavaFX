@@ -5,7 +5,7 @@
 <?import javafx.geometry.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.cardiolink.controllers.ModifierProfilController"
+            fx:controller="com.cardiolink.Controllers.ModifierProfilController"
             prefWidth="1100" prefHeight="650"
             style="-fx-background-color: #f8f8ff;">
 
