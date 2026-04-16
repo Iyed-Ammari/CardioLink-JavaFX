@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1050.0" style="-fx-background-color: #131420;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.ListeOrdonnances">
+    <children>
+        <VBox spacing="25.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="30.0">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#goToMenu" prefHeight="45.0" style="-fx-background-color: #25273c; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: #3d3f58; -fx-border-radius: 10;" text="🏠 Accueil" textFill="WHITE">
+                            <font><Font name="System Bold" size="14.0" /></font>
+                            <padding><Insets left="15.0" right="15.0" /></padding>
+                        </Button>
+                        <Label text="Gestion des Ordonnances" textFill="WHITE">
+                            <font><Font name="System Bold" size="28.0" /></font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnAjouter" onAction="#goToAdd" prefHeight="45.0" prefWidth="180.0" style="-fx-background-color: linear-gradient(to right, #ff5f6d, #826cfd); -fx-background-radius: 10; -fx-cursor: hand;" text="+ Créer Ordonnance" textFill="WHITE">
+                            <font><Font name="System Bold" size="14.0" /></font>
+                        </Button>
+                    </children>
+                </HBox>
+
+                <TextField fx:id="searchField" onKeyReleased="#onSearch" prefHeight="45.0" promptText="Rechercher par référence ou nom du patient..." style="-fx-background-color: #1a1c2e; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10; -fx-background-radius: 10;" />
+
+                <TableView fx:id="tableOrdonnances" prefHeight="400.0" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: #3d3f58;">
+                    <columns>
+                        <TableColumn fx:id="colRef" prefWidth="150.0" text="Référence" />
+                        <TableColumn fx:id="colDate" prefWidth="180.0" text="Date" />
+                        <TableColumn fx:id="colPatient" prefWidth="250.0" text="Patient" />
+                        <TableColumn fx:id="colDiag" prefWidth="300.0" text="Diagnostic" />
+                    </columns>
+                </TableView>
+
+                <HBox alignment="CENTER_RIGHT" spacing="20.0" style="-fx-background-color: #1a1c2e; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #3d3f58;">
+                    <children>
+                        <Label fx:id="lblTotal" text="0 ordonnances trouvées" textFill="#b0b0b0" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnSupprimer" onAction="#handleDelete" prefHeight="40.0" prefWidth="130.0" style="-fx-background-color: transparent; -fx-text-fill: #ff5f6d; -fx-border-color: #ff5f6d; -fx-border-radius: 8; -fx-cursor: hand;" text="Supprimer" />
+                        <Button fx:id="btnModifier" onAction="#handleEdit" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #826cfd; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;" text="Modifier / Update" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

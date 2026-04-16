@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.shape.Line?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #131420;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.AjouterOrdonnance">
+    <children>
+        <HBox spacing="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <VBox prefWidth="400.0" style="-fx-background-color: #1a1c2e; -fx-border-color: #3d3f58; -fx-border-width: 0 1 0 0;" spacing="25.0">
+                    <padding><Insets bottom="40.0" left="40.0" right="40.0" top="40.0" /></padding>
+                    <children>
+                        <Label text="Aperçu Rapide" textFill="#826cfd">
+                            <font><Font name="System Bold" size="14.0" /></font>
+                        </Label>
+                        <VBox spacing="10.0" style="-fx-background-color: #131420; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #3d3f58;">
+                            <children>
+                                <Label fx:id="lblPreviewRef" text="REF: ----" textFill="WHITE"><font><Font name="System Bold" size="18.0" /></font></Label>
+                                <Line endX="280.0" stroke="#3d3f58" />
+                                <Label text="DIAGNOSTIC :" textFill="#b0b0b0" />
+                                <Label fx:id="lblPreviewDiag" text="En attente..." textFill="WHITE" wrapText="true" />
+                                <Label text="PRESCRIPTION :" textFill="#b0b0b0">
+                                    <VBox.margin><Insets top="10.0" /></VBox.margin>
+                                </Label>
+                                <Label fx:id="lblPreviewPrescr" text="..." textFill="WHITE" wrapText="true" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+
+                <VBox HBox.hgrow="ALWAYS" spacing="30.0">
+                    <padding><Insets bottom="40.0" left="50.0" right="50.0" top="40.0" /></padding>
+                    <children>
+                        <Label text="Détails de l'ordonnance" textFill="WHITE">
+                            <font><Font name="System Bold" size="24.0" /></font>
+                        </Label>
+
+                        <GridPane vgap="20.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            </columnConstraints>
+                            <children>
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label text="Référence" textFill="#b0b0b0" />
+                                        <TextField fx:id="txtReference" prefHeight="45.0" promptText="Ex: ORD-2024-001" style="-fx-background-color: #1a1c2e; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10;" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="8.0" GridPane.rowIndex="1">
+                                    <children>
+                                        <Label text="Diagnostic" textFill="#b0b0b0" />
+                                        <TextArea fx:id="txtDiagnostic" prefHeight="100.0" promptText="Saisir le diagnostic..." style="-fx-control-inner-background: #1a1c2e; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10;" wrapText="true" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="8.0" GridPane.rowIndex="2">
+                                    <children>
+                                        <Label text="Prescription / Médicaments" textFill="#b0b0b0" />
+                                        <TextArea fx:id="txtPrescription" prefHeight="150.0" promptText="Détails des médicaments..." style="-fx-control-inner-background: #1a1c2e; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10;" wrapText="true" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </GridPane>
+
+                        <HBox spacing="20.0" alignment="CENTER_RIGHT">
+                            <children>
+                                <Button onAction="#goToAfficher" prefHeight="50.0" prefWidth="120.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10; -fx-cursor: hand;" text="Annuler" />
+
+                                <Button onAction="#clearFields" prefHeight="50.0" prefWidth="150.0" style="-fx-background-color: transparent; -fx-text-fill: #b0b0b0; -fx-border-color: #3d3f58; -fx-border-radius: 10; -fx-cursor: hand;" text="Réinitialiser" />
+
+                                <Button fx:id="btnSave" onAction="#handleSave" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: linear-gradient(to right, #ff5f6d, #826cfd); -fx-background-radius: 10; -fx-cursor: hand;" text="Générer &amp; Enregistrer" textFill="WHITE">
+                                    <font><Font name="System Bold" size="16.0" /></font>
+                                </Button>
+                                <Button onAction="#goToMenu"
+                                        style="-fx-background-color: #25273c; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand;"
+                                        text="⬅ Retour au Menu">
+                                    <font>
+                                        <Font name="System Bold" size="13.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+</AnchorPane>

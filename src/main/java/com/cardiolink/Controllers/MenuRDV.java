@@ -1,0 +1,65 @@
+package com.cardiolink.Controllers;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
+import javafx.stage.Stage;
+import java.io.IOException;
+
+public class MenuRDV {
+
+    @FXML
+    private ComboBox<String> roleSelector; // L'ID doit correspondre dans le FXML
+
+    @FXML
+    public void initialize() {
+        // Initialisation du menu déroulant
+        if (roleSelector != null) {
+            roleSelector.getItems().addAll("Patient", "Médecin");
+            roleSelector.setValue("Patient"); // Valeur par défaut
+        }
+    }
+
+    // Méthode liée au bouton "Entrer" ou "Valider"
+    @FXML
+    void handleNavigation(ActionEvent event) throws IOException {
+        String selectedRole = roleSelector.getValue();
+
+        if ("Médecin".equals(selectedRole)) {
+            // Redirection vers l'interface de gestion des ordonnances du médecin
+            loadScene(event, "/OrdonnanceMedecin.fxml");
+        } else {
+            // Redirection vers l'interface classique pour le patient
+            loadScene(event, "/AfficherRDV.fxml");
+        }
+    }
+
+    // Boutons existants que vous pouvez adapter ou supprimer selon vos besoins
+    @FXML
+    void goToAdd(ActionEvent event) throws IOException {
+        loadScene(event, "/AjouterRDV.fxml");
+    }
+
+    @FXML
+    void goToList(ActionEvent event) throws IOException {
+        loadScene(event, "/AfficherRDV.fxml");
+    }
+
+    // Fonction utilitaire pour changer de page
+    private void loadScene(ActionEvent event, String fxmlFile) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+        Parent root = loader.load();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+    @FXML
+    void goToOrdonnances(ActionEvent event) throws IOException {
+        // Si c'est pour le médecin, on charge l'interface OrdonnanceMedecin
+        loadScene(event, "/OrdonnanceMedecin.fxml");
+    }
+}
