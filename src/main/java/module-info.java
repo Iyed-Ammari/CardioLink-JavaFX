@@ -22,7 +22,7 @@ module com.cardiolink {
     requires org.json;
 
     // --- Package Exports ---
-    // These allow other modules to use your classes directly
+    // These allow other modules to use your classes (e.g., during compilation)
     exports com.cardiolink;
     exports com.cardiolink.Models;
     exports com.cardiolink.Services;
@@ -31,15 +31,16 @@ module com.cardiolink {
     exports com.cardiolink.Test;
 
     // --- Reflection Opens ---
-    // Required for FXML to inject fields and for TableView to access Model properties
+    // Required for FXML to inject fields (@FXML)
     opens com.cardiolink to javafx.fxml;
     opens com.cardiolink.Controllers to javafx.fxml;
     opens com.cardiolink.Services to javafx.fxml;
     opens com.cardiolink.utils to javafx.fxml;
 
     // Models need 'javafx.base' for TableView/TableColumn property mapping
-    opens com.cardiolink.Models to javafx.fxml, javafx.base;
+    // Also opens to fxml in case you use models inside FXML files (like ChoiceBox)
+    opens com.cardiolink.Models to javafx.base, javafx.fxml;
 
-    // Opening Test to graphics allows the Application class to launch from here
+    // Opening Test to graphics allows the Application class to launch properly
     opens com.cardiolink.Test to javafx.fxml, javafx.graphics;
 }
