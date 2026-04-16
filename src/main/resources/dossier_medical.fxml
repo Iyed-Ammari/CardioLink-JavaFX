@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cardiolink.Controllers.DossierMedicalPatientController"
+            prefWidth="1100" prefHeight="650"
+            style="-fx-background-color: #f8f8ff;">
+
+    <!-- NAVBAR -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="30"
+              style="-fx-background-color: white; -fx-padding: 14 30;
+                     -fx-border-color: #ececec; -fx-border-width: 0 0 1 0;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="❤" style="-fx-text-fill: #E24B4A; -fx-font-size: 22px;"/>
+                <Label text="CardioLink"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
+            </HBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="🏠 Home"               onAction="#goHome"
+                    style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
+            <Button text="👥 Community"           onAction="#goCommunity"
+                    style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
+            <Button text="📊 Mes Suivis"          onAction="#goSuivis"
+                    style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
+            <Button text="🗂 Mon Dossier Médical" onAction="#goDossier"
+                    style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand;
+                           -fx-text-fill: #7F77DD; -fx-font-weight: bold;"/>
+            <Button text="👤 Mon Profil"          onAction="#goProfil"
+                    style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
+            <Button text="🚪 Logout"              onAction="#handleLogout"
+                    style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #888;"/>
+            <StackPane>
+                <Circle fx:id="avatarCircle" radius="18"
+                        fill="linear-gradient(to bottom right, #E24B4A, #7F77DD)"/>
+                <Label fx:id="avatarLabel" text="?"
+                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+            </StackPane>
+        </HBox>
+    </top>
+
+    <!-- CONTENT -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox alignment="TOP_CENTER" spacing="24" style="-fx-padding: 40 80;">
+
+                <Label text="🗂  Mon Dossier Médical"
+                       style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
+
+                <!-- ── VUE CONSULTATION ── -->
+                <VBox fx:id="viewMode" spacing="16">
+
+                    <!-- GridPane tableau -->
+                    <GridPane maxWidth="740"
+                              style="-fx-background-color: white;
+                                     -fx-border-color: #d0d0d0;
+                                     -fx-border-width: 1;
+                                     -fx-border-radius: 4;
+                                     -fx-background-radius: 4;">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="220" maxWidth="220"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="50"/>
+                            <RowConstraints minHeight="50"/>
+                            <RowConstraints minHeight="50"/>
+                            <RowConstraints minHeight="50"/>
+                            <RowConstraints minHeight="50"/>
+                            <RowConstraints minHeight="50"/>
+                            <RowConstraints minHeight="50"/>
+                        </rowConstraints>
+
+                        <!-- Row 0 : Groupe Sanguin -->
+                        <Label text="Groupe Sanguin"
+                               GridPane.rowIndex="0" GridPane.columnIndex="0"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #222;
+                                      -fx-padding: 14 20; -fx-background-color: #fafafa;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 1 1 0;"/>
+                        <Label fx:id="vGroupeSanguin" text="-"
+                               GridPane.rowIndex="0" GridPane.columnIndex="1"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-size: 14px; -fx-text-fill: #444;
+                                      -fx-padding: 14 20;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 0 1 0;"/>
+
+                        <!-- Row 1 : Antécédents -->
+                        <Label text="Antécédents"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #222;
+                                      -fx-padding: 14 20; -fx-background-color: #fafafa;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 1 1 0;"/>
+                        <Label fx:id="vAntecedents" text="-" wrapText="true"
+                               GridPane.rowIndex="1" GridPane.columnIndex="1"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-size: 14px; -fx-text-fill: #444;
+                                      -fx-padding: 14 20;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 0 1 0;"/>
+
+                        <!-- Row 2 : Allergies -->
+                        <Label text="Allergies"
+                               GridPane.rowIndex="2" GridPane.columnIndex="0"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #222;
+                                      -fx-padding: 14 20; -fx-background-color: #fafafa;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 1 1 0;"/>
+                        <Label fx:id="vAllergies" text="-" wrapText="true"
+                               GridPane.rowIndex="2" GridPane.columnIndex="1"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-size: 14px; -fx-text-fill: #444;
+                                      -fx-padding: 14 20;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 0 1 0;"/>
+
+                        <!-- Row 3 : Poids -->
+                        <Label text="Poids"
+                               GridPane.rowIndex="3" GridPane.columnIndex="0"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #222;
+                                      -fx-padding: 14 20; -fx-background-color: #fafafa;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 1 1 0;"/>
+                        <Label fx:id="vPoids" text="-"
+                               GridPane.rowIndex="3" GridPane.columnIndex="1"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-size: 14px; -fx-text-fill: #444;
+                                      -fx-padding: 14 20;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 0 1 0;"/>
+
+                        <!-- Row 4 : Taille -->
+                        <Label text="Taille"
+                               GridPane.rowIndex="4" GridPane.columnIndex="0"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #222;
+                                      -fx-padding: 14 20; -fx-background-color: #fafafa;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 1 1 0;"/>
+                        <Label fx:id="vTaille" text="-"
+                               GridPane.rowIndex="4" GridPane.columnIndex="1"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-size: 14px; -fx-text-fill: #444;
+                                      -fx-padding: 14 20;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 0 1 0;"/>
+
+                        <!-- Row 5 : Tension -->
+                        <Label text="Tension"
+                               GridPane.rowIndex="5" GridPane.columnIndex="0"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #222;
+                                      -fx-padding: 14 20; -fx-background-color: #fafafa;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 1 1 0;"/>
+                        <Label fx:id="vTension" text="-"
+                               GridPane.rowIndex="5" GridPane.columnIndex="1"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-size: 14px; -fx-text-fill: #444;
+                                      -fx-padding: 14 20;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 0 1 0;"/>
+
+                        <!-- Row 6 : Fréquence Cardiaque (dernière — pas de border-bottom) -->
+                        <Label text="Fréquence Cardiaque"
+                               GridPane.rowIndex="6" GridPane.columnIndex="0"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #222;
+                                      -fx-padding: 14 20; -fx-background-color: #fafafa;
+                                      -fx-border-color: #d0d0d0; -fx-border-width: 0 1 0 0;"/>
+                        <Label fx:id="vFreq" text="-"
+                               GridPane.rowIndex="6" GridPane.columnIndex="1"
+                               maxWidth="Infinity" maxHeight="Infinity"
+                               style="-fx-font-size: 14px; -fx-text-fill: #444;
+                                      -fx-padding: 14 20;"/>
+                    </GridPane>
+
+                    <!-- Bouton modifier -->
+                    <Button text="✏  Modifier mon dossier"
+                            onAction="#showEditMode"
+                            style="-fx-background-color: linear-gradient(to right, #E24B4A, #7F77DD);
+                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;
+                                   -fx-padding: 13 32; -fx-background-radius: 25; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(226,75,74,0.35), 10, 0, 0, 4);"/>
+                </VBox>
+
+                <!-- ── VUE EDITION ── -->
+                <VBox fx:id="editMode" spacing="16" visible="false" managed="false">
+
+                    <Hyperlink text="← Annuler" onAction="#showViewMode"
+                               style="-fx-text-fill: #7F77DD; -fx-font-size: 13px; -fx-padding: 0;"/>
+
+                    <VBox spacing="16"
+                          style="-fx-background-color: white; -fx-background-radius: 14;
+                                 -fx-padding: 30;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 12, 0, 0, 4);">
+
+                        <VBox spacing="6">
+                            <Label text="Groupe Sanguin"
+                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <ComboBox fx:id="eGroupeSanguin" maxWidth="300"
+                                      style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                             -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <VBox spacing="6">
+                            <Label text="Antécédents"
+                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextArea fx:id="eAntecedents" prefRowCount="3" maxWidth="680"
+                                      style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                             -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <VBox spacing="6">
+                            <Label text="Allergies"
+                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextArea fx:id="eAllergies" prefRowCount="3" maxWidth="680"
+                                      style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                             -fx-border-radius: 8; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <HBox spacing="30">
+                            <VBox spacing="6">
+                                <Label text="Poids (kg)"
+                                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                                <TextField fx:id="ePoids" prefWidth="200"
+                                           style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                                  -fx-border-radius: 8; -fx-background-radius: 8;
+                                                  -fx-padding: 10 14; -fx-font-size: 13px;"/>
+                            </VBox>
+                            <VBox spacing="6">
+                                <Label text="Taille (cm)"
+                                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                                <TextField fx:id="eTaille" prefWidth="200"
+                                           style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                                  -fx-border-radius: 8; -fx-background-radius: 8;
+                                                  -fx-padding: 10 14; -fx-font-size: 13px;"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="30">
+                            <VBox spacing="6">
+                                <Label text="Tension Systolique (mmHg)"
+                                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                                <TextField fx:id="eTenSys" prefWidth="200"
+                                           style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                                  -fx-border-radius: 8; -fx-background-radius: 8;
+                                                  -fx-padding: 10 14; -fx-font-size: 13px;"/>
+                            </VBox>
+                            <VBox spacing="6">
+                                <Label text="Tension Diastolique (mmHg)"
+                                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                                <TextField fx:id="eTenDia" prefWidth="200"
+                                           style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                                  -fx-border-radius: 8; -fx-background-radius: 8;
+                                                  -fx-padding: 10 14; -fx-font-size: 13px;"/>
+                            </VBox>
+                            <VBox spacing="6">
+                                <Label text="Fréquence Cardiaque (bpm)"
+                                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                                <TextField fx:id="eFreq" prefWidth="200"
+                                           style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                                  -fx-border-radius: 8; -fx-background-radius: 8;
+                                                  -fx-padding: 10 14; -fx-font-size: 13px;"/>
+                            </VBox>
+                        </HBox>
+
+                    </VBox>
+
+                    <Label fx:id="errorLabel" text=""
+                           style="-fx-text-fill: #E24B4A; -fx-font-size: 13px;"/>
+                    <Label fx:id="successLabel" text=""
+                           style="-fx-text-fill: #27ae60; -fx-font-size: 13px;"/>
+
+                    <Button text="💾  Enregistrer les modifications"
+                            onAction="#handleSave"
+                            style="-fx-background-color: linear-gradient(to right, #E24B4A, #7F77DD);
+                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;
+                                   -fx-padding: 13 32; -fx-background-radius: 25; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(226,75,74,0.35), 10, 0, 0, 4);"/>
+                </VBox>
+
+                <VBox minHeight="30"/>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cardiolink.Controllers.CommandeListAdminController">
+
+    <left>
+        <VBox spacing="16" prefWidth="290"
+              style="-fx-background-color: white; -fx-padding: 22 18 18 18; -fx-border-color: #E5E7EB; -fx-border-width: 0 1 0 0;">
+
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <StackPane prefWidth="44" prefHeight="44"
+                           style="-fx-background-color: linear-gradient(to bottom right, #F82239, #2F60F5); -fx-background-radius: 14;">
+                    <Label text="CL" style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: 800;"/>
+                </StackPane>
+                <VBox spacing="2">
+                    <Label text="CardioLink" style="-fx-text-fill: #111827; -fx-font-size: 18px; -fx-font-weight: 800;"/>
+                    <Label text="Admin · Marketplace" style="-fx-text-fill: #6B7280; -fx-font-size: 12px;"/>
+                </VBox>
+            </HBox>
+
+            <VBox spacing="10" style="-fx-padding: 20 0 0 0;">
+                <Button text="🏠  Dashboard" onAction="#goToDashboard" prefHeight="42" maxWidth="1.7976931348623157E308"
+                        style="-fx-background-color: #F3F4F6; -fx-text-fill: #111827; -fx-font-size: 14px; -fx-font-weight: 700; -fx-background-radius: 14; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 14;"/>
+                <Button text="📦  Produits" onAction="#goToProduits" prefHeight="42" maxWidth="1.7976931348623157E308"
+                        style="-fx-background-color: #F3F4F6; -fx-text-fill: #111827; -fx-font-size: 14px; -fx-font-weight: 700; -fx-background-radius: 14; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 14;"/>
+                <Button text="📋  Commandes" onAction="#goToCommandes" prefHeight="42" maxWidth="1.7976931348623157E308"
+                        style="-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 700; -fx-background-radius: 14; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 14;"/>
+
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- KPI sidebar -->
+            <VBox spacing="10"
+                  style="-fx-background-color: #F6F7FB; -fx-background-radius: 14; -fx-padding: 14;">
+                <Label text="RÉSUMÉ" style="-fx-text-fill: #6B7280; -fx-font-size: 10px; -fx-font-weight: 800;"/>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="Total :" style="-fx-text-fill: #374151; -fx-font-size: 12px; -fx-font-weight: 700;"/>
+                    <Label fx:id="totalCommandesLabel" text="—"
+                           style="-fx-text-fill: #2F60F5; -fx-font-size: 13px; -fx-font-weight: 900;"/>
+                </HBox>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="CA :" style="-fx-text-fill: #374151; -fx-font-size: 12px; -fx-font-weight: 700;"/>
+                    <Label fx:id="totalCALabel" text="—"
+                           style="-fx-text-fill: #0F766E; -fx-font-size: 13px; -fx-font-weight: 900;"/>
+                </HBox>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="À livrer :" style="-fx-text-fill: #374151; -fx-font-size: 12px; -fx-font-weight: 700;"/>
+                    <Label fx:id="nbPayeesLabel" text="—"
+                           style="-fx-text-fill: #F59E0B; -fx-font-size: 13px; -fx-font-weight: 900;"/>
+                </HBox>
+            </VBox>
+
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-padding: 14 0 0 0; -fx-border-color: #E5E7EB; -fx-border-width: 1 0 0 0;">
+                <StackPane prefWidth="44" prefHeight="44"
+                           style="-fx-background-color: linear-gradient(to bottom right, rgba(248,34,57,0.22), rgba(47,96,245,0.22)); -fx-background-radius: 16;">
+                    <Label text="AD" style="-fx-text-fill: #1F2937; -fx-font-weight: 900;"/>
+                </StackPane>
+                <VBox spacing="2">
+                    <Label text="Admin" style="-fx-text-fill: #111827; -fx-font-size: 14px; -fx-font-weight: 800;"/>
+                    <Label text="ROLE_ADMIN" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-font-weight: 700;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="16" style="-fx-background-color: #F6F7FB; -fx-padding: 24;">
+
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <VBox spacing="4">
+                    <Label text="Gestion des Commandes"
+                           style="-fx-text-fill: #111827; -fx-font-size: 26px; -fx-font-weight: 800;"/>
+                    <Label text="Suivre, filtrer et gérer toutes les commandes de la marketplace"
+                           style="-fx-text-fill: #6B7280; -fx-font-size: 13px; -fx-font-weight: 600;"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="🔄  Actualiser" onAction="#handleRefresh"
+                        style="-fx-background-color: white; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-border-color: #E5E7EB; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 18; -fx-cursor: hand;"/>
+            </HBox>
+
+            <!-- Recherche + Filtre -->
+            <HBox spacing="10"
+                  style="-fx-background-color: white; -fx-background-radius: 16; -fx-border-color: #E5E7EB; -fx-border-radius: 16; -fx-padding: 14;">
+                <TextField fx:id="searchField" promptText="🔍  Rechercher par User ID ou Montant..."
+                           HBox.hgrow="ALWAYS"
+                           style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #E5E7EB; -fx-background-color: white; -fx-padding: 10 12;"/>
+                <ComboBox fx:id="statutFilterBox" promptText="Filtrer par statut"
+                          style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #E5E7EB; -fx-pref-width: 200;"/>
+                <Button text="Rechercher" onAction="#handleSearch"
+                        style="-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-weight: 700; -fx-background-radius: 12; -fx-padding: 10 16; -fx-cursor: hand;"/>
+                <Button text="Réinitialiser" onAction="#handleReset"
+                        style="-fx-background-color: white; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-border-color: #E5E7EB; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 16; -fx-cursor: hand;"/>
+            </HBox>
+
+            <!-- Commandes Cards -->
+            <VBox spacing="10"
+                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-border-color: #E5E7EB; -fx-border-radius: 18; -fx-padding: 18;" VBox.vgrow="ALWAYS">
+
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Liste des commandes"
+                           style="-fx-text-fill: #111827; -fx-font-size: 16px; -fx-font-weight: 800;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="countLabel" text=""
+                           style="-fx-text-fill: #6B7280; -fx-font-size: 13px; -fx-font-weight: 700;"/>
+                </HBox>
+
+                <ScrollPane fx:id="commandeScrollPane"
+                            fitToWidth="true" fitToHeight="true"
+                            VBox.vgrow="ALWAYS" hbarPolicy="NEVER"
+                            style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                    <content>
+                        <TilePane fx:id="commandeContainer"
+                                  hgap="14" vgap="14"
+                                  prefColumns="1"
+                                  style="-fx-padding: 4;"/>
+                    </content>
+                </ScrollPane>
+
+                <Label fx:id="messageLabel" text="" wrapText="true"
+                       style="-fx-font-size: 13px; -fx-font-weight: 700;"/>
+            </VBox>
+        </VBox>
+    </center>
+
+</BorderPane>
