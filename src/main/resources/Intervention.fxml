@@ -7,7 +7,7 @@
 <AnchorPane prefHeight="720.0" prefWidth="1150.0"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controller.InterventionController"
+            fx:controller="com.cardiolink.Controllers.InterventionController"
             style="-fx-background-color: linear-gradient(to bottom, #11152f, #17193a);">
 
     <children>

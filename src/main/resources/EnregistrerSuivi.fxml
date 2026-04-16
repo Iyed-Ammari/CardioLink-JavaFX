@@ -9,7 +9,7 @@
             style="-fx-background-color: linear-gradient(to bottom, #11152f, #17193a);"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controller.EnregistrerSuivi">
+            fx:controller="com.cardiolink.Controllers.EnregistrerSuivi">
 
     <children>
         <VBox spacing="14.0" AnchorPane.topAnchor="25.0" AnchorPane.leftAnchor="35.0" AnchorPane.rightAnchor="35.0">

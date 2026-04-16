@@ -1,4 +1,4 @@
-package Controller;
+package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Suivi;
 import com.cardiolink.Services.SuiviService;

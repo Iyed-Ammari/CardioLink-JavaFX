@@ -1,4 +1,4 @@
-package Controller;
+package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Intervention;
 import com.cardiolink.Services.InterventionService;

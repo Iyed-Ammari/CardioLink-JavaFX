@@ -9,7 +9,7 @@
             style="-fx-background-color: linear-gradient(to bottom, #11152f, #17193a);"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controller.AjouterSuivi">
+            fx:controller="com.cardiolink.Controllers.AjouterSuivi">
 
     <children>
         <VBox spacing="20.0"

@@ -8,7 +8,7 @@
 <AnchorPane prefHeight="700.0" prefWidth="1100.0"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controller.ConsulterSuiviController"
+            fx:controller="com.cardiolink.Controllers.ConsulterSuiviController"
             style="-fx-background-color: #f3f3f3;">
 
     <children>
