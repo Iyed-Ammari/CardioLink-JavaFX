@@ -21,16 +21,16 @@ module com.cardiolink {
 
     // Package Exports
     exports com.cardiolink;
-    exports com.cardiolink.Controllers;
     exports com.cardiolink.Models;
     exports com.cardiolink.Services;
     exports com.cardiolink.Test;
 
     // Reflection Opens (Required for JavaFX FXML and Property access)
     opens com.cardiolink to javafx.fxml;
-    opens com.cardiolink.Controllers to javafx.fxml;
     opens com.cardiolink.Models to javafx.fxml, javafx.base;
     opens com.cardiolink.Services to javafx.fxml;
     opens com.cardiolink.utils to javafx.fxml;
     opens com.cardiolink.Test to javafx.fxml;
+    exports com.cardiolink.Controllers;
+    opens com.cardiolink.Controllers to javafx.fxml;
 }
