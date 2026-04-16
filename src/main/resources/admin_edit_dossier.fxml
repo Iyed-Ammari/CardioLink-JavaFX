@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cardiolink.Controllers.AdminEditDossierController"
+            prefWidth="1100" prefHeight="650"
+            style="-fx-background-color: #f8f8ff;">
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox spacing="0" minWidth="220"
+              style="-fx-background-color: #1a1a2e; -fx-padding: 0;">
+            <HBox alignment="CENTER" spacing="8"
+                  style="-fx-padding: 24 20 20 20; -fx-border-color: #2a2a4e; -fx-border-width: 0 0 1 0;">
+                <Label text="❤" style="-fx-text-fill: #E24B4A; -fx-font-size: 20px;"/>
+                <Label text="CardioLink"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            </HBox>
+            <VBox alignment="CENTER" spacing="6"
+                  style="-fx-padding: 20 20 16 20; -fx-border-color: #2a2a4e; -fx-border-width: 0 0 1 0;">
+                <StackPane>
+                    <Circle radius="28" fill="linear-gradient(to bottom right, #E24B4A, #7F77DD)"/>
+                    <Label fx:id="sidebarInitial" text="A"
+                           style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 20px;"/>
+                </StackPane>
+                <Label fx:id="sidebarName" text="Admin"
+                       style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                <Label text="Administrateur"
+                       style="-fx-text-fill: #7F77DD; -fx-font-size: 11px;"/>
+            </VBox>
+            <VBox spacing="4" style="-fx-padding: 16 12;">
+                <Button text="🏠  Accueil"           onAction="#goHome"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: #ccc;
+                               -fx-font-size: 13px; -fx-padding: 12 16; -fx-cursor: hand;
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT;"/>
+                <Button text="👥  Utilisateurs"      onAction="#goUsers"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-text-fill: #ccc;
+                               -fx-font-size: 13px; -fx-padding: 12 16; -fx-cursor: hand;
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT;"/>
+                <Button text="🗂  Dossiers Médicaux" onAction="#goDossiers"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #7F77DD; -fx-text-fill: white;
+                               -fx-font-size: 13px; -fx-padding: 12 16; -fx-cursor: hand;
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT;"/>
+            </VBox>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button text="🚪  Déconnexion" onAction="#handleLogout"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: transparent; -fx-text-fill: #ff6b6b;
+                           -fx-font-size: 13px; -fx-padding: 14 16; -fx-cursor: hand;
+                           -fx-alignment: CENTER_LEFT;"/>
+        </VBox>
+    </left>
+
+    <!-- CONTENT -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox alignment="TOP_LEFT" spacing="20" style="-fx-padding: 40 60;">
+
+                <Label text="✏  Modifier le Dossier Médical"
+                       style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
+
+                <Hyperlink text="← Retour aux dossiers" onAction="#goDossiers"
+                           style="-fx-text-fill: #7F77DD; -fx-font-size: 13px; -fx-padding: 0;"/>
+
+                <!-- Patient info (read-only) -->
+                <HBox spacing="10" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #e8e8ff; -fx-background-radius: 10;
+                             -fx-padding: 12 20;">
+                    <Label text="👤 Patient :" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                    <Label fx:id="patientNameLabel" text="-"
+                           style="-fx-font-size: 14px; -fx-text-fill: #7F77DD; -fx-font-weight: bold;"/>
+                </HBox>
+
+                <!-- Form in two columns -->
+                <VBox spacing="16"
+                      style="-fx-background-color: white; -fx-background-radius: 14;
+                             -fx-padding: 30;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 12, 0, 0, 4);">
+
+                    <!-- Groupe Sanguin -->
+                    <VBox spacing="6">
+                        <Label text="Groupe Sanguin"
+                               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                        <ComboBox fx:id="groupeSanguinCombo" maxWidth="300"
+                                  style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                         -fx-border-radius: 8; -fx-font-size: 14px;"/>
+                    </VBox>
+
+                    <!-- Antécédents -->
+                    <VBox spacing="6">
+                        <Label text="Antécédents"
+                               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                        <TextArea fx:id="antecedentsArea" prefRowCount="3" maxWidth="700"
+                                  style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                         -fx-border-radius: 8; -fx-font-size: 14px;"/>
+                    </VBox>
+
+                    <!-- Allergies -->
+                    <VBox spacing="6">
+                        <Label text="Allergies"
+                               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                        <TextArea fx:id="allergiesArea" prefRowCount="3" maxWidth="700"
+                                  style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                         -fx-border-radius: 8; -fx-font-size: 14px;"/>
+                    </VBox>
+
+                    <!-- Poids / Taille -->
+                    <HBox spacing="30">
+                        <VBox spacing="6">
+                            <Label text="Poids (kg)"
+                                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextField fx:id="poidsField" prefWidth="200"
+                                       style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                              -fx-border-radius: 8; -fx-background-radius: 8;
+                                              -fx-padding: 10 14; -fx-font-size: 14px;"/>
+                        </VBox>
+                        <VBox spacing="6">
+                            <Label text="Taille (cm)"
+                                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextField fx:id="tailleField" prefWidth="200"
+                                       style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                              -fx-border-radius: 8; -fx-background-radius: 8;
+                                              -fx-padding: 10 14; -fx-font-size: 14px;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Tensions -->
+                    <HBox spacing="30">
+                        <VBox spacing="6">
+                            <Label text="Tension Systolique (mmHg)"
+                                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextField fx:id="tenSysField" prefWidth="200"
+                                       style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                              -fx-border-radius: 8; -fx-background-radius: 8;
+                                              -fx-padding: 10 14; -fx-font-size: 14px;"/>
+                        </VBox>
+                        <VBox spacing="6">
+                            <Label text="Tension Diastolique (mmHg)"
+                                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextField fx:id="tenDiaField" prefWidth="200"
+                                       style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                              -fx-border-radius: 8; -fx-background-radius: 8;
+                                              -fx-padding: 10 14; -fx-font-size: 14px;"/>
+                        </VBox>
+                        <VBox spacing="6">
+                            <Label text="Fréquence Cardiaque (bpm)"
+                                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                            <TextField fx:id="freqField" prefWidth="200"
+                                       style="-fx-background-color: #f8f8ff; -fx-border-color: #d0d0d0;
+                                              -fx-border-radius: 8; -fx-background-radius: 8;
+                                              -fx-padding: 10 14; -fx-font-size: 14px;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <Label fx:id="errorLabel"   text="" style="-fx-text-fill: #E24B4A; -fx-font-size: 13px;"/>
+                <Label fx:id="successLabel" text="" style="-fx-text-fill: #27ae60; -fx-font-size: 13px;"/>
+
+                <Button text="💾  Enregistrer les modifications"
+                        onAction="#handleSave"
+                        style="-fx-background-color: linear-gradient(to right, #E24B4A, #7F77DD);
+                               -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;
+                               -fx-padding: 14 40; -fx-background-radius: 25; -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(226,75,74,0.35), 10, 0, 0, 4);"/>
+
+                <VBox minHeight="30"/>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

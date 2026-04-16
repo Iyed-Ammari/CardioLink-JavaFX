@@ -7,10 +7,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceMessage implements Iservice<Message> {
+public class MessageService implements Iservice<Message> {
     private Connection connection;
 
-    public ServiceMessage() {
+    public MessageService() {
         connection = MyDatabase.getInstance().getConnection();
     }
 
@@ -119,5 +119,34 @@ public class ServiceMessage implements Iservice<Message> {
         }
 
         return null;
+    }
+
+    public List<Message> getByConversationId(int conversationId) {
+        List<Message> messages = new ArrayList<>();
+        // On trie par date pour avoir les plus anciens en haut et les plus récents en bas
+        String request = "SELECT * FROM message WHERE conversation_id = ? ORDER BY created_at ASC";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(request)) {
+            pstmt.setInt(1, conversationId);
+            try (ResultSet result = pstmt.executeQuery()) {
+                while (result.next()) {
+                    Message message = new Message();
+                    message.setId(result.getInt("id"));
+                    message.setConversationId(result.getInt("conversation_id"));
+                    message.setSenderId(result.getInt("sender_id"));
+                    message.setContent(result.getString("content"));
+                    message.setDate(result.getString("created_at"));
+                    message.setRead(result.getBoolean("is_read"));
+                    message.setClassification(result.getString("classification"));
+                    message.setPinned(result.getBoolean("is_pinned"));
+                    message.setArchived(result.getBoolean("is_archived"));
+
+                    messages.add(message);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching messages by conversation: " + e.getMessage());
+        }
+        return messages;
     }
 }
