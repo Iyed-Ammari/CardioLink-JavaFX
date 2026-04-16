@@ -14,7 +14,7 @@ module com.cardiolink {
 
     // OPEN seulement pour JavaFX (FXML + TableView)
     opens com.cardiolink to javafx.fxml;
-    opens com.cardiolink.controllers to javafx.fxml;
+    opens com.cardiolink.Controllers to javafx.fxml;
     opens com.cardiolink.Models to javafx.base;
 
     // EXPORTS seulement pour API principale

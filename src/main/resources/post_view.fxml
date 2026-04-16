@@ -8,7 +8,7 @@
 <BorderPane style="-fx-background-color: #f4f6fb;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cardiolink.controllers.ForumController">
+            fx:controller="com.cardiolink.Controllers.ForumController">
 
     <top>
         <VBox spacing="10">

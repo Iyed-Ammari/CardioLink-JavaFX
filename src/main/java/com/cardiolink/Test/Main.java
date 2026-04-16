@@ -14,7 +14,7 @@ public class Main extends Application {
         try {
 
             Parent root = FXMLLoader.load(
-                    getClass().getResource("/views/post_view.fxml")
+                    getClass().getResource("/post_view.fxml")
             );
 
             Scene scene = new Scene(root);
