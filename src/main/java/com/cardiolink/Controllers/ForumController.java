@@ -4,14 +4,19 @@ import com.cardiolink.Models.Comment;
 import com.cardiolink.Models.Post;
 import com.cardiolink.Services.ServiceComment;
 import com.cardiolink.Services.ServicePost;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ForumController {
@@ -427,5 +432,27 @@ public class ForumController {
             return false;
         }
         return true;
+    }
+    @FXML
+    private Button homeButton;
+    @FXML
+    private void goHome(ActionEvent event) {
+        try {
+            Stage stage = (Stage) homeButton.getScene().getWindow();
+            stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/dashboard_patient.fxml"))));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private Button dossierButton;
+    @FXML
+    private void goDossier(ActionEvent event) {
+        try {
+            Stage stage = (Stage) dossierButton.getScene().getWindow();
+            stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/dossier_medical.fxml"))));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

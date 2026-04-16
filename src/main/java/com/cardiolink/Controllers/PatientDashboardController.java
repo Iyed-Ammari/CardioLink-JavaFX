@@ -63,8 +63,17 @@ public class PatientDashboardController implements UserAwareController {
     @FXML private void goHome() { /* déjà ici */ }
 
     @FXML private void goCommunity() {
-        navigateTo("/com/cardiolink/fxml/community.fxml", "CardioLink - Community", 1100, 650);
-    }
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/post_view.fxml"));
+            Scene scene = new Scene(loader.load(), 1100, 650);
+            Stage stage = (Stage) avatarLabel.getScene().getWindow();
+            stage.setTitle("CardioLink - Mon Profil");
+            stage.setScene(scene);
+            stage.show();
+            ProfilPatientController ctrl = loader.getController();
+            ctrl.setCurrentUser(currentUser);
+        } catch (IOException e) { e.printStackTrace(); }}
 
     @FXML private void goSuivis() {
         navigateTo("/com/cardiolink/fxml/suivis_patient.fxml", "CardioLink - Mes Suivis", 1100, 650);
@@ -88,6 +97,32 @@ public class PatientDashboardController implements UserAwareController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/profil_patient.fxml"));
+            Scene scene = new Scene(loader.load(), 1100, 650);
+            Stage stage = (Stage) avatarLabel.getScene().getWindow();
+            stage.setTitle("CardioLink - Mon Profil");
+            stage.setScene(scene);
+            stage.show();
+            ProfilPatientController ctrl = loader.getController();
+            ctrl.setCurrentUser(currentUser);
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+    @FXML private void goChat() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/ChatView.fxml"));
+            Scene scene = new Scene(loader.load(), 1100, 650);
+            Stage stage = (Stage) avatarLabel.getScene().getWindow();
+            stage.setTitle("CardioLink - Mon Profil");
+            stage.setScene(scene);
+            stage.show();
+            ProfilPatientController ctrl = loader.getController();
+            ctrl.setCurrentUser(currentUser);
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+    @FXML private void goMarketplace() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/patient/produit-list-patient.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Mon Profil");

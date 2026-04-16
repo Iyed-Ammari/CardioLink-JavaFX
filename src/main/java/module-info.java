@@ -18,6 +18,8 @@ module com.cardiolink {
     requires com.almasb.fxgl.all;
     requires org.java_websocket;
     requires org.json;
+    requires javafx.graphics;
+    requires javafx.base;
 
     // Package Exports
     exports com.cardiolink;

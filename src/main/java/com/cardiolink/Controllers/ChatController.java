@@ -4,13 +4,18 @@ import com.cardiolink.Models.Message;
 import com.cardiolink.Services.MessageService;
 import com.cardiolink.WebSocket.ChatWebSocketClient;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -131,6 +136,21 @@ public class ChatController implements Initializable {
     }
 
     @FXML
+    private Button backButton;
+    @FXML private Label  avatarLabel;
+    @FXML private void handleBackButton() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dashboard_patient.fxml"));
+            Scene scene = new Scene(loader.load(), 1100, 650);
+            Stage stage = (Stage) avatarLabel.getScene().getWindow();
+            stage.setTitle("CardioLink - Mon Profil");
+            stage.setScene(scene);
+            stage.show();
+            ProfilPatientController ctrl = loader.getController();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+    @FXML
     public void handleSendMessage() {
         String content = messageInput.getText().trim();
 
@@ -203,6 +223,16 @@ public class ChatController implements Initializable {
     private void scrollToBottom() {
         if (!messageListView.getItems().isEmpty()) {
             messageListView.scrollTo(messageListView.getItems().size() - 1);
+        }
+    }
+
+    @FXML
+    private void handleBackButton(ActionEvent event) {
+        try {
+            Stage stage = (Stage) backButton.getScene().getWindow();
+            stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/dashboard_patient.fxml"))));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
