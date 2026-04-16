@@ -12,14 +12,14 @@ module com.cardiolink {
     requires com.almasb.fxgl.all;
 
     opens com.cardiolink to javafx.fxml;
-    opens com.cardiolink.controllers to javafx.fxml;
     opens com.cardiolink.Models to javafx.base, javafx.fxml;
     opens com.cardiolink.Services to javafx.fxml;
     opens com.cardiolink.utils to javafx.fxml;
 
     exports com.cardiolink;
-    exports com.cardiolink.controllers;
     exports com.cardiolink.Models;
     exports com.cardiolink.Services;
     exports com.cardiolink.utils;
+    exports com.cardiolink.Controllers;
+    opens com.cardiolink.Controllers to javafx.fxml;
 }

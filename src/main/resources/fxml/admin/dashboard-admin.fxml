@@ -10,7 +10,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.cardiolink.controllers.AdminDashboardController">
+            fx:controller="com.cardiolink.Controllers.AdminDashboardController">
 
     <left>
         <VBox spacing="16" prefWidth="290"

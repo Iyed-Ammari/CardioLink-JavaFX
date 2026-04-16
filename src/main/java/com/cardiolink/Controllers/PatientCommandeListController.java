@@ -1,4 +1,4 @@
-package com.cardiolink.controllers;
+package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Commande;
 import com.cardiolink.Services.CommandeService;

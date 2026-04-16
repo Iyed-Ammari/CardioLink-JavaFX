@@ -13,7 +13,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.cardiolink.controllers.PatientProduitListController"
+            fx:controller="com.cardiolink.Controllers.PatientProduitListController"
             prefWidth="1600.0" prefHeight="900.0"
             style="-fx-background-color: #F6F7FB;">
 
