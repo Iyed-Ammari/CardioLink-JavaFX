@@ -1,4 +1,3 @@
-
 module com.cardiolink {
     requires javafx.controls;
     requires javafx.fxml;
@@ -12,7 +11,8 @@ module com.cardiolink {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires jbcrypt;
-
+    requires jakarta.mail;
+    requires jakarta.activation;
 
     opens com.cardiolink to javafx.fxml;
     opens com.cardiolink.controllers to javafx.fxml;

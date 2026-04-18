@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.cardiolink.controllers.VerifyEmailController"
+      alignment="CENTER" spacing="20"
+      style="-fx-background-color: #f8f8ff; -fx-padding: 60;"
+      prefWidth="900" prefHeight="560">
+
+    <Label text="📧  Vérification Email"
+           style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
+
+    <Label fx:id="infoLabel" text="Un code de vérification a été envoyé à votre email."
+           style="-fx-font-size: 14px; -fx-text-fill: #555;" wrapText="true"/>
+
+    <Label fx:id="emailLabel" text=""
+           style="-fx-font-size: 14px; -fx-text-fill: #7F77DD; -fx-font-weight: bold;"/>
+
+    <VBox spacing="8" maxWidth="400">
+        <Label text="Entrez le code reçu par email :"
+               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+        <TextField fx:id="tokenField"
+                   promptText="Code de vérification..."
+                   style="-fx-background-color: white; -fx-border-color: #d0d0d0;
+                          -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;
+                          -fx-padding: 12 14; -fx-font-size: 14px; -fx-text-alignment: center;"/>
+    </VBox>
+
+    <Label fx:id="errorLabel"   text="" style="-fx-text-fill: #E24B4A; -fx-font-size: 13px;"/>
+    <Label fx:id="successLabel" text="" style="-fx-text-fill: #27ae60; -fx-font-size: 13px;"/>
+
+    <Button text="✅  Vérifier mon compte"
+            onAction="#handleVerify"
+            style="-fx-background-color: linear-gradient(to right, #E24B4A, #7F77DD);
+                   -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;
+                   -fx-padding: 13 32; -fx-background-radius: 25; -fx-cursor: hand;"/>
+
+    <Hyperlink text="← Retour au login" onAction="#goToLogin"
+               style="-fx-text-fill: #7F77DD; -fx-font-size: 13px;"/>
+
+</VBox>

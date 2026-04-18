@@ -2,6 +2,7 @@ package com.cardiolink.controllers;
 
 import com.cardiolink.Models.User;
 import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.SessionManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -16,6 +17,7 @@ public class LoginController {
     @FXML private Label         errorLabel;
 
     private final UserService userService = new UserService();
+
     @FXML
     private void handleLogin() {
         String email    = emailField.getText().trim();
@@ -35,13 +37,16 @@ public class LoginController {
             User user = userService.login(email, password);
 
             if (user != null) {
+                // ✅ Sauvegarder dans la session globale
+                SessionManager.getInstance().setCurrentUserId(user.getId());
+
                 Stage stage = (Stage) emailField.getScene().getWindow();
                 String role = user.getRoleClean();
 
                 if ("ROLE_ADMIN".equals(role)) {
-                    // ✅ Admin → directement dashboard_admin
                     FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource("/com/cardiolink/fxml/dashboard_admin.fxml"));
+                            getClass().getResource(
+                                    "/com/cardiolink/fxml/dashboard_admin.fxml"));
                     Scene scene = new Scene(loader.load(), 1100, 650);
                     AdminDashboardController ctrl = loader.getController();
                     stage.setScene(scene);
@@ -50,9 +55,9 @@ public class LoginController {
                     ctrl.setCurrentUser(user);
 
                 } else {
-                    // ✅ Patient et Médecin → Welcome page
                     FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource("/com/cardiolink/fxml/dashboard_patient.fxml"));
+                            getClass().getResource(
+                                    "/com/cardiolink/fxml/dashboard_patient.fxml"));
                     Scene scene = new Scene(loader.load(), 1100, 650);
                     PatientDashboardController ctrl = loader.getController();
                     stage.setScene(scene);
@@ -71,11 +76,13 @@ public class LoginController {
             e.printStackTrace();
         }
     }
+
     @FXML
     private void goToRegister(MouseEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/cardiolink/fxml/register.fxml"));
+                    getClass().getResource(
+                            "/com/cardiolink/fxml/register.fxml"));
             Scene scene = new Scene(loader.load(), 900, 650);
             Stage stage = (Stage) emailField.getScene().getWindow();
             stage.setTitle("CardioLink - Register");
