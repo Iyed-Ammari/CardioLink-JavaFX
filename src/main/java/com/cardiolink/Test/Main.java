@@ -1,29 +1,36 @@
 package com.cardiolink.Test;
 
-import com.cardiolink.Models.Message;
-import com.cardiolink.Services.ServiceMessage;
-import com.cardiolink.utils.MyDatabase;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-import java.sql.SQLDataException;
+import java.io.IOException;
 
-public class Main {
-    public static void main(String[] args) {
-        // kol wehed ch yaaml instance m service mteeo lehne (betbiaa baaed ma tasnaa service mtaa l model mteeo fl package Services ahwka)
-        // par exemple : ServicePersonne servicePersonne = new ServicePersonne();
-        ServiceMessage serviceMessage = new ServiceMessage();
+public class Main extends Application {
+
+    @Override
+    public void start(Stage primaryStage) {
         try {
-            // mbaaed lehne testi les services mteek yekhdmo comme il faut wle, normalement aamlt liaison bl base de donnée deja w ntouma aandkom menha ml projet mtaa symfony donc mch mochkl
-            // EXEMPLE :
-//            servicePersonne.ajouter(new Personne("Yassine","Dhaya",90));
-//            servicePersonne.ajouter(new Personne("Rihem","MATTOUSI",190));
-//            servicePersonne.ajouter(new Personne("Falten","Foulen",70));
-//            servicePersonne.modifier(new Personne("TEsting","Hmed",33,1));
-//            System.out.println(servicePersonne.recuperer());
+            // Chargement du fichier FXML depuis le dossier resources
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ChatView.fxml"));
+            Parent root = loader.load();
 
-            serviceMessage.add(new Message());
-        } catch (SQLDataException e) {
-            throw new RuntimeException(e);
+            // Configuration de la scène
+            Scene scene = new Scene(root);
+
+            primaryStage.setTitle("CardioLink - Messagerie");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+
+        } catch (IOException e) {
+            System.err.println("Erreur lors du chargement de l'interface : " + e.getMessage());
+            e.printStackTrace();
         }
     }
-}
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+}

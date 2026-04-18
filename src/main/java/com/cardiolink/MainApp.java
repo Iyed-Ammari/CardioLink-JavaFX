@@ -10,7 +10,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/cardiolink/fxml/login.fxml")
+                getClass().getResource("/login.fxml")
         );
         Scene scene = new Scene(loader.load(), 900, 560);
         stage.setTitle("CardioLink");

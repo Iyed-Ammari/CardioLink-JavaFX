@@ -154,7 +154,7 @@ public class DossierMedicalPatientController implements UserAwareController {
 
     // ── Navigation ───────────────────────────────────────────
     @FXML private void goHome() {
-        navigateTo("/com/cardiolink/fxml/dashboard_patient.fxml", "CardioLink - Dashboard", 1100, 650);
+        navigateTo("/dashboard_patient.fxml", "CardioLink - Dashboard", 1100, 650);
     }
     @FXML private void goCommunity() {
         navigateTo("/com/cardiolink/fxml/community.fxml", "CardioLink - Community", 1100, 650);
@@ -166,7 +166,7 @@ public class DossierMedicalPatientController implements UserAwareController {
     @FXML private void goProfil() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/cardiolink/fxml/profil_patient.fxml"));
+                    getClass().getResource("/profil_patient.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Mon Profil");
@@ -179,7 +179,7 @@ public class DossierMedicalPatientController implements UserAwareController {
     @FXML private void handleLogout() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/cardiolink/fxml/login.fxml"));
+                    getClass().getResource("/login.fxml"));
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Login");
