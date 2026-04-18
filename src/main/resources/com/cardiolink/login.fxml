@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<HBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.cardiolink.controllers.LoginController"
+      prefWidth="900" prefHeight="560"
+      style="-fx-background-color: #f8f8fb;">
+
+    <!-- GAUCHE : Formulaire -->
+    <VBox prefWidth="450" alignment="CENTER_LEFT"
+          style="-fx-background-color: white; -fx-padding: 50 40 50 40;">
+
+        <Label text="Welcome Back"
+               style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
+
+        <Label text="Sign in to your account to continue managing your cardiac health."
+               wrapText="true"
+               style="-fx-font-size: 13px; -fx-text-fill: #888888; -fx-padding: 8 0 24 0;"/>
+
+        <Label text="Email Address"
+               style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
+        <TextField fx:id="emailField" promptText="votre@email.com"
+                   prefHeight="42" prefWidth="370"
+                   style="-fx-background-color: #f0f0fb;
+                          -fx-border-color: #7F77DD; -fx-border-width: 1.5;
+                          -fx-border-radius: 8; -fx-background-radius: 8;
+                          -fx-padding: 10 14; -fx-font-size: 13px;"/>
+
+        <Label text="Password"
+               style="-fx-font-size: 13px; -fx-font-weight: bold;
+                      -fx-text-fill: #1a1a2e; -fx-padding: 16 0 6 0;"/>
+        <PasswordField fx:id="passwordField" promptText="••••••••"
+                       prefHeight="42" prefWidth="370"
+                       style="-fx-background-color: #f5f5fb;
+                              -fx-border-color: #dedede; -fx-border-width: 1.5;
+                              -fx-border-radius: 8; -fx-background-radius: 8;
+                              -fx-padding: 10 14; -fx-font-size: 13px;"/>
+
+        <Label fx:id="errorLabel" text=""
+               style="-fx-text-fill: #E24B4A; -fx-font-size: 12px; -fx-padding: 6 0 0 0;"/>
+
+        <Button text="Sign In" onAction="#handleLogin"
+                prefWidth="370" prefHeight="44"
+                style="-fx-background-color: linear-gradient(to right, #D4537E, #7F77DD);
+                       -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;
+                       -fx-background-radius: 10; -fx-cursor: hand;">
+            <VBox.margin><Insets top="20"/></VBox.margin>
+        </Button>
+
+        <Label text="Forgot your password?"
+               onMouseClicked="#goToForgotPassword"
+               style="-fx-font-size: 13px; -fx-text-fill: #7F77DD;
+              -fx-padding: 14 0 0 0; -fx-cursor: hand;"/>
+        <Separator><VBox.margin><Insets top="14" bottom="10"/></VBox.margin></Separator>
+
+        <!-- ✅ UN SEUL lien Register here en bas -->
+        <HBox alignment="CENTER" spacing="4">
+            <Label text="Don't have an account?"
+                   style="-fx-font-size: 13px; -fx-text-fill: #888888;"/>
+            <Label text="Register here"
+                   onMouseClicked="#goToRegister"
+                   style="-fx-font-size: 13px; -fx-text-fill: #7F77DD;
+                          -fx-font-weight: bold; -fx-cursor: hand;"/>
+        </HBox>
+
+    </VBox>
+
+    <!-- DROITE : Visuel décoratif -->
+    <StackPane HBox.hgrow="ALWAYS"
+               style="-fx-background-color: linear-gradient(to bottom right, #fce4ec, #ede7f6);">
+        <StackPane prefWidth="280" prefHeight="280"
+                   style="-fx-background-color: rgba(180,160,220,0.25);
+                          -fx-background-radius: 140;">
+            <Label text="🔐" style="-fx-font-size: 64px;"/>
+        </StackPane>
+    </StackPane>
+
+</HBox>

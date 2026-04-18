@@ -75,7 +75,7 @@ public class AdminEditUserController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
-                            "/com/cardiolink/fxml/dashboard_admin.fxml"));
+                            "/com/cardiolink/dashboard_admin.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) roleCombo.getScene().getWindow();
             stage.setScene(scene);

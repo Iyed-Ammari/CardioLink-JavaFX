@@ -68,7 +68,7 @@ public class VerifyEmailController {
     private void goToLogin() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/cardiolink/fxml/login.fxml"));
+                    getClass().getResource("/com/cardiolink/login.fxml"));
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) tokenField.getScene().getWindow();
             stage.setTitle("CardioLink - Login");

@@ -222,7 +222,7 @@ public class AdminDashboardController implements UserAwareController {
     private void goEditUser(User u) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/admin_edit_user.fxml"));
+                    getClass().getResource("/com/cardiolink/admin_edit_user.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             AdminEditUserController ctrl = loader.getController();
             ctrl.setData(currentUser, u);
@@ -356,7 +356,7 @@ public class AdminDashboardController implements UserAwareController {
                     .filter(u -> u.getId() == d.getUserId())
                     .findFirst().orElse(null);
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/admin_edit_dossier.fxml"));
+                    getClass().getResource("/com/cardiolink/admin_edit_dossier.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             AdminEditDossierController ctrl = loader.getController();
             ctrl.setData(currentUser, d, patient);
@@ -389,7 +389,7 @@ public class AdminDashboardController implements UserAwareController {
     @FXML private void goAddUser() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/admin_add_user.fxml"));
+                    getClass().getResource("/com/cardiolink/admin_add_user.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             AdminAddUserController ctrl = loader.getController();
             ctrl.setCurrentAdmin(currentUser);
@@ -443,7 +443,7 @@ public class AdminDashboardController implements UserAwareController {
     @FXML private void handleLogout() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/login.fxml"));
+                    getClass().getResource("/com/cardiolink/login.fxml"));
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) btnHome.getScene().getWindow();
             stage.setTitle("CardioLink - Login");

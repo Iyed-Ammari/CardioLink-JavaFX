@@ -91,7 +91,7 @@ public class UserService implements Iservice<User> {
         } catch (SQLException e) { throw new SQLDataException(e.getMessage()); }
     }
 
-    // ── Méthodes supplémentaires (hors interface) ────────────
+    // ── Méthodes supplémentaires ─────────────────────────────
 
     public User login(String email, String password) throws SQLException {
         String sql = "SELECT * FROM user WHERE email = ?";
@@ -99,19 +99,29 @@ public class UserService implements Iservice<User> {
         PreparedStatement stmt = conn.prepareStatement(sql);
         stmt.setString(1, email);
         ResultSet rs = stmt.executeQuery();
+
         if (rs.next()) {
             String storedPassword = rs.getString("password");
             boolean passwordOk;
-            if (storedPassword.startsWith("$2y$") || storedPassword.startsWith("$2a$")) {
+
+            if (storedPassword.startsWith("$2y$") ||
+                    storedPassword.startsWith("$2a$")) {
                 String javaHash = storedPassword.replace("$2y$", "$2a$");
                 passwordOk = BCrypt.checkpw(password, javaHash);
             } else {
                 passwordOk = storedPassword.equals(password);
             }
+
             if (passwordOk) {
+                // ✅ Vérifier si compte vérifié
                 boolean isVerified = rs.getBoolean("is_verified");
                 if (!isVerified) {
                     throw new SQLException("EMAIL_NOT_VERIFIED");
+                }
+                // ✅ Vérifier si compte actif
+                boolean isActive = rs.getBoolean("is_active");
+                if (!isActive) {
+                    throw new SQLException("ACCOUNT_BLOCKED");
                 }
                 return mapUser(rs);
             }
@@ -120,15 +130,13 @@ public class UserService implements Iservice<User> {
     }
 
     public void addUser(User user) throws SQLException {
-        // Vérifier si l'email existe déjà
         User existing = findByEmail(user.getEmail());
         if (existing != null) {
             if (!existing.isVerified()) {
-                // Compte non vérifié → supprimer et recréer
                 deleteUser(existing.getId());
             } else {
-                // Compte vérifié → email déjà utilisé
-                throw new SQLException("Duplicate entry '" + user.getEmail() + "'");
+                throw new SQLException(
+                        "Duplicate entry '" + user.getEmail() + "'");
             }
         }
         try { add(user); }
@@ -173,7 +181,8 @@ public class UserService implements Iservice<User> {
     }
 
     public long countRegistrationsThisMonth() throws SQLException {
-        String sql = "SELECT COUNT(*) FROM user WHERE MONTH(created_at) = MONTH(NOW()) " +
+        String sql = "SELECT COUNT(*) FROM user " +
+                "WHERE MONTH(created_at) = MONTH(NOW()) " +
                 "AND YEAR(created_at) = YEAR(NOW())";
         Connection conn = DatabaseConnection.getConnection();
         Statement st = conn.createStatement();
@@ -199,6 +208,19 @@ public class UserService implements Iservice<User> {
         ResultSet rs = ps.executeQuery();
         if (rs.next()) return mapUser(rs);
         return null;
+    }
+
+    // ✅ Mettre à jour le mot de passe avec BCrypt
+    public void updatePassword(int userId,
+                               String newPassword) throws SQLException {
+        String sql = "UPDATE user SET password = ? WHERE id = ?";
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        // ✅ Hasher avec BCrypt comme le reste de l'app
+        String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+        ps.setString(1, hashed);
+        ps.setInt(2, userId);
+        ps.executeUpdate();
     }
 
     private User mapUser(ResultSet rs) throws SQLException {

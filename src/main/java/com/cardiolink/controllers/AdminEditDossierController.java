@@ -102,7 +102,7 @@ public class AdminEditDossierController {
     @FXML private void handleLogout() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/login.fxml"));
+                    getClass().getResource("/com/cardiolink/login.fxml"));
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) patientNameLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Login");
@@ -114,7 +114,7 @@ public class AdminEditDossierController {
     private void backToDashboard(String section) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dashboard_admin.fxml"));
+                    getClass().getResource("/com/cardiolink/dashboard_admin.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) patientNameLabel.getScene().getWindow();
             stage.setScene(scene);

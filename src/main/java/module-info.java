@@ -5,20 +5,22 @@ module com.cardiolink {
     requires javafx.swing;
     requires javafx.media;
     requires java.sql;
+    requires java.net.http;
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
-    requires jbcrypt;
     requires jakarta.mail;
     requires jakarta.activation;
+    requires jbcrypt;
 
     opens com.cardiolink to javafx.fxml;
     opens com.cardiolink.controllers to javafx.fxml;
     opens com.cardiolink.Models to javafx.fxml;
     opens com.cardiolink.Services to javafx.fxml;
     opens com.cardiolink.utils to javafx.fxml;
+    opens com.cardiolink.WebSocket to javafx.fxml;
 
     exports com.cardiolink;
 }

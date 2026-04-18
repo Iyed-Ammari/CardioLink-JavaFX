@@ -60,7 +60,7 @@ public class ProfilPatientController implements UserAwareController {
     @FXML private void goHome() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dashboard_patient.fxml"));
+                    getClass().getResource("/com/cardiolink/dashboard_patient.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) nomLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Dashboard");
@@ -84,7 +84,7 @@ public class ProfilPatientController implements UserAwareController {
     @FXML private void goDossier() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dossier_medical.fxml"));
+                    getClass().getResource("/com/cardiolink/dossier_medical.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) nomLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Mon Dossier Médical");
@@ -100,7 +100,7 @@ public class ProfilPatientController implements UserAwareController {
     @FXML private void handleLogout() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/login.fxml"));
+                    getClass().getResource("/com/cardiolink/login.fxml"));
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) nomLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Login");
@@ -112,7 +112,7 @@ public class ProfilPatientController implements UserAwareController {
     @FXML private void goModifierProfil() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/modifier_profil.fxml"));
+                    getClass().getResource("/com/cardiolink/modifier_profil.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) nomLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Modifier mon profil");
@@ -133,7 +133,7 @@ public class ProfilPatientController implements UserAwareController {
                 try {
                     userService.deleteUser(currentUser.getId());
                     FXMLLoader loader = new FXMLLoader(
-                            getClass().getResource("/login.fxml"));
+                            getClass().getResource("/com/cardiolink/login.fxml"));
                     Scene scene = new Scene(loader.load(), 900, 560);
                     Stage stage = (Stage) nomLabel.getScene().getWindow();
                     stage.setTitle("CardioLink - Login");

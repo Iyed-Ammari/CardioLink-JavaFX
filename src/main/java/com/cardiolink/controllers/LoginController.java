@@ -46,7 +46,7 @@ public class LoginController {
                 if ("ROLE_ADMIN".equals(role)) {
                     FXMLLoader loader = new FXMLLoader(
                             getClass().getResource(
-                                    "/com/cardiolink/fxml/dashboard_admin.fxml"));
+                                    "/com/cardiolink/dashboard_admin.fxml"));
                     Scene scene = new Scene(loader.load(), 1100, 650);
                     AdminDashboardController ctrl = loader.getController();
                     stage.setScene(scene);
@@ -57,7 +57,7 @@ public class LoginController {
                 } else {
                     FXMLLoader loader = new FXMLLoader(
                             getClass().getResource(
-                                    "/com/cardiolink/fxml/dashboard_patient.fxml"));
+                                    "/com/cardiolink/dashboard_patient.fxml"));
                     Scene scene = new Scene(loader.load(), 1100, 650);
                     PatientDashboardController ctrl = loader.getController();
                     stage.setScene(scene);
@@ -82,7 +82,7 @@ public class LoginController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource(
-                            "/com/cardiolink/fxml/register.fxml"));
+                            "/com/cardiolink/register.fxml"));
             Scene scene = new Scene(loader.load(), 900, 650);
             Stage stage = (Stage) emailField.getScene().getWindow();
             stage.setTitle("CardioLink - Register");
@@ -94,4 +94,29 @@ public class LoginController {
     private void showError(String msg) {
         errorLabel.setText("⚠ " + msg);
     }
+    @FXML
+    private void goToForgotPassword(javafx.scene.input.MouseEvent event) {
+        try {
+            var url = getClass().getResource(
+                    "/com/cardiolink/forgot_password.fxml");
+
+            // ✅ Debug — afficher le chemin
+            System.out.println("URL: " + url);
+
+            if (url == null) {
+                System.err.println("❌ forgot_password.fxml non trouvé !");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Scene scene = new Scene(loader.load(), 900, 560);
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setTitle("CardioLink - Mot de passe oublié");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

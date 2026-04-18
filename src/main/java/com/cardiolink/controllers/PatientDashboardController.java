@@ -47,7 +47,7 @@ public class PatientDashboardController implements UserAwareController {
         if ("ROLE_ADMIN".equals(currentUser.getRoleClean())) {
             try {
                 FXMLLoader loader = new FXMLLoader(
-                        getClass().getResource("/dashboard_admin.fxml"));
+                        getClass().getResource("/com/cardiolink/dashboard_admin.fxml"));
                 Scene scene = new Scene(loader.load(), 1100, 650);
                 AdminDashboardController ctrl = loader.getController();
                 Stage stage = (Stage) avatarLabel.getScene().getWindow();
@@ -73,7 +73,7 @@ public class PatientDashboardController implements UserAwareController {
     @FXML private void goDossier() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dossier_medical.fxml"));
+                    getClass().getResource("/com/cardiolink/dossier_medical.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Mon Dossier Médical");
@@ -87,7 +87,7 @@ public class PatientDashboardController implements UserAwareController {
     @FXML private void goProfil() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/profil_patient.fxml"));
+                    getClass().getResource("/com/cardiolink/profil_patient.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Mon Profil");
@@ -101,7 +101,7 @@ public class PatientDashboardController implements UserAwareController {
     @FXML private void handleLogout() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/login.fxml"));
+                    getClass().getResource("/com/cardiolink/login.fxml"));
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Login");
