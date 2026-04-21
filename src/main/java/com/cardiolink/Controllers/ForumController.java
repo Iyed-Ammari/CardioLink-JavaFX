@@ -79,24 +79,13 @@ public class ForumController {
         String titre = titleField.getText().trim();
         String contenu = contentField.getText().trim();
 
-        // 2. VALIDATION (Le garde-barrière du MVC)
-        StringBuilder errors = new StringBuilder();
-        if (titre.isEmpty()) {
-            errors.append("- Le titre est obligatoire.\n");
-        }
-        if (contenu.isEmpty()) {
-            errors.append("- Le contenu ne peut pas être vide.\n");
+        // 2. Validation centralisée
+        if (!estSaisieValide(titre, contenu)) {
+            return; // arrêt si invalide
         }
 
-        // Si des erreurs sont présentes, on affiche l'alerte et on arrête
-        if (errors.length() > 0) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Validation");
-            alert.setHeaderText("Champs manquants");
-            alert.setContentText(errors.toString());
-            alert.showAndWait();
-            return; // On sort de la méthode, le service n'est pas appelé
-        }
+        // 3. Suite logique (appel service / ajout en base)
+        // postService.addPost(new Post(titre, contenu));
 
         // 3. LOGIQUE MÉTIER (Appel au Service)
         try {
@@ -123,89 +112,150 @@ public class ForumController {
     }
 
     private void render(List<Post> posts) {
+
         postContainer.getChildren().clear();
+
         for (Post p : posts) {
-            postContainer.getChildren().add(createPostCard(p));
+            try {
+                List<Comment> comments = serviceComment.getByPostId(p.getId());
+                postContainer.getChildren().add(
+                        createPostCard(p, comments)
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private VBox createPostCard(Post p) {
+    private VBox createPostCard(Post p, List<Comment> comments) {
 
         VBox card = new VBox(15);
-
         card.setMaxWidth(540);
 
-        card.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 18; " +
+        card.setStyle(
+                "-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 18; " +
+                        "-fx-border-color: #e5e7eb; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 15, 0, 0, 5);"
+        );
 
-                "-fx-border-color: #e5e7eb; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 15, 0, 0, 5);");
-
-        // --- EN-TÊTE ---
-
+        // ================= HEADER =================
         HBox header = new HBox(12);
-
         header.setAlignment(Pos.CENTER_LEFT);
 
-        StackPane avatar = new StackPane(new Circle(20, Color.web("#2F60F5")), new Text("U") {{ setFill(Color.WHITE); }});
+        StackPane avatar = new StackPane(
+                new Circle(20, Color.web("#2F60F5")),
+                new Text("U") {{
+                    setFill(Color.WHITE);
+                }}
+        );
 
-        VBox infos = new VBox(new Label("Utilisateur " + p.getUser_id()) {{ setStyle("-fx-font-weight: bold;"); }},
-
-                new Label("le " + p.getCreated_at()) {{ setStyle("-fx-font-size: 10; -fx-text-fill: gray;"); }});
+        VBox infos = new VBox(
+                new Label("Utilisateur " + p.getUser_id()) {{
+                    setStyle("-fx-font-weight: bold;");
+                }},
+                new Label("le " + p.getCreated_at()) {{
+                    setStyle("-fx-font-size: 10; -fx-text-fill: gray;");
+                }}
+        );
 
         header.getChildren().addAll(avatar, infos);
 
-
-
-        // --- CORPS ---
-
+        // ================= BODY =================
         VBox body = new VBox(8);
 
         if (p.getTitle() != null && !p.getTitle().isEmpty()) {
-
-            body.getChildren().add(new Label(p.getTitle()) {{ setStyle("-fx-font-weight: bold; -fx-font-size: 16;"); }});
-
+            body.getChildren().add(new Label(p.getTitle()) {{
+                setStyle("-fx-font-weight: bold; -fx-font-size: 16;");
+            }});
         }
 
-        body.getChildren().add(new Label(p.getContent()) {{ setWrapText(true); }});
+        body.getChildren().add(new Label(p.getContent()) {{
+            setWrapText(true);
+        }});
 
-        // --- ZONE COMMENTAIRES (Style Facebook) ---
+        // ================= LIKE SECTION =================
+        HBox likeBox = new HBox(8);
+        likeBox.setAlignment(Pos.CENTER_LEFT);
+
+        Button likeBtn = new Button("❤ Like");
+        likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+
+        Label likeCount = new Label();
+
+// safe values
+        int postId = p.getId();
+
+        try {
+            likeCount.setText(String.valueOf(servicePost.countLikes(postId)));
+
+            boolean isLiked = servicePost.isLikedByUser(postId, CURRENT_USER_ID);
+
+            if (isLiked) {
+                likeBtn.setText("❤️ Liked");
+                likeBtn.setStyle("-fx-text-fill: #ef4444; -fx-background-color: transparent;");
+            }
+
+        } catch (Exception e) {
+            likeCount.setText("0");
+        }
+
+// IMPORTANT FIX
+        likeBtn.setOnAction(e -> handleLike(p));
+
+        likeBox.getChildren().addAll(likeBtn, likeCount);
+
+        // ================= COMMENTS =================
         VBox commentArea = new VBox(10);
-        commentArea.setStyle("-fx-background-color: #f8fafc; -fx-padding: 12; -fx-background-radius: 12;");
+        commentArea.setStyle(
+                "-fx-background-color: #f8fafc; -fx-padding: 12; -fx-background-radius: 12;"
+        );
 
         VBox commentsList = new VBox(8);
-        try {
-            List<Comment> comments = serviceComment.getByPostId(p.getId());
-            for (Comment c : comments) {
-                commentsList.getChildren().add(createCommentItem(c));
-            }
-        } catch (Exception e) { e.printStackTrace(); }
 
-        // Barre d'ajout de commentaire
+        for (Comment c : comments) {
+            commentsList.getChildren().add(createCommentItem(c));
+        }
+
+        // input comment
         HBox inputBar = new HBox(8);
+
         TextField commInput = new TextField();
         commInput.setPromptText("Écrire un commentaire...");
-        commInput.setStyle("-fx-background-radius: 15; -fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-radius: 15;");
         HBox.setHgrow(commInput, Priority.ALWAYS);
 
         Button sendComm = new Button("➤");
-        sendComm.setStyle("-fx-background-color: #2F60F5; -fx-text-fill: white; -fx-background-radius: 50; -fx-cursor: hand;");
-        sendComm.setOnAction(e -> handleAddComment(p.getId(), commInput.getText()));
+        sendComm.setStyle(
+                "-fx-background-color: #2F60F5; -fx-text-fill: white; " +
+                        "-fx-background-radius: 50; -fx-cursor: hand;"
+        );
+
+        sendComm.setOnAction(e ->
+                handleAddComment(p.getId(), commInput.getText())
+        );
 
         inputBar.getChildren().addAll(commInput, sendComm);
         commentArea.getChildren().addAll(commentsList, inputBar);
 
-        // --- ACTIONS DU POST (Propriétaire uniquement) ---
+        // ================= ACTIONS =================
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
+
         if (p.getUser_id() == CURRENT_USER_ID) {
-            Button btnEdit = new Button("Modifier") {{ setOnAction(e -> openEditModal(p)); setStyle("-fx-background-color: #f3f4f6; -fx-cursor: hand;"); }};
-            Button btnDel = new Button("Supprimer") {{ setOnAction(e -> handleDeletePost(p)); setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-cursor: hand;"); }};
+
+            Button btnEdit = new Button("Modifier");
+            btnEdit.setOnAction(e -> openEditModal(p));
+            btnEdit.setStyle("-fx-background-color: #f3f4f6; -fx-cursor: hand;");
+
+            Button btnDel = new Button("Supprimer");
+            btnDel.setOnAction(e -> handleDeletePost(p));
+            btnDel.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-cursor: hand;");
+
             actions.getChildren().addAll(btnEdit, btnDel);
         }
 
-        card.getChildren().addAll(header, body, commentArea, actions);
+        // ================= FINAL CARD =================
+        card.getChildren().addAll(header, body, likeBox, commentArea, actions);
         return card;
     }
-
     // ================= GESTION DES COMMENTAIRES INDIVIDUELS =================
 
     private HBox createCommentItem(Comment c) {
@@ -252,27 +302,16 @@ public class ForumController {
     @FXML
     public void updatePost() {
         if (selectedPost != null) {
+
             // 1. Récupération des saisies dans la modale
             String nouveauTitre = editTitleField.getText().trim();
             String nouveauContenu = editContentField.getText().trim();
 
-            // 2. VALIDATION
-            StringBuilder errors = new StringBuilder();
-            if (nouveauTitre.isEmpty()) {
-                errors.append("- Le titre ne peut pas être vide.\n");
-            }
-            if (nouveauContenu.isEmpty()) {
-                errors.append("- Le contenu ne peut pas être vide.\n");
+            // 2. Validation centralisée
+            if (!estSaisieValide(nouveauTitre, nouveauContenu)) {
+                return; // arrêt si invalide
             }
 
-            if (errors.length() > 0) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Modification");
-                alert.setHeaderText("Données invalides");
-                alert.setContentText(errors.toString());
-                alert.showAndWait();
-                return; // On arrête tout
-            }
 
             // 3. MISE À JOUR (Service)
             try {
@@ -414,23 +453,64 @@ public class ForumController {
         selectedComment = null;
     }
     private boolean estSaisieValide(String titre, String contenu) {
-        String messageErreur = "";
+        StringBuilder messageErreur = new StringBuilder();
 
+        // ===== TITRE =====
         if (titre == null || titre.trim().isEmpty()) {
-            messageErreur += "- Le titre est obligatoire.\n";
-        }
-        if (contenu == null || contenu.trim().isEmpty()) {
-            messageErreur += "- Le contenu ne peut pas être vide.\n";
+            messageErreur.append("- Le titre est obligatoire.\n");
+        } else {
+            titre = titre.trim();
+
+            if (titre.length() < 3) {
+                messageErreur.append("- Le titre doit contenir au moins 3 caractères.\n");
+            }
+
+            if (titre.length() > 100) {
+                messageErreur.append("- Le titre ne doit pas dépasser 100 caractères.\n");
+            }
+
+            if (!titre.matches(".*[a-zA-ZÀ-ÿ].*")) {
+                messageErreur.append("- Le titre doit contenir au moins des lettres.\n");
+            }
+
+            if (titre.matches("(.)\\1{4,}")) {
+                messageErreur.append("- Le titre contient une répétition invalide.\n");
+            }
         }
 
-        if (!messageErreur.isEmpty()) {
+        // ===== CONTENU =====
+        if (contenu == null || contenu.trim().isEmpty()) {
+            messageErreur.append("- Le contenu ne peut pas être vide.\n");
+        } else {
+            contenu = contenu.trim();
+
+            if (contenu.length() < 10) {
+                messageErreur.append("- Le contenu doit contenir au moins 10 caractères.\n");
+            }
+
+            if (contenu.length() > 2000) {
+                messageErreur.append("- Le contenu ne doit pas dépasser 2000 caractères.\n");
+            }
+
+            if (!contenu.matches(".*[a-zA-ZÀ-ÿ].*")) {
+                messageErreur.append("- Le contenu doit contenir au moins des lettres.\n");
+            }
+
+            if (contenu.matches("(.)\\1{6,}")) {
+                messageErreur.append("- Le contenu contient une répétition abusive.\n");
+            }
+        }
+
+        // ===== AFFICHAGE ERREUR =====
+        if (messageErreur.length() > 0) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Erreur de saisie");
-            alert.setHeaderText("Champs invalides");
-            alert.setContentText(messageErreur);
+            alert.setHeaderText("Post invalide");
+            alert.setContentText(messageErreur.toString());
             alert.showAndWait();
             return false;
         }
+
         return true;
     }
     @FXML
@@ -452,6 +532,24 @@ public class ForumController {
             Stage stage = (Stage) dossierButton.getScene().getWindow();
             stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/dossier_medical.fxml"))));
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void handleLike(Post p) {
+        try {
+            System.out.println("CLICK LIKE");
+            System.out.println("POST ID = " + p.getId());
+            System.out.println("USER ID = " + CURRENT_USER_ID);
+
+            boolean liked = servicePost.toggleLike(p.getId(), CURRENT_USER_ID);
+
+            System.out.println(liked ? "Liked 👍" : "Unliked 👎");
+
+            loadPosts();
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

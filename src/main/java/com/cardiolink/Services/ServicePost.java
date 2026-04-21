@@ -316,4 +316,79 @@ public class ServicePost implements Iservice<Post> {
 
         return posts;
     }
+    //likes
+    public boolean toggleLike(int postId, int userId) throws SQLDataException {
+        try {
+            System.out.println("LIKE DEBUG: post=" + postId + " user=" + userId);
+
+            // 1. vérifier si déjà liké
+            String check = "SELECT 1 FROM post_likes WHERE post_id=? AND user_id=?";
+            PreparedStatement psCheck = cnx.prepareStatement(check);
+            psCheck.setInt(1, postId);
+            psCheck.setInt(2, userId);
+
+            ResultSet rs = psCheck.executeQuery();
+
+            if (rs.next()) {
+                // 2. UNLIKE
+                String delete = "DELETE FROM post_likes WHERE post_id=? AND user_id=?";
+                PreparedStatement psDel = cnx.prepareStatement(delete);
+                psDel.setInt(1, postId);
+                psDel.setInt(2, userId);
+
+                int rows = psDel.executeUpdate();
+                System.out.println("UNLIKE rows = " + rows);
+
+                return false;
+
+            } else {
+                // 3. LIKE
+                String insert = "INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)";
+                PreparedStatement psIns = cnx.prepareStatement(insert);
+                psIns.setInt(1, postId);
+                psIns.setInt(2, userId);
+
+                int rows = psIns.executeUpdate();
+                System.out.println("LIKE rows = " + rows);
+
+                return true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public int countLikes(int postId) throws SQLDataException {
+        try {
+            String query = "SELECT COUNT(*) FROM post_likes WHERE post_id=?";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, postId);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public boolean isLikedByUser(int postId, int userId) throws SQLDataException {
+        try {
+            String query = "SELECT 1 FROM post_likes WHERE post_id=? AND user_id=?";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, postId);
+            ps.setInt(2, userId);
+
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new SQLDataException(e.getMessage());
+        }
+    }
 }
