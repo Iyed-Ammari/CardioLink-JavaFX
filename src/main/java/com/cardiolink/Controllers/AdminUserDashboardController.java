@@ -4,6 +4,7 @@ import com.cardiolink.Models.DossierMedical;
 import com.cardiolink.Models.User;
 import com.cardiolink.Services.DossierMedicalService;
 import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.ManagerSession;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -72,6 +73,7 @@ public class AdminUserDashboardController implements UserAwareController {
 
     @Override
     public void setCurrentUser(User user) {
+
         this.currentUser = user;
         try {
             allUsers = userService.getAllUsers();
@@ -126,6 +128,16 @@ public class AdminUserDashboardController implements UserAwareController {
 
     // ── Users Table ───────────────────────────────────────────
     private void setupUsersTable() {
+        System.out.println("AAAAAAAAAAAAA");
+        int userId = ManagerSession.getInstance().getCurrentUserId();
+        User user  = null;
+        try {
+            user = userService.getUserById(userId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(userId);
+        System.out.println(user.toString());
         if (usersTableReady) return;
         usersTableReady = true;
 
