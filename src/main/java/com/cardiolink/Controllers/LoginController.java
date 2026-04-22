@@ -2,12 +2,14 @@ package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.User;
 import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.ManagerSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import java.sql.SQLException;
 
 public class LoginController {
 
@@ -16,6 +18,7 @@ public class LoginController {
     @FXML private Label         errorLabel;
 
     private final UserService userService = new UserService();
+
     @FXML
     private void handleLogin() {
         String email    = emailField.getText().trim();
@@ -35,11 +38,13 @@ public class LoginController {
             User user = userService.login(email, password);
 
             if (user != null) {
+                // ✅ Sauvegarder l'ID dans ManagerSession
+                ManagerSession.getInstance().setCurrentUserId(user.getId());
+
                 Stage stage = (Stage) emailField.getScene().getWindow();
                 String role = user.getRoleClean();
 
                 if ("ROLE_ADMIN".equals(role)) {
-                    // ✅ Admin → directement dashboard_admin
                     FXMLLoader loader = new FXMLLoader(
                             getClass().getResource("/dashboard_admin.fxml"));
                     Scene scene = new Scene(loader.load(), 1100, 650);
@@ -50,7 +55,6 @@ public class LoginController {
                     ctrl.setCurrentUser(user);
 
                 } else {
-                    // ✅ Patient et Médecin → Welcome page
                     FXMLLoader loader = new FXMLLoader(
                             getClass().getResource("/dashboard_patient.fxml"));
                     Scene scene = new Scene(loader.load(), 1100, 650);
@@ -66,11 +70,21 @@ public class LoginController {
                 passwordField.clear();
             }
 
+        } catch (SQLException e) {
+            if ("EMAIL_NOT_VERIFIED".equals(e.getMessage())) {
+                showError("⚠ Email non vérifié ! Vérifiez votre boîte mail.");
+            } else if ("ACCOUNT_BLOCKED".equals(e.getMessage())) {
+                showError("🔒 Compte bloqué ! Contactez l'administrateur.");
+            } else {
+                showError("Erreur de connexion !");
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             showError("Erreur de connexion !");
             e.printStackTrace();
         }
     }
+
     @FXML
     private void goToRegister(MouseEvent event) {
         try {

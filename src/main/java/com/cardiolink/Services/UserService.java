@@ -22,8 +22,8 @@ public class UserService implements Iservice<User> {
             stmt.setString(3, user.getNom());
             stmt.setString(4, user.getPrenom());
             stmt.setString(5, "[\"" + user.getRoles() + "\"]");
-            stmt.setString(6, user.getAdresse());
-            stmt.setString(7, user.getTel());
+            stmt.setString(6, user.getAdresse() != null ? user.getAdresse() : "");
+            stmt.setString(7, user.getTel()     != null ? user.getTel()     : "");
             stmt.executeUpdate();
         } catch (SQLException e) { throw new SQLDataException(e.getMessage()); }
     }
@@ -47,8 +47,8 @@ public class UserService implements Iservice<User> {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, user.getNom());
                 ps.setString(2, user.getPrenom());
-                ps.setString(3, user.getTel());
-                ps.setString(4, user.getAdresse());
+                ps.setString(3, user.getTel()     != null ? user.getTel()     : "");
+                ps.setString(4, user.getAdresse() != null ? user.getAdresse() : "");
                 ps.setString(5, user.getImageUrl());
                 ps.setInt   (6, user.getId());
                 ps.executeUpdate();
@@ -91,29 +91,52 @@ public class UserService implements Iservice<User> {
         } catch (SQLException e) { throw new SQLDataException(e.getMessage()); }
     }
 
-    // ── Méthodes supplémentaires (hors interface) ────────────
-
+    // ── Login avec vérifications ─────────────────────────────
     public User login(String email, String password) throws SQLException {
         String sql = "SELECT * FROM user WHERE email = ?";
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement stmt = conn.prepareStatement(sql);
         stmt.setString(1, email);
         ResultSet rs = stmt.executeQuery();
+
         if (rs.next()) {
             String storedPassword = rs.getString("password");
             boolean passwordOk;
-            if (storedPassword.startsWith("$2y$") || storedPassword.startsWith("$2a$")) {
+
+            if (storedPassword.startsWith("$2y$") ||
+                    storedPassword.startsWith("$2a$")) {
                 String javaHash = storedPassword.replace("$2y$", "$2a$");
                 passwordOk = BCrypt.checkpw(password, javaHash);
             } else {
                 passwordOk = storedPassword.equals(password);
             }
-            if (passwordOk) return mapUser(rs);
+
+            if (passwordOk) {
+                // ✅ Vérifier is_verified
+                if (!rs.getBoolean("is_verified")) {
+                    throw new SQLException("EMAIL_NOT_VERIFIED");
+                }
+                // ✅ Vérifier is_active
+                if (!rs.getBoolean("is_active")) {
+                    throw new SQLException("ACCOUNT_BLOCKED");
+                }
+                return mapUser(rs);
+            }
         }
         return null;
     }
 
     public void addUser(User user) throws SQLException {
+        // ✅ Vérifier si email déjà utilisé
+        User existing = findByEmail(user.getEmail());
+        if (existing != null) {
+            if (!existing.isVerified()) {
+                deleteUser(existing.getId());
+            } else {
+                throw new SQLException(
+                        "Duplicate entry '" + user.getEmail() + "'");
+            }
+        }
         try { add(user); }
         catch (SQLDataException e) { throw new SQLException(e.getMessage()); }
     }
@@ -156,13 +179,44 @@ public class UserService implements Iservice<User> {
     }
 
     public long countRegistrationsThisMonth() throws SQLException {
-        String sql = "SELECT COUNT(*) FROM user WHERE MONTH(created_at) = MONTH(NOW()) " +
+        String sql = "SELECT COUNT(*) FROM user " +
+                "WHERE MONTH(created_at) = MONTH(NOW()) " +
                 "AND YEAR(created_at) = YEAR(NOW())";
         Connection conn = DatabaseConnection.getConnection();
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(sql);
         if (rs.next()) return rs.getLong(1);
         return 0;
+    }
+
+    public void updateUserRole(int userId, String role) throws SQLException {
+        String sql = "UPDATE user SET roles = ? WHERE id = ?";
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, "[\"" + role + "\"]");
+        ps.setInt(2, userId);
+        ps.executeUpdate();
+    }
+
+    // ✅ Mettre à jour le mot de passe avec BCrypt
+    public void updatePassword(int userId, String newPassword) throws SQLException {
+        String sql = "UPDATE user SET password = ? WHERE id = ?";
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+        ps.setString(1, hashed);
+        ps.setInt(2, userId);
+        ps.executeUpdate();
+    }
+
+    public User getUserById(int id) throws SQLException {
+        String sql = "SELECT * FROM user WHERE id = ?";
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return mapUser(rs);
+        return null;
     }
 
     private User mapUser(ResultSet rs) throws SQLException {
