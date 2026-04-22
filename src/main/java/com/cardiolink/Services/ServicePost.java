@@ -391,4 +391,52 @@ public class ServicePost implements Iservice<Post> {
             throw new SQLDataException(e.getMessage());
         }
     }
+    public int getUserFlames(int userId) throws SQLDataException {
+        try {
+
+            String query = "SELECT created_at FROM post WHERE user_id=? ORDER BY created_at DESC";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, userId);
+
+            ResultSet rs = ps.executeQuery();
+
+            int flames = 0;
+            Timestamp previous = null;
+
+            long now = System.currentTimeMillis();
+
+            while (rs.next()) {
+
+                Timestamp postDate = rs.getTimestamp("created_at");
+
+                if (previous == null) {
+                    long diff = now - postDate.getTime();
+
+                    // TEST 1 min
+                    if (diff <= 60000) { // 1h
+                        flames = 1;
+                        previous = postDate;
+                    } else {
+                        break;
+                    }
+
+                } else {
+
+                    long diff = previous.getTime() - postDate.getTime();
+
+                    if (diff <= 60000) {
+                        flames++;
+                        previous = postDate;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            return flames;
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
 }

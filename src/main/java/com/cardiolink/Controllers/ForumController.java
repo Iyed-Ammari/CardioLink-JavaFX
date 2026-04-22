@@ -39,7 +39,7 @@ public class ForumController {
     private Post selectedPost;
     private final ServicePost servicePost = new ServicePost();
     private final ServiceComment serviceComment = new ServiceComment();
-    private final int CURRENT_USER_ID = 2; // Simulé pour CardioLink
+    private final int CURRENT_USER_ID = 7; // Simulé pour CardioLink
 
     @FXML
     public void initialize() {
@@ -138,6 +138,7 @@ public class ForumController {
         );
 
         // ================= HEADER =================
+
         HBox header = new HBox(12);
         header.setAlignment(Pos.CENTER_LEFT);
 
@@ -158,6 +159,21 @@ public class ForumController {
         );
 
         header.getChildren().addAll(avatar, infos);
+
+// ===== FLAME =====
+        int flames = 0;
+        try {
+            flames = servicePost.getUserFlames(p.getUser_id());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (flames > 0) {
+            Label flameLabel = new Label("🔥 " + flames);
+            flameLabel.setStyle("-fx-text-fill: #ff6b00; -fx-font-weight: bold;");
+            header.getChildren().add(flameLabel);
+        }
+
 
         // ================= BODY =================
         VBox body = new VBox(8);
