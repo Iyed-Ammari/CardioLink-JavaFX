@@ -16,21 +16,18 @@ public class ServicePost implements Iservice<Post> {
     }
 
     @Override
-    public void add(Post post) throws SQLDataException {
+    public void add(Post p) throws SQLDataException {
         try {
+            String sql = "INSERT INTO post (title, content, image, user_id, created_at) VALUES (?, ?, ?, ?, ?)";
 
-            String query = "INSERT INTO post (title, content, created_at, user_id) VALUES (?, ?, ?, ?)";
-
-            PreparedStatement ps = cnx.prepareStatement(query);
-
-            ps.setString(1, post.getTitle());
-            ps.setString(2, post.getContent());
-            ps.setTimestamp(3, Timestamp.valueOf(post.getCreated_at()));
-            ps.setInt(4, post.getUser_id());
+            PreparedStatement ps = cnx.prepareStatement(sql);
+            ps.setString(1, p.getTitle());
+            ps.setString(2, p.getContent());
+            ps.setString(3, p.getImage());
+            ps.setInt(4, p.getUser_id());
+            ps.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
 
             ps.executeUpdate();
-
-            System.out.println("Post ajouté !");
 
         } catch (SQLException e) {
             throw new SQLDataException(e.getMessage());
@@ -106,6 +103,9 @@ public class ServicePost implements Iservice<Post> {
                 p.setContent(rs.getString("content"));
                 p.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
                 p.setUser_id(rs.getInt("user_id"));
+
+                // 🔥 IMPORTANT FIX
+                p.setImage(rs.getString("image"));
 
                 posts.add(p);
             }
@@ -439,4 +439,5 @@ public class ServicePost implements Iservice<Post> {
             throw new SQLDataException(e.getMessage());
         }
     }
+
 }

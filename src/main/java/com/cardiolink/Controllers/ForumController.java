@@ -15,10 +15,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
+import javafx.stage.FileChooser;
 import java.io.IOException;
 import java.util.List;
-
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import java.io.File;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.Files;
 public class ForumController {
 
     @FXML private VBox postContainer;
@@ -35,11 +39,16 @@ public class ForumController {
     @FXML private VBox editCommentBox;
     @FXML private TextArea editCommentField;
 
+    @FXML
+    private Label imageLabel;
     private Comment selectedComment; // Pour stocker le commentaire en cours de modif
     private Post selectedPost;
     private final ServicePost servicePost = new ServicePost();
     private final ServiceComment serviceComment = new ServiceComment();
     private final int CURRENT_USER_ID = 7; // Simulé pour CardioLink
+    private String selectedImagePath = null;
+
+    private String savedImageName = null;
 
     @FXML
     public void initialize() {
@@ -75,19 +84,14 @@ public class ForumController {
 
     @FXML
     public void addPost() {
-        // 1. Récupération des saisies
+
         String titre = titleField.getText().trim();
         String contenu = contentField.getText().trim();
 
-        // 2. Validation centralisée
         if (!estSaisieValide(titre, contenu)) {
-            return; // arrêt si invalide
+            return;
         }
 
-        // 3. Suite logique (appel service / ajout en base)
-        // postService.addPost(new Post(titre, contenu));
-
-        // 3. LOGIQUE MÉTIER (Appel au Service)
         try {
             Post p = new Post();
             p.setTitle(titre);
@@ -95,19 +99,32 @@ public class ForumController {
             p.setUser_id(CURRENT_USER_ID);
             p.setCreated_at(java.time.LocalDateTime.now());
 
+            // ⭐ IMAGE PROPRE MVC
+            if (selectedImagePath != null) {
+                String imageName = saveImageToUploads(selectedImagePath);
+                p.setImage(imageName);
+            } else {
+                p.setImage(null);
+            }
+
             servicePost.add(p);
 
-            // 4. MISE À JOUR DE LA VUE
+            // reset UI
             titleField.clear();
             contentField.clear();
+            selectedImagePath = null;
+            imageLabel.setText("Aucune image sélectionnée");
+
             loadPosts();
             loadStats();
 
             System.out.println("Publication réussie !");
+
         } catch (Exception e) {
             e.printStackTrace();
-            // Optionnel : Alerte en cas d'erreur SQL
-            new Alert(Alert.AlertType.ERROR, "Erreur lors de l'enregistrement en base de données.").show();
+            new Alert(Alert.AlertType.ERROR,
+                    "Erreur lors de l'enregistrement en base de données."
+            ).show();
         }
     }
 
@@ -187,7 +204,31 @@ public class ForumController {
         body.getChildren().add(new Label(p.getContent()) {{
             setWrapText(true);
         }});
+        // --- IMAGE (optionnelle) ---
+        if (p.getImage() != null && !p.getImage().isEmpty()) {
 
+            File file = new File("uploads", p.getImage());
+
+            System.out.println("IMAGE PATH = " + file.getAbsolutePath());
+            System.out.println("EXISTS = " + file.exists());
+
+            if (file.exists()) {
+
+                Image image = new Image(file.toURI().toString(), false);
+
+                ImageView img = new ImageView(image);
+
+                img.setFitWidth(400);
+                img.setPreserveRatio(true);
+                img.setSmooth(true);
+                img.setCache(true);
+
+                body.getChildren().add(img);
+
+            } else {
+                System.out.println("❌ Image introuvable sur disque");
+            }
+        }
         // ================= LIKE SECTION =================
         HBox likeBox = new HBox(8);
         likeBox.setAlignment(Pos.CENTER_LEFT);
@@ -569,4 +610,39 @@ public class ForumController {
             e.printStackTrace();
         }
     }
+    @FXML
+    public void chooseImage() {
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        File file = fileChooser.showOpenDialog(null);
+
+        if (file != null) {
+            selectedImagePath = file.getAbsolutePath();
+            imageLabel.setText(file.getName());
+        }
+    }
+    private String saveImageToUploads(String path) {
+
+        try {
+            File source = new File(path);
+
+            String extension = path.substring(path.lastIndexOf("."));
+            String imageName = java.util.UUID.randomUUID() + extension;
+
+            File dest = new File("uploads/" + imageName);
+
+            Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+            return imageName;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }

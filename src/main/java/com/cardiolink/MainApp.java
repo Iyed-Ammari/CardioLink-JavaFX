@@ -10,7 +10,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(
-                // juste badel esm l template ly f star ly taht hedha bch tokoodch kol mara taaml f log in, hot ly hachtk bih toul
+                // juste badel esm l template ly f star ly taht hedha bch tokoodch kol mara
                 getClass().getResource("/dashboard_patient.fxml")
         );
         Scene scene = new Scene(loader.load(), 1100, 700);
