@@ -41,6 +41,7 @@ public class ChatController implements Initializable {
     private final int currentConversationId = 3;
     private final int currentUserId = 33; // Ton ID (Médecin ou Patient)
 
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         messageService = new MessageService();
