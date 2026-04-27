@@ -73,7 +73,6 @@ public class AdminUserDashboardController implements UserAwareController {
 
     @Override
     public void setCurrentUser(User user) {
-
         this.currentUser = user;
         try {
             allUsers = userService.getAllUsers();
@@ -86,7 +85,6 @@ public class AdminUserDashboardController implements UserAwareController {
             String initial = user.getNom() != null && !user.getNom().isEmpty()
                     ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "A";
             sidebarInitial.setText(initial);
-            // ── Welcome message identique pour tous les rôles ──
             welcomeName.setText("Welcome to CardioLink");
         }
         roleFilter.setItems(FXCollections.observableArrayList(
@@ -95,9 +93,17 @@ public class AdminUserDashboardController implements UserAwareController {
         setupUsersTable();
         usersTable.setItems(FXCollections.observableArrayList(allUsers));
         loadStats();
-        // Afficher welcome en premier
         welcomeView.setVisible(true);
         dashboardPane.setVisible(false);
+    }
+
+    // ── Récupère l'user depuis ManagerSession ─────────────────
+    public void init() {
+        try {
+            int userId = ManagerSession.getInstance().getCurrentUserId();
+            User user  = userService.getUserById(userId);
+            if (user != null) setCurrentUser(user);
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     // ── Welcome ↔ Dashboard ──────────────────────────────────
@@ -128,16 +134,6 @@ public class AdminUserDashboardController implements UserAwareController {
 
     // ── Users Table ───────────────────────────────────────────
     private void setupUsersTable() {
-        System.out.println("AAAAAAAAAAAAA");
-        int userId = ManagerSession.getInstance().getCurrentUserId();
-        User user  = null;
-        try {
-            user = userService.getUserById(userId);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println(userId);
-        System.out.println(user.toString());
         if (usersTableReady) return;
         usersTableReady = true;
 
@@ -412,7 +408,6 @@ public class AdminUserDashboardController implements UserAwareController {
         } catch (IOException e) { e.printStackTrace(); }
     }
 
-    // ── Sidebar Navigation ────────────────────────────────────
     @FXML public void showHome() {
         homeView.setVisible(true);
         usersView.setVisible(false);
@@ -453,6 +448,8 @@ public class AdminUserDashboardController implements UserAwareController {
     }
 
     @FXML private void handleLogout() {
+        // ── Effacer la session ──
+        ManagerSession.getInstance().logout();
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/login.fxml"));

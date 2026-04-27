@@ -38,13 +38,12 @@ public class LoginController {
             User user = userService.login(email, password);
 
             if (user != null) {
-                // ✅ Sauvegarder l'ID dans ManagerSession
-                ManagerSession.getInstance().setCurrentUserId(user.getId());
+                // ✅ Sauvegarder dans ManagerSession
+                ManagerSession.getInstance().setCurrentUser(user);
 
                 Stage stage = (Stage) emailField.getScene().getWindow();
-                String role = user.getRoleClean();
 
-                if ("ROLE_ADMIN".equals(role)) {
+                if ("ROLE_ADMIN".equals(user.getRoleClean())) {
                     FXMLLoader loader = new FXMLLoader(
                             getClass().getResource("/dashboard_admin.fxml"));
                     Scene scene = new Scene(loader.load(), 1100, 650);
@@ -52,8 +51,7 @@ public class LoginController {
                     stage.setScene(scene);
                     stage.setTitle("CardioLink - Admin Dashboard");
                     stage.show();
-                    ctrl.setCurrentUser(user);
-
+                    ctrl.init();
                 } else {
                     FXMLLoader loader = new FXMLLoader(
                             getClass().getResource("/dashboard_patient.fxml"));
@@ -62,9 +60,8 @@ public class LoginController {
                     stage.setScene(scene);
                     stage.setTitle("CardioLink");
                     stage.show();
-                    ctrl.setCurrentUser(user);
+                    ctrl.init();
                 }
-
             } else {
                 showError("Email ou mot de passe incorrect !");
                 passwordField.clear();
@@ -98,7 +95,5 @@ public class LoginController {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    private void showError(String msg) {
-        errorLabel.setText("⚠ " + msg);
-    }
+    private void showError(String msg) { errorLabel.setText("⚠ " + msg); }
 }

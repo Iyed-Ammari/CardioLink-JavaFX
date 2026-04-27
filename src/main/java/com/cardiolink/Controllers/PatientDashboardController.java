@@ -1,6 +1,7 @@
 package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.User;
+import com.cardiolink.utils.ManagerSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -17,34 +18,30 @@ public class PatientDashboardController implements UserAwareController {
     @FXML private Button btnSuivis;
     @FXML private Button btnDossier;
 
-    private User currentUser;
+    // ✅ Récupère l'user depuis ManagerSession
+    public void init() {
+        User user = ManagerSession.getInstance().getCurrentUser();
+        setCurrentUser(user);
+    }
 
     @Override
     public void setCurrentUser(User user) {
-        this.currentUser = user;
-        if (user != null) {
-            // Même message pour tous les rôles
-            welcomeLabel.setText("Welcome to CardioLink");
-
-            String initial = user.getNom() != null && !user.getNom().isEmpty()
-                    ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
-            avatarLabel.setText(initial);
-
-            boolean isPatient = "ROLE_PATIENT".equals(user.getRoleClean());
-            btnSuivis.setVisible(isPatient);
-            btnSuivis.setManaged(isPatient);
-            btnDossier.setVisible(isPatient);
-            btnDossier.setManaged(isPatient);
-        }
+        if (user == null) return;
+        welcomeLabel.setText("Welcome to CardioLink");
+        String initial = user.getNom() != null && !user.getNom().isEmpty()
+                ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+        avatarLabel.setText(initial);
+        boolean isPatient = "ROLE_PATIENT".equals(user.getRoleClean());
+        btnSuivis.setVisible(isPatient);
+        btnSuivis.setManaged(isPatient);
+        btnDossier.setVisible(isPatient);
+        btnDossier.setManaged(isPatient);
     }
 
-    // ✅ "View Dashboard" → reste sur cette page (on y est déjà)
-    // Pour admin → redirige vers son dashboard avec sidebar
-    @FXML
-    private void viewDashboard() {
-        if (currentUser == null) return;
-
-        if ("ROLE_ADMIN".equals(currentUser.getRoleClean())) {
+    @FXML private void viewDashboard() {
+        User user = ManagerSession.getInstance().getCurrentUser();
+        if (user == null) return;
+        if ("ROLE_ADMIN".equals(user.getRoleClean())) {
             try {
                 FXMLLoader loader = new FXMLLoader(
                         getClass().getResource("/dashboard_admin.fxml"));
@@ -54,130 +51,104 @@ public class PatientDashboardController implements UserAwareController {
                 stage.setScene(scene);
                 stage.setTitle("CardioLink - Admin Dashboard");
                 stage.show();
-                ctrl.setCurrentUser(currentUser);
+                ctrl.init();
             } catch (IOException e) { e.printStackTrace(); }
         }
-        // Pour ROLE_PATIENT et ROLE_MEDECIN → on est déjà sur le dashboard, ne rien faire
     }
 
-    @FXML private void goHome() { /* déjà ici */ }
+    @FXML private void goHome() { }
 
     @FXML private void goCommunity() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/post_view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/post_view.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
-            stage.setTitle("CardioLink - Mon Profil");
+            stage.setTitle("CardioLink - Community");
             stage.setScene(scene);
             stage.show();
-            ProfilPatientController ctrl = loader.getController();
-            ctrl.setCurrentUser(currentUser);
-        } catch (IOException e) { e.printStackTrace(); }}
+        } catch (IOException e) { e.printStackTrace(); }
+    }
 
     @FXML private void goSuivis() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/AjouterSuivi.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterSuivi.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
-            stage.setTitle("CardioLink - Mon Profil");
+            stage.setTitle("CardioLink - Mes Suivis");
             stage.setScene(scene);
             stage.show();
-            ProfilPatientController ctrl = loader.getController();
-            ctrl.setCurrentUser(currentUser);
-        } catch (IOException e) { e.printStackTrace(); }}
+        } catch (IOException e) { e.printStackTrace(); }
+    }
 
     @FXML private void goDossier() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dossier_medical.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dossier_medical.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Mon Dossier Médical");
             stage.setScene(scene);
             stage.show();
             DossierMedicalPatientController ctrl = loader.getController();
-            ctrl.setCurrentUser(currentUser);
+            ctrl.init();
         } catch (IOException e) { e.printStackTrace(); }
     }
+
     @FXML private void goRDV() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/MenuRDV.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/MenuRDV.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
-            stage.setTitle("CardioLink - Mon Dossier Médical");
+            stage.setTitle("CardioLink - RDV");
             stage.setScene(scene);
             stage.show();
-            DossierMedicalPatientController ctrl = loader.getController();
-            ctrl.setCurrentUser(currentUser);
         } catch (IOException e) { e.printStackTrace(); }
     }
 
     @FXML private void goProfil() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/profil_patient.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/profil_patient.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Mon Profil");
             stage.setScene(scene);
             stage.show();
             ProfilPatientController ctrl = loader.getController();
-            ctrl.setCurrentUser(currentUser);
+            ctrl.init();
         } catch (IOException e) { e.printStackTrace(); }
     }
+
     @FXML private void goChat() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/ChatView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ChatView.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
-            stage.setTitle("CardioLink - Mon Profil");
+            stage.setTitle("CardioLink - Chat");
             stage.setScene(scene);
             stage.show();
-            ProfilPatientController ctrl = loader.getController();
-            ctrl.setCurrentUser(currentUser);
         } catch (IOException e) { e.printStackTrace(); }
     }
+
     @FXML private void goMarketplace() {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/fxml/patient/produit-list-patient.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
-            stage.setTitle("CardioLink - Mon Profil");
+            stage.setTitle("CardioLink - Marketplace");
             stage.setScene(scene);
             stage.show();
-            ProfilPatientController ctrl = loader.getController();
-            ctrl.setCurrentUser(currentUser);
         } catch (IOException e) { e.printStackTrace(); }
     }
 
     @FXML private void handleLogout() {
+        ManagerSession.getInstance().logout();
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/login.fxml"));
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Login");
             stage.setScene(scene);
             stage.show();
-        } catch (IOException e) { e.printStackTrace(); }
-    }
-
-    private void navigateTo(String fxmlPath, String title, int w, int h) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Scene scene = new Scene(loader.load(), w, h);
-            Stage stage = (Stage) avatarLabel.getScene().getWindow();
-            stage.setTitle(title);
-            stage.setScene(scene);
-            stage.show();
-            if (loader.getController() instanceof UserAwareController) {
-                ((UserAwareController) loader.getController()).setCurrentUser(currentUser);
-            }
         } catch (IOException e) { e.printStackTrace(); }
     }
 }
