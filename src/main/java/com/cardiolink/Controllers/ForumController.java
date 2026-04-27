@@ -26,7 +26,7 @@ import java.nio.file.Files;
 import com.cardiolink.Models.User;
 import com.cardiolink.Services.UserService;
 import com.cardiolink.utils.ManagerSession;
-
+import com.cardiolink.Services.AIService;
 import java.sql.SQLException;
 public class ForumController {
 
@@ -53,6 +53,7 @@ public class ForumController {
     private final ServiceComment serviceComment = new ServiceComment();
     private int CURRENT_USER_ID;
     private User currentUser;
+    AIService aiService = new AIService();
 
 
     //private final int CURRENT_USER_ID = 7; // Simulé pour CardioLink
@@ -240,6 +241,7 @@ public class ForumController {
         body.getChildren().add(new Label(p.getContent()) {{
             setWrapText(true);
         }});
+        // --- LOGIQUE RÉSUMÉ IA ---
         String[] words = p.getContent().split("\\s+");
         if (words.length > 200) {
             Button aiBtn = new Button("✨ Résumé IA");
@@ -247,14 +249,36 @@ public class ForumController {
             aiResult.setWrapText(true);
             aiResult.setStyle("-fx-text-fill: #6b7280; -fx-font-style: italic; -fx-padding: 5 0;");
 
-            aiBtn.setStyle("-fx-background-color: #8b5cf6; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11;");
+            aiBtn.setStyle("-fx-background-color: #8b5cf6; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;");
+
+            // L'ACTION DU BOUTON
             aiBtn.setOnAction(e -> {
                 aiBtn.setDisable(true);
-                aiBtn.setText("Analyse...");
-                // Remplacez par votre appel réel à l'API
-                String res = "Ceci est un résumé généré automatiquement...";
-                aiResult.setText("Résumé : " + res);
+                aiBtn.setText("⏳ Analyse IA...");
+
+                // On lance l'IA dans un thread séparé pour ne pas bloquer l'écran
+                javafx.concurrent.Task<String> task = new javafx.concurrent.Task<>() {
+                    @Override
+                    protected String call() {
+                        AIService aiService = new AIService();
+                        return aiService.getSummary(p.getContent());
+                    }
+                };
+
+                task.setOnSucceeded(event -> {
+                    aiResult.setText("Résumé IA : " + task.getValue());
+                    aiBtn.setText("✨ Résumé IA");
+                    aiBtn.setDisable(false);
+                });
+
+                task.setOnFailed(event -> {
+                    aiResult.setText("❌ Erreur lors du résumé.");
+                    aiBtn.setDisable(false);
+                });
+
+                new Thread(task).start();
             });
+
             body.getChildren().addAll(aiBtn, aiResult);
         }
         // --- IMAGE (optionnelle) ---
