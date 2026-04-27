@@ -229,17 +229,17 @@ public class ForumController {
                 System.out.println("❌ Image introuvable sur disque");
             }
         }
-        // ================= LIKE SECTION =================
-        HBox likeBox = new HBox(8);
-        likeBox.setAlignment(Pos.CENTER_LEFT);
+        // ================= LIKE / DISLIKE =================
+        HBox reactionBox = new HBox(15);
+        reactionBox.setAlignment(Pos.CENTER_LEFT);
 
-        Button likeBtn = new Button("❤ Like");
+        int postId = p.getId();
+
+// -------- LIKE --------
+        Button likeBtn = new Button("👍 Like");
         likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
 
         Label likeCount = new Label();
-
-// safe values
-        int postId = p.getId();
 
         try {
             likeCount.setText(String.valueOf(servicePost.countLikes(postId)));
@@ -255,11 +255,36 @@ public class ForumController {
             likeCount.setText("0");
         }
 
-// IMPORTANT FIX
         likeBtn.setOnAction(e -> handleLike(p));
 
-        likeBox.getChildren().addAll(likeBtn, likeCount);
 
+// -------- DISLIKE --------
+        Button dislikeBtn = new Button("👎 Dislike");
+        dislikeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+
+        Label dislikeCount = new Label();
+
+        try {
+            dislikeCount.setText(String.valueOf(servicePost.countDislikes(postId)));
+
+            boolean isDisliked = servicePost.isDislikedByUser(postId, CURRENT_USER_ID);
+
+            if (isDisliked) {
+                dislikeBtn.setText("💔 Disliked");
+                dislikeBtn.setStyle("-fx-text-fill: gray; -fx-background-color: transparent;");
+            }
+
+        } catch (Exception e) {
+            dislikeCount.setText("0");
+        }
+
+        dislikeBtn.setOnAction(e -> handleDislike(p));
+
+// add to box
+        reactionBox.getChildren().addAll(
+                likeBtn, likeCount,
+                dislikeBtn, dislikeCount
+        );
         // ================= COMMENTS =================
         VBox commentArea = new VBox(10);
         commentArea.setStyle(
@@ -310,7 +335,7 @@ public class ForumController {
         }
 
         // ================= FINAL CARD =================
-        card.getChildren().addAll(header, body, likeBox, commentArea, actions);
+        card.getChildren().addAll(header, body, reactionBox, commentArea, actions);
         return card;
     }
     // ================= GESTION DES COMMENTAIRES INDIVIDUELS =================
@@ -644,5 +669,17 @@ public class ForumController {
             return null;
         }
     }
+    @FXML
+    public void handleDislike(Post p) {
+        try {
+            boolean disliked = servicePost.toggleDislike(p.getId(), CURRENT_USER_ID);
 
+            System.out.println(disliked ? "Disliked 👎" : "Undisliked 👍");
+
+            loadPosts();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

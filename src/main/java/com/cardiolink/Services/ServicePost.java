@@ -439,5 +439,69 @@ public class ServicePost implements Iservice<Post> {
             throw new SQLDataException(e.getMessage());
         }
     }
+    public boolean toggleDislike(int postId, int userId) throws SQLDataException {
+        try {
+
+            String check = "SELECT 1 FROM post_dislike WHERE post_id=? AND user_id=?";
+            PreparedStatement ps = cnx.prepareStatement(check);
+            ps.setInt(1, postId);
+            ps.setInt(2, userId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                String delete = "DELETE FROM post_dislike WHERE post_id=? AND user_id=?";
+                PreparedStatement psDel = cnx.prepareStatement(delete);
+                psDel.setInt(1, postId);
+                psDel.setInt(2, userId);
+                psDel.executeUpdate();
+
+                return false; // removed dislike
+            } else {
+
+                String insert = "INSERT INTO post_dislike (post_id, user_id) VALUES (?, ?)";
+                PreparedStatement psIns = cnx.prepareStatement(insert);
+                psIns.setInt(1, postId);
+                psIns.setInt(2, userId);
+                psIns.executeUpdate();
+
+                return true; // disliked
+            }
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public int countDislikes(int postId) throws SQLDataException {
+        try {
+            String query = "SELECT COUNT(*) FROM post_dislike WHERE post_id=?";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, postId);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public boolean isDislikedByUser(int postId, int userId) throws SQLDataException {
+        try {
+            String query = "SELECT 1 FROM post_dislike WHERE post_id=? AND user_id=?";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, postId);
+            ps.setInt(2, userId);
+
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
 
 }
