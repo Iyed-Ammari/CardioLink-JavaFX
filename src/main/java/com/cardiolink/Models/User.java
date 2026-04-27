@@ -64,4 +64,15 @@ public class User {
         if (roles == null) return "";
         return roles.replace("[\"", "").replace("\"]", "").trim();
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", nom='" + nom + '\'' +
+                ", prenom='" + prenom + '\'' +
+                ", roles='" + roles + '\'' +
+                '}';
+    }
 }
