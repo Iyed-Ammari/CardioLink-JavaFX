@@ -319,43 +319,40 @@ public class ServicePost implements Iservice<Post> {
     //likes
     public boolean toggleLike(int postId, int userId) throws SQLDataException {
         try {
-            System.out.println("LIKE DEBUG: post=" + postId + " user=" + userId);
-
-            // 1. vérifier si déjà liké
+            // 1. Vérifier si déjà liké
             String check = "SELECT 1 FROM post_likes WHERE post_id=? AND user_id=?";
             PreparedStatement psCheck = cnx.prepareStatement(check);
             psCheck.setInt(1, postId);
             psCheck.setInt(2, userId);
-
             ResultSet rs = psCheck.executeQuery();
 
             if (rs.next()) {
-                // 2. UNLIKE
+                // Déjà liké -> On retire le Like (UNLIKE)
                 String delete = "DELETE FROM post_likes WHERE post_id=? AND user_id=?";
                 PreparedStatement psDel = cnx.prepareStatement(delete);
                 psDel.setInt(1, postId);
                 psDel.setInt(2, userId);
-
-                int rows = psDel.executeUpdate();
-                System.out.println("UNLIKE rows = " + rows);
-
+                psDel.executeUpdate();
                 return false;
-
             } else {
-                // 3. LIKE
+                // Pas encore liké -> On va LIKER
+
+                // ÉTAPE CRUCIALE : On supprime le dislike s'il existe
+                String clearDislike = "DELETE FROM post_dislike WHERE post_id=? AND user_id=?";
+                PreparedStatement psClear = cnx.prepareStatement(clearDislike);
+                psClear.setInt(1, postId);
+                psClear.setInt(2, userId);
+                psClear.executeUpdate();
+
+                // Puis on ajoute le Like
                 String insert = "INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)";
                 PreparedStatement psIns = cnx.prepareStatement(insert);
                 psIns.setInt(1, postId);
                 psIns.setInt(2, userId);
-
-                int rows = psIns.executeUpdate();
-                System.out.println("LIKE rows = " + rows);
-
+                psIns.executeUpdate();
                 return true;
             }
-
         } catch (SQLException e) {
-            e.printStackTrace();
             throw new SQLDataException(e.getMessage());
         }
     }
@@ -441,34 +438,39 @@ public class ServicePost implements Iservice<Post> {
     }
     public boolean toggleDislike(int postId, int userId) throws SQLDataException {
         try {
-
+            // 1. Vérifier si déjà disliké
             String check = "SELECT 1 FROM post_dislike WHERE post_id=? AND user_id=?";
-            PreparedStatement ps = cnx.prepareStatement(check);
-            ps.setInt(1, postId);
-            ps.setInt(2, userId);
-
-            ResultSet rs = ps.executeQuery();
+            PreparedStatement psCheck = cnx.prepareStatement(check);
+            psCheck.setInt(1, postId);
+            psCheck.setInt(2, userId);
+            ResultSet rs = psCheck.executeQuery();
 
             if (rs.next()) {
-
+                // Déjà disliké -> On retire le Dislike
                 String delete = "DELETE FROM post_dislike WHERE post_id=? AND user_id=?";
                 PreparedStatement psDel = cnx.prepareStatement(delete);
                 psDel.setInt(1, postId);
                 psDel.setInt(2, userId);
                 psDel.executeUpdate();
-
-                return false; // removed dislike
+                return false;
             } else {
+                // Pas encore disliké -> On va DISLIKER
 
+                // ÉTAPE CRUCIALE : On supprime le like s'il existe
+                String clearLike = "DELETE FROM post_likes WHERE post_id=? AND user_id=?";
+                PreparedStatement psClear = cnx.prepareStatement(clearLike);
+                psClear.setInt(1, postId);
+                psClear.setInt(2, userId);
+                psClear.executeUpdate();
+
+                // Puis on ajoute le Dislike
                 String insert = "INSERT INTO post_dislike (post_id, user_id) VALUES (?, ?)";
                 PreparedStatement psIns = cnx.prepareStatement(insert);
                 psIns.setInt(1, postId);
                 psIns.setInt(2, userId);
                 psIns.executeUpdate();
-
-                return true; // disliked
+                return true;
             }
-
         } catch (SQLException e) {
             throw new SQLDataException(e.getMessage());
         }

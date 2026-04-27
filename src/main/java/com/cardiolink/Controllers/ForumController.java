@@ -23,6 +23,11 @@ import javafx.scene.image.ImageView;
 import java.io.File;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.Files;
+import com.cardiolink.Models.User;
+import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.ManagerSession;
+
+import java.sql.SQLException;
 public class ForumController {
 
     @FXML private VBox postContainer;
@@ -44,21 +49,37 @@ public class ForumController {
     private Comment selectedComment; // Pour stocker le commentaire en cours de modif
     private Post selectedPost;
     private final ServicePost servicePost = new ServicePost();
+    private  UserService userService = new UserService();
     private final ServiceComment serviceComment = new ServiceComment();
-    private final int CURRENT_USER_ID = 7; // Simulé pour CardioLink
+    private int CURRENT_USER_ID;
+    private User currentUser;
+
+
+    //private final int CURRENT_USER_ID = 7; // Simulé pour CardioLink
     private String selectedImagePath = null;
 
     private String savedImageName = null;
 
     @FXML
     public void initialize() {
-        // Configuration du filtrage
+
+        // 🔥 USER CONNECTÉ (UNE SEULE FOIS)
+        CURRENT_USER_ID = ManagerSession.getInstance().getCurrentUserId();
+
+        try {
+            currentUser = userService.getUserById(CURRENT_USER_ID);
+            System.out.println("User connecté: " + currentUser);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        // ================= FILTER =================
         filterBox.getItems().clear();
         filterBox.getItems().addAll("Tout", "Titre", "Date", "24h", "7j");
         filterBox.setValue("Tout");
         filterBox.setOnAction(e -> filterPosts());
 
-        // Recherche dynamique en temps réel
+        // ================= SEARCH =================
         searchField.textProperty().addListener((obs, oldV, newV) -> {
             try {
                 if (newV == null || newV.trim().isEmpty()) {
@@ -66,7 +87,9 @@ public class ForumController {
                 } else {
                     render(servicePost.searchByTitle(newV));
                 }
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
         loadPosts();
@@ -166,14 +189,27 @@ public class ForumController {
                 }}
         );
 
-        VBox infos = new VBox(
-                new Label("Utilisateur " + p.getUser_id()) {{
-                    setStyle("-fx-font-weight: bold;");
-                }},
-                new Label("le " + p.getCreated_at()) {{
-                    setStyle("-fx-font-size: 10; -fx-text-fill: gray;");
-                }}
-        );
+        User postUser = null;
+
+        try {
+            postUser = userService.getUserById(p.getUser_id());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String fullName = "Utilisateur inconnu";
+
+        if (postUser != null) {
+            fullName = postUser.getNom()  + " " + postUser.getPrenom();
+        }
+
+        Label nameLabel = new Label(fullName);
+        nameLabel.setStyle("-fx-font-weight: bold;");
+
+        Label dateLabel = new Label("le " + p.getCreated_at());
+        dateLabel.setStyle("-fx-font-size: 10; -fx-text-fill: gray;");
+
+        VBox infos = new VBox(nameLabel, dateLabel);
 
         header.getChildren().addAll(avatar, infos);
 
@@ -204,6 +240,23 @@ public class ForumController {
         body.getChildren().add(new Label(p.getContent()) {{
             setWrapText(true);
         }});
+        String[] words = p.getContent().split("\\s+");
+        if (words.length > 200) {
+            Button aiBtn = new Button("✨ Résumé IA");
+            Label aiResult = new Label();
+            aiResult.setWrapText(true);
+            aiResult.setStyle("-fx-text-fill: #6b7280; -fx-font-style: italic; -fx-padding: 5 0;");
+
+            aiBtn.setStyle("-fx-background-color: #8b5cf6; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11;");
+            aiBtn.setOnAction(e -> {
+                aiBtn.setDisable(true);
+                aiBtn.setText("Analyse...");
+                // Remplacez par votre appel réel à l'API
+                String res = "Ceci est un résumé généré automatiquement...";
+                aiResult.setText("Résumé : " + res);
+            });
+            body.getChildren().addAll(aiBtn, aiResult);
+        }
         // --- IMAGE (optionnelle) ---
         if (p.getImage() != null && !p.getImage().isEmpty()) {
 
@@ -341,20 +394,42 @@ public class ForumController {
     // ================= GESTION DES COMMENTAIRES INDIVIDUELS =================
 
     private HBox createCommentItem(Comment c) {
+
         HBox row = new HBox(5);
         row.setAlignment(Pos.CENTER_LEFT);
 
+        // 🔥 récupérer user
+        User user = null;
+
+        try {
+            user = userService.getUserById(c.getUser_id());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String fullName = "Utilisateur inconnu";
+
+        if (user != null) {
+            fullName = user.getNom() + " " + user.getPrenom();
+        }
+
         VBox bubble = new VBox(2);
         bubble.setStyle("-fx-background-color: #e4e6eb; -fx-padding: 8 12; -fx-background-radius: 15;");
-        bubble.getChildren().addAll(
-                new Label("User " + c.getUser_id()) {{ setStyle("-fx-font-weight: bold; -fx-font-size: 11;"); }},
-                new Label(c.getContent()) {{ setWrapText(true); setStyle("-fx-font-size: 13;"); }}
-        );
+
+        Label nameLabel = new Label(fullName);
+        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 11;");
+
+        Label contentLabel = new Label(c.getContent());
+        contentLabel.setWrapText(true);
+        contentLabel.setStyle("-fx-font-size: 13;");
+
+        bubble.getChildren().addAll(nameLabel, contentLabel);
 
         row.getChildren().add(bubble);
 
-        // Menu 3 points pour modif/suppr (Si propriétaire du commentaire)
+        // ================= MENU ACTIONS =================
         if (c.getUser_id() == CURRENT_USER_ID) {
+
             MenuButton options = new MenuButton("⋮");
             options.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: #65676b;");
 
@@ -367,6 +442,7 @@ public class ForumController {
             options.getItems().addAll(editItem, deleteItem);
             row.getChildren().add(options);
         }
+
         return row;
     }
 
