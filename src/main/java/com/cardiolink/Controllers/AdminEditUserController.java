@@ -2,6 +2,7 @@ package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.User;
 import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.ManagerSession;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +23,6 @@ public class AdminEditUserController {
     @FXML private Label            errorLabel;
     @FXML private Label            successLabel;
 
-    private User currentAdmin;
     private User targetUser;
     private final UserService userService = new UserService();
 
@@ -32,9 +32,9 @@ public class AdminEditUserController {
                 "ROLE_PATIENT", "ROLE_MEDECIN", "ROLE_ADMIN"));
     }
 
-    public void setData(User admin, User user) {
-        this.currentAdmin = admin;
-        this.targetUser   = user;
+    // ✅ Plus besoin de passer admin — on le récupère depuis ManagerSession
+    public void setData(User user) {
+        this.targetUser = user;
         nomField.setText(user.getNom()         != null ? user.getNom()     : "");
         prenomField.setText(user.getPrenom()   != null ? user.getPrenom()  : "");
         telField.setText(user.getTel()         != null ? user.getTel()     : "");
@@ -72,20 +72,20 @@ public class AdminEditUserController {
             e.printStackTrace();
         }
     }
+
     @FXML
     private void goBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/dashboard_admin.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard_admin.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) nomField.getScene().getWindow();
             stage.setScene(scene);
             stage.show();
             AdminUserDashboardController ctrl = loader.getController();
-            // ✅ initAdmin avec section "users"
-            ctrl.initAdmin(currentAdmin, "users");
+            ctrl.initAdmin(ManagerSession.getInstance().getCurrentUser(), "users");
         } catch (IOException e) { e.printStackTrace(); }
     }
+
     private void clearMessages()        { errorLabel.setText(""); successLabel.setText(""); }
     private void showError(String msg)  { errorLabel.setText("⚠ " + msg); successLabel.setText(""); }
     private void showSuccess(String msg){ successLabel.setText(msg); errorLabel.setText(""); }

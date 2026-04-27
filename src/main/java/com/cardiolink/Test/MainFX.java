@@ -5,7 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class Mainfx extends Application {
+public class MainFX extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
