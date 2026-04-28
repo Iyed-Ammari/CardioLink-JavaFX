@@ -4,7 +4,6 @@ import com.cardiolink.Models.DossierMedical;
 import com.cardiolink.Models.User;
 import com.cardiolink.Services.DossierMedicalService;
 import com.cardiolink.Services.UserService;
-import com.cardiolink.utils.ManagerSession;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -107,7 +106,6 @@ public class AdminAddUserController {
             user.setActive(true);
             user.setVerified(false);
             userService.addUser(user);
-
             if ("ROLE_PATIENT".equals(role)) {
                 User created = userService.findByEmail(email);
                 if (created != null) {
@@ -117,22 +115,22 @@ public class AdminAddUserController {
                         d.setGroupeSanguin(groupeSanguinCombo.getValue());
                         d.setAntecedents(antecedentsArea.getText().trim());
                         d.setAllergies(allergiesArea.getText().trim());
-                        d.setPoids(parseDoubleOrNull(poidsField.getText()));
-                        d.setTaille(parseDoubleOrNull(tailleField.getText()));
-                        d.setTensionSystolique(parseDoubleOrNull(tenSysField.getText()));
-                        d.setTensionDiastolique(parseDoubleOrNull(tenDiaField.getText()));
-                        d.setFrequenceCardiaque(parseDoubleOrNull(freqField.getText()));
+                        d.setPoids(Double.parseDouble(poidsField.getText()));
+                        d.setTaille(Double.parseDouble(tailleField.getText()));
+                        d.setTensionSystolique(Double.parseDouble(tenSysField.getText()));
+                        d.setTensionDiastolique(Double.parseDouble(tenDiaField.getText()));
+                        d.setFrequenceCardiaque(Double.parseDouble(freqField.getText()));
                         dossierService.save(d);
                     } catch (NumberFormatException e) {
+                        // Afficher une alerte à l'utilisateur
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Erreur de saisie");
                         alert.setHeaderText(null);
-                        alert.setContentText("Veuillez entrer des nombres valides.");
+                        alert.setContentText("Veuillez entrer des nombres valides pour les champs numériques (poids, taille, tensions, fréquence).");
                         alert.showAndWait();
                     }
                 }
             }
-
             showSuccess("✅ Utilisateur créé avec succès !");
             javafx.animation.PauseTransition pause =
                     new javafx.animation.PauseTransition(javafx.util.Duration.seconds(1.5));
@@ -159,21 +157,12 @@ public class AdminAddUserController {
             stage.setScene(scene);
             stage.setTitle("CardioLink - Admin Dashboard");
             stage.show();
-            // ── Utilise ManagerSession pour récupérer l'admin ──
-            User admin = null;
-            try {
-                admin = new UserService().getUserById(
-                        ManagerSession.getInstance().getCurrentUserId());
-            } catch (SQLException e) { e.printStackTrace(); }
-            if (admin != null) ctrl.initAdmin(admin, "users");
+            // ✅ initAdmin au lieu de setCurrentUser
+            if (currentAdmin != null) {
+                ctrl.initAdmin(currentAdmin, "users");
+            }
         } catch (IOException e) { e.printStackTrace(); }
     }
-
-    private Double parseDoubleOrNull(String s) {
-        try { return s == null || s.trim().isEmpty() ? null : Double.parseDouble(s.trim()); }
-        catch (NumberFormatException e) { return null; }
-    }
-
     private void clearMessages()         { errorLabel.setText("");  successLabel.setText(""); }
     private void showError(String msg)   { errorLabel.setText("⚠ " + msg); successLabel.setText(""); }
     private void showSuccess(String msg) { successLabel.setText(msg); errorLabel.setText(""); }

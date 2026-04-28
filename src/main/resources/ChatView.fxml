@@ -9,9 +9,8 @@
 
 <VBox prefHeight="600.0" prefWidth="450.0" styleClass="root" stylesheets="@chat-style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.ChatController">
     <children>
-        <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="chat-header">
+        <HBox alignment="CENTER_LEFT" styleClass="chat-header">
             <children>
-                <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBackButton" styleClass="back-button" text="&lt; Retour" />
                 <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1A1A1A;" text="CardioLink - Messagerie" />
             </children>
         </HBox>

@@ -53,9 +53,9 @@
                     style="-fx-background-color: linear-gradient(to right,#ff4d6d,#4d6dff);
                            -fx-text-fill:white; -fx-background-radius:10; -fx-cursor: hand; -fx-font-weight: bold; -fx-padding: 10;"/>
 
-            <Button fx:id="homeButton" onAction="#goHome" text="Home" maxWidth="Infinity" alignment="CENTER_LEFT" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 10;"/>
+            <Button text="Home" maxWidth="Infinity" alignment="CENTER_LEFT" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 10;"/>
             <Button text="Mes Suivis" maxWidth="Infinity" alignment="CENTER_LEFT" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 10;"/>
-            <Button fx:id="dossierButton" onAction="#goDossier" text="Mon Dossier Médical" maxWidth="Infinity" alignment="CENTER_LEFT" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 10;"/>
+            <Button text="Mon Dossier Médical" maxWidth="Infinity" alignment="CENTER_LEFT" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 10;"/>
 
             <Region VBox.vgrow="ALWAYS"/>
 
