@@ -1,22 +1,26 @@
 package com.cardiolink;
 
-import com.cardiolink.utils.NavigationUtil;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setTitle("CardioLink — Every Pulse Counts");
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/login.fxml")
+        );
+        Scene scene = new Scene(loader.load(), 1100, 700);
+        stage.setTitle("CardioLink");
         stage.setMinWidth(1100);
         stage.setMinHeight(700);
-
-        //NavigationUtil.navigate(stage, "/fxml/patient/produit-list-patient.fxml");
-        NavigationUtil.navigate(stage, "/fxml/admin/dashboard-admin.fxml");
+        stage.setScene(scene);
+        stage.show();
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }

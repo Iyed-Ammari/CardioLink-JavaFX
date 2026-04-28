@@ -182,7 +182,7 @@ public class CommandeService implements Iservice<Commande> {
         return getAll();
     }
 
-    // ─── Méthodes métier ─────────────────────────────────────────────────────
+    // ─── Méthodes métier
     public Commande getOrCreatePanier(int userId) {
         Commande panier = findPanierByUser(userId);
         if (panier != null) {
@@ -219,7 +219,7 @@ public class CommandeService implements Iservice<Commande> {
 
     public List<Commande> findByUser(int userId) {
         List<Commande> commandes = new ArrayList<>();
-        String sql = "SELECT id, date_commande, statut, montant_total, user_id FROM commande WHERE user_id=? ORDER BY id DESC";
+        String sql = "SELECT id, date_commande, statut, montant_total, user_id FROM commande WHERE user_id=? ORDER BY date_commande DESC, id DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -420,10 +420,11 @@ public class CommandeService implements Iservice<Commande> {
             commande.marquerPayee();
 
             try (PreparedStatement ps = cnx.prepareStatement(
-                    "UPDATE commande SET statut=?, montant_total=? WHERE id=?")) {
+                    "UPDATE commande SET statut=?, montant_total=?, date_commande=? WHERE id=?")) {
                 ps.setString(1, commande.getStatut().name());
                 ps.setBigDecimal(2, commande.getMontantTotal());
-                ps.setInt(3, commande.getId());
+                ps.setString(3, LocalDateTime.now().format(DB_DATE_TIME_FORMATTER));
+                ps.setInt(4, commande.getId());
                 ps.executeUpdate();
             }
 

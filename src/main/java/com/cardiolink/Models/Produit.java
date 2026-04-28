@@ -51,12 +51,25 @@ public class Produit {
 
         if (v.length() < 2)
             throw new IllegalArgumentException("Le nom doit contenir au moins 2 caractères.");
-        if (v.length() > 255)
-            throw new IllegalArgumentException("Le nom ne doit pas dépasser 255 caractères.");
+        if (v.length() > 100)
+            throw new IllegalArgumentException("Le nom ne doit pas dépasser 100 caractères.");
 
-        if (!v.matches("^[A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9\\s''()\\-+°%/]{1,254}$"))
+        // Doit commencer par une lettre (pas un chiffre, pas un symbole)
+        if (!Character.isLetter(v.charAt(0)) && !Character.isLetter(v.codePointAt(0)))
             throw new IllegalArgumentException(
-                    "Le nom doit commencer par une lettre ou un chiffre et ne contenir que des caractères valides."
+                    "Le nom doit commencer par une lettre."
+            );
+
+        // Ne peut pas être uniquement des chiffres ou des caractères spéciaux
+        if (v.matches("^[0-9\\s''()\\-+°%/]+$"))
+            throw new IllegalArgumentException(
+                    "Le nom doit contenir au moins une lettre."
+            );
+
+        // Caractères autorisés : lettres, chiffres, espaces, et quelques symboles médicaux
+        if (!v.matches("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9\\s''()\\-+°%/]{1,99}$"))
+            throw new IllegalArgumentException(
+                    "Le nom doit commencer par une lettre et ne contenir que des caractères valides."
             );
 
         this.nom = v;

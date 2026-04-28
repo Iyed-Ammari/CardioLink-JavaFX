@@ -1,10 +1,12 @@
-package com.cardiolink.controllers;
+package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Produit;
+import com.cardiolink.Models.User;
 import com.cardiolink.Services.CommandeService;
 import com.cardiolink.Services.ProduitService;
+import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.ManagerSession;
 import com.cardiolink.utils.NavigationUtil;
-import com.cardiolink.utils.SessionManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -21,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -35,12 +38,23 @@ public class PatientProduitListController implements Initializable {
 
     private final ProduitService  produitService  = new ProduitService();
     private final CommandeService commandeService = new CommandeService();
+    private final UserService userService = new UserService();
     private final List<Produit>   produitsCourants = new ArrayList<>();
 
     private double savedScrollV = 0.0;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+        int userId = ManagerSession.getInstance().getCurrentUserId();
+
+        try {
+            User user = userService.getUserById(userId);
+            System.out.println(user);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
         initialiserVue();
         configurerRecherche();
         chargerProduits();
@@ -55,7 +69,7 @@ public class PatientProduitListController implements Initializable {
             productContainer.setVgap(22);
             productContainer.setTileAlignment(Pos.TOP_LEFT);
         }
-        // ✅ FIX SCROLL : ScrollPane ne doit JAMAIS auto-scroller vers un nœud focusé
+
         if (productScrollPane != null) {
             productScrollPane.setFocusTraversable(false);
         }
@@ -99,12 +113,14 @@ public class PatientProduitListController implements Initializable {
         });
     }
 
-    // ─── Carte produit
     private VBox creerCarteProduit(Produit produit) {
         VBox card = new VBox(0);
-        card.setPrefWidth(360); card.setMinWidth(360); card.setMaxWidth(360);
-        card.setPrefHeight(440); card.setMinHeight(440); card.setMaxHeight(440);
-        // ✅ FIX SCROLL : empêcher la carte de recevoir le focus
+        card.setPrefWidth(360);
+        card.setMinWidth(360);
+        card.setMaxWidth(360);
+        card.setPrefHeight(440);
+        card.setMinHeight(440);
+        card.setMaxHeight(440);
         card.setFocusTraversable(false);
         card.setStyle(
                 "-fx-background-color: white; -fx-background-radius: 22;" +
@@ -114,9 +130,10 @@ public class PatientProduitListController implements Initializable {
 
         boolean dispo = produit.getStock() != null && produit.getStock() > 0;
 
-        // ── IMAGE
         StackPane imagePane = new StackPane();
-        imagePane.setPrefHeight(160); imagePane.setMinHeight(160); imagePane.setMaxHeight(160);
+        imagePane.setPrefHeight(160);
+        imagePane.setMinHeight(160);
+        imagePane.setMaxHeight(160);
         imagePane.setFocusTraversable(false);
         imagePane.setStyle(
                 "-fx-background-color: " + (dispo
@@ -128,14 +145,18 @@ public class PatientProduitListController implements Initializable {
         if (produit.getImageUrl() != null && !produit.getImageUrl().isBlank()) {
             try {
                 ImageView iv = new ImageView(new Image(produit.getImageUrl(), true));
-                iv.setFitWidth(360); iv.setFitHeight(160); iv.setPreserveRatio(false);
+                iv.setFitWidth(360);
+                iv.setFitHeight(160);
+                iv.setPreserveRatio(false);
                 imagePane.getChildren().add(iv);
             } catch (Exception ex) {
-                Label ico = new Label("🖼"); ico.setStyle("-fx-font-size: 40px;");
+                Label ico = new Label("🖼");
+                ico.setStyle("-fx-font-size: 40px;");
                 imagePane.getChildren().add(ico);
             }
         } else {
-            Label ico = new Label("🖼"); ico.setStyle("-fx-font-size: 40px;");
+            Label ico = new Label("🖼");
+            ico.setStyle("-fx-font-size: 40px;");
             imagePane.getChildren().add(ico);
         }
 
@@ -148,7 +169,6 @@ public class PatientProduitListController implements Initializable {
         StackPane.setMargin(stockBadge, new Insets(10, 10, 0, 0));
         imagePane.getChildren().add(stockBadge);
 
-        // ── Header
         VBox header = new VBox(6);
         header.setPadding(new Insets(14, 18, 10, 18));
         header.setFocusTraversable(false);
@@ -165,6 +185,7 @@ public class PatientProduitListController implements Initializable {
         String descTxt = (produit.getDescription() != null && !produit.getDescription().isBlank())
                 ? (produit.getDescription().length() > 55 ? produit.getDescription().substring(0, 55) + "…" : produit.getDescription())
                 : "Produit médical CardioLink.";
+
         Label descLabel = new Label(descTxt);
         descLabel.setFocusTraversable(false);
         descLabel.setWrapText(true);
@@ -172,7 +193,6 @@ public class PatientProduitListController implements Initializable {
 
         header.getChildren().addAll(catBadge, nomLabel, descLabel);
 
-        // ── Body
         VBox body = new VBox(12);
         body.setPadding(new Insets(8, 18, 18, 18));
         body.setFocusTraversable(false);
@@ -186,7 +206,6 @@ public class PatientProduitListController implements Initializable {
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
         if (dispo) {
-            // ── Sélecteur quantité
             HBox qteSelector = new HBox(0);
             qteSelector.setAlignment(Pos.CENTER_LEFT);
             qteSelector.setFocusTraversable(false);
@@ -197,9 +216,11 @@ public class PatientProduitListController implements Initializable {
             qteLbl.setStyle("-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-font-weight: 700; -fx-padding: 0 8 0 12;");
 
             Button btnMoins = creerBoutonQte("−", "#374151");
+
             Label qteVal = new Label("1");
             qteVal.setFocusTraversable(false);
             qteVal.setStyle("-fx-text-fill: #111827; -fx-font-size: 15px; -fx-font-weight: 900; -fx-pref-width: 32; -fx-alignment: CENTER; -fx-text-alignment: center;");
+
             Button btnPlus = creerBoutonQte("+", "#2F60F5");
 
             int maxStock = produit.getStock();
@@ -207,8 +228,10 @@ public class PatientProduitListController implements Initializable {
             btnMoins.setOnAction(e -> {
                 sauvegarderScroll();
                 int current = Integer.parseInt(qteVal.getText());
-                if (current > 1) { qteVal.setText(String.valueOf(current - 1)); animer(qteVal); }
-                // ✅ Redonner le focus au searchField (hors ScrollPane) pour éviter le scroll
+                if (current > 1) {
+                    qteVal.setText(String.valueOf(current - 1));
+                    animer(qteVal);
+                }
                 if (searchField != null) Platform.runLater(searchField::requestFocus);
                 Platform.runLater(() -> { if (productScrollPane != null) productScrollPane.setVvalue(savedScrollV); });
             });
@@ -216,19 +239,22 @@ public class PatientProduitListController implements Initializable {
             btnPlus.setOnAction(e -> {
                 sauvegarderScroll();
                 int current = Integer.parseInt(qteVal.getText());
-                if (current < maxStock) { qteVal.setText(String.valueOf(current + 1)); animer(qteVal); }
-                else showError("Stock max atteint (" + maxStock + ").");
+                if (current < maxStock) {
+                    qteVal.setText(String.valueOf(current + 1));
+                    animer(qteVal);
+                } else {
+                    showError("Stock max atteint (" + maxStock + ").");
+                }
                 if (searchField != null) Platform.runLater(searchField::requestFocus);
                 Platform.runLater(() -> { if (productScrollPane != null) productScrollPane.setVvalue(savedScrollV); });
             });
 
             qteSelector.getChildren().addAll(qteLbl, btnMoins, qteVal, btnPlus);
 
-            // ── Bouton Ajouter ─
             Button addBtn = new Button("🛒  Ajouter au panier");
             addBtn.setMaxWidth(Double.MAX_VALUE);
             addBtn.setPrefHeight(46);
-            addBtn.setFocusTraversable(false); // ✅ FIX SCROLL
+            addBtn.setFocusTraversable(false);
             addBtn.setStyle("-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 800; -fx-background-radius: 14; -fx-cursor: hand;");
             addBtn.setOnMouseEntered(e -> addBtn.setStyle("-fx-background-color: linear-gradient(to right, #D01E32, #1D4ED8); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 800; -fx-background-radius: 14; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(248,34,57,0.4), 12, 0.2, 0, 3);"));
             addBtn.setOnMouseExited(e -> addBtn.setStyle("-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 800; -fx-background-radius: 14; -fx-cursor: hand;"));
@@ -278,7 +304,6 @@ public class PatientProduitListController implements Initializable {
     }
 
     private void ajouterAuPanier(Produit produit, int quantite, Button addBtn) {
-        // ✅ FIX SCROLL PRINCIPAL : transférer le focus HORS du ScrollPane immédiatement
         if (searchField != null) searchField.requestFocus();
 
         try {
@@ -287,7 +312,12 @@ public class PatientProduitListController implements Initializable {
             addBtn.setStyle("-fx-background-color: #0F766E; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 800; -fx-background-radius: 14; -fx-cursor: hand;");
             addBtn.setDisable(true);
 
-            commandeService.ajouterProduitAuPanier(SessionManager.getCurrentUserId(), produit.getId(), quantite);
+            commandeService.ajouterProduitAuPanier(
+                    ManagerSession.getInstance().getCurrentUserId(),
+                    produit.getId(),
+                    quantite
+            );
+
             showInfo("✅ « " + produit.getNom() + " » × " + quantite + " ajouté(s) au panier !");
 
             Platform.runLater(() -> { if (productScrollPane != null) productScrollPane.setVvalue(savedScrollV); });
@@ -309,13 +339,21 @@ public class PatientProduitListController implements Initializable {
 
     @FXML private void handleSearch() {
         String q = searchField != null && searchField.getText() != null ? searchField.getText().trim().toLowerCase() : "";
-        if (q.isEmpty()) { savedScrollV = 0; afficherProduits(produitsCourants); return; }
+        if (q.isEmpty()) {
+            savedScrollV = 0;
+            afficherProduits(produitsCourants);
+            return;
+        }
+
         List<Produit> res = produitsCourants.stream()
                 .filter(p -> (p.getNom() != null && p.getNom().toLowerCase().contains(q)) ||
                         (p.getDescription() != null && p.getDescription().toLowerCase().contains(q)) ||
-                        (p.getCategorie() != null && p.getCategorie().toLowerCase().contains(q))).toList();
+                        (p.getCategorie() != null && p.getCategorie().toLowerCase().contains(q)))
+                .toList();
+
         savedScrollV = 0;
         afficherProduits(res);
+
         if (res.isEmpty()) showError("Aucun résultat pour « " + q + " ».");
         else showInfo(res.size() + " résultat(s).");
     }
@@ -326,14 +364,25 @@ public class PatientProduitListController implements Initializable {
         afficherProduits(produitsCourants);
     }
 
-    @FXML private void goToProduits()  { savedScrollV = 0; chargerProduits(); }
-    @FXML private void goToPanier() {
-        try { NavigationUtil.navigate((Stage) productContainer.getScene().getWindow(), "/fxml/patient/panier-patient.fxml"); }
-        catch (Exception e) { showError("Impossible d'ouvrir le panier."); }
+    @FXML private void goToProduits()  {
+        savedScrollV = 0;
+        chargerProduits();
     }
+
+    @FXML private void goToPanier() {
+        try {
+            NavigationUtil.navigate((Stage) productContainer.getScene().getWindow(), "/fxml/patient/panier-patient.fxml");
+        } catch (Exception e) {
+            showError("Impossible d'ouvrir le panier.");
+        }
+    }
+
     @FXML private void goToCommandes() {
-        try { NavigationUtil.navigate((Stage) productContainer.getScene().getWindow(), "/fxml/patient/commande-list-patient.fxml"); }
-        catch (Exception e) { showError("Impossible d'ouvrir les commandes."); }
+        try {
+            NavigationUtil.navigate((Stage) productContainer.getScene().getWindow(), "/fxml/patient/commande-list-patient.fxml");
+        } catch (Exception e) {
+            showError("Impossible d'ouvrir les commandes.");
+        }
     }
 
     private void showError(String m) {
@@ -341,6 +390,7 @@ public class PatientProduitListController implements Initializable {
         messageLabel.setStyle("-fx-text-fill: #DC2626; -fx-font-size: 13px; -fx-font-weight: 700; -fx-background-color: rgba(248,34,57,0.07); -fx-background-radius: 8; -fx-padding: 8 12;");
         messageLabel.setText(m);
     }
+
     private void showInfo(String m) {
         if (messageLabel == null) return;
         messageLabel.setStyle("-fx-text-fill: #065F46; -fx-font-size: 13px; -fx-font-weight: 700; -fx-background-color: rgba(16,185,129,0.10); -fx-background-radius: 8; -fx-padding: 8 12;");

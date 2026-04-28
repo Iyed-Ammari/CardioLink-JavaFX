@@ -76,18 +76,33 @@ public class ProduitService implements Iservice<Produit> {
     private void valider(Produit p) {
         if (p == null)
             throw new IllegalArgumentException("Le produit ne peut pas être null.");
+
+        // ── Nom ──
         if (p.getNom() == null || p.getNom().trim().isEmpty())
             throw new IllegalArgumentException("Le nom est obligatoire.");
-        if (p.getNom().trim().length() < 2)
+        String nom = p.getNom().trim();
+        if (nom.length() < 2)
             throw new IllegalArgumentException("Le nom doit contenir au moins 2 caractères.");
-        if (p.getNom().trim().length() > 255)
-            throw new IllegalArgumentException("Le nom ne doit pas dépasser 255 caractères.");
+        if (nom.length() > 100)
+            throw new IllegalArgumentException("Le nom ne doit pas dépasser 100 caractères.");
+        if (!Character.isLetter(nom.charAt(0)))
+            throw new IllegalArgumentException("Le nom doit commencer par une lettre.");
+        if (!nom.matches("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9\\s''()\\-+°%/]{1,99}$"))
+            throw new IllegalArgumentException("Le nom doit commencer par une lettre et ne contenir que des caractères valides.");
+
+        // ── Prix ──
         if (p.getPrix() == null || p.getPrix().compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException("Le prix doit être > 0.");
         if (p.getPrix().compareTo(new BigDecimal("99999.99")) > 0)
             throw new IllegalArgumentException("Le prix ne peut pas dépasser 99 999.99 DT.");
+
+        // ── Stock ──
         if (p.getStock() == null || p.getStock() < 0)
             throw new IllegalArgumentException("Le stock doit être >= 0.");
+        if (p.getStock() > 999999)
+            throw new IllegalArgumentException("Le stock ne peut pas dépasser 999 999.");
+
+        // ── Catégorie ──
         if (p.getCategorie() == null || p.getCategorie().trim().isEmpty())
             throw new IllegalArgumentException("La catégorie est obligatoire.");
         if (p.getCategorie().trim().length() > 50)

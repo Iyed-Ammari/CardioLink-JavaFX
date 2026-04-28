@@ -12,7 +12,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.cardiolink.controllers.PatientPanierController"
+            fx:controller="com.cardiolink.Controllers.PatientPanierController"
             prefWidth="1600.0" prefHeight="900.0"
             style="-fx-background-color: #F6F7FB;">
 
@@ -151,7 +151,11 @@
                             prefHeight="48"
                             maxWidth="1.7976931348623157E308"
                             style="-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: 800; -fx-background-radius: 14; -fx-cursor: hand;"/>
-
+                    <Button text="Payer maintenant"
+                            onAction="#handlePayerCommande"
+                            prefHeight="48"
+                            maxWidth="1.7976931348623157E308"
+                            style="-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: 800; -fx-background-radius: 14; -fx-cursor: hand;"/>
                     <Button text="Vider le panier"
                             onAction="#handleViderPanier"
                             prefHeight="48"

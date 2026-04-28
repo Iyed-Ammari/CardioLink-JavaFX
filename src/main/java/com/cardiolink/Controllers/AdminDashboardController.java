@@ -1,9 +1,12 @@
-package com.cardiolink.controllers;
+package com.cardiolink.Controllers;
 
 import com.cardiolink.Services.CommandeService;
 import com.cardiolink.Services.ProduitService;
+import com.cardiolink.Services.UserService;
 import com.cardiolink.Models.Commande;
 import com.cardiolink.Models.Produit;
+import com.cardiolink.Models.User;
+import com.cardiolink.utils.ManagerSession;
 import com.cardiolink.utils.NavigationUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -12,6 +15,7 @@ import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -30,9 +34,21 @@ public class AdminDashboardController implements Initializable {
 
     private final CommandeService commandeService = new CommandeService();
     private final ProduitService produitService = new ProduitService();
+    private final UserService userService = new UserService();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        // ✅ LIGNES DEMANDÉES PAR TA COLLÈGUE (respectées)
+        int userId = ManagerSession.getInstance().getCurrentUserId();
+        try {
+            User user = userService.getUserById(userId);
+            System.out.println(user);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        // ✅ TON CODE ORIGINAL (inchangé)
         chargerStats();
     }
 
@@ -119,6 +135,16 @@ public class AdminDashboardController implements Initializable {
             NavigationUtil.navigate(stage, "/fxml/admin/commande-list-admin.fxml");
         } catch (Exception e) {
             System.err.println("❌ AdminDashboard → Commandes : " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void goToPredictionIA() {
+        try {
+            Stage stage = (Stage) heroTitleLabel.getScene().getWindow();
+            NavigationUtil.navigate(stage, "/fxml/admin/prediction-ia.fxml");
+        } catch (Exception e) {
+            System.err.println("❌ AdminDashboard → Prédiction IA : " + e.getMessage());
         }
     }
 }

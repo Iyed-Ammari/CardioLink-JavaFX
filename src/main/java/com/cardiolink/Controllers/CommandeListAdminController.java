@@ -1,7 +1,10 @@
-package com.cardiolink.controllers;
+package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Commande;
+import com.cardiolink.Models.User;
 import com.cardiolink.Services.CommandeService;
+import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.ManagerSession;
 import com.cardiolink.utils.NavigationUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -16,6 +19,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -34,12 +38,24 @@ public class CommandeListAdminController implements Initializable {
     @FXML private Label countLabel;
 
     private final CommandeService commandeService = new CommandeService();
+    private final UserService userService = new UserService();
+
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy  HH:mm");
 
     private List<Commande> toutesLesCommandes;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+        int userId = ManagerSession.getInstance().getCurrentUserId();
+
+        try {
+            User user = userService.getUserById(userId);
+            System.out.println(user);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
         if (statutFilterBox != null) {
             statutFilterBox.setItems(FXCollections.observableArrayList("Tous", "EN_ATTENTE_PAIEMENT", "PAYEE", "LIVREE", "ANNULEE"));
             statutFilterBox.setValue("Tous");
@@ -368,6 +384,18 @@ public class CommandeListAdminController implements Initializable {
     @FXML
     private void goToCommandes() {
         chargerCommandes();
+    }
+
+    @FXML
+    private void goToPredictionIA() {
+        try {
+            NavigationUtil.navigate(
+                    (Stage) commandeContainer.getScene().getWindow(),
+                    "/fxml/admin/prediction-ia.fxml"
+            );
+        } catch (IOException e) {
+            showError("Navigation impossible.");
+        }
     }
 
     private void showError(String msg) {

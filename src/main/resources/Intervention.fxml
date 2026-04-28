@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1150.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cardiolink.Controllers.InterventionController"
+            style="-fx-background-color: linear-gradient(to bottom, #11152f, #17193a);">
+
+    <children>
+        <VBox spacing="18.0" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.bottomAnchor="20.0">
+            <children>
+
+                <Label text="Interventions"
+                       style="-fx-text-fill: white; -fx-font-size: 38px; -fx-font-weight: bold;" />
+
+                <Button text="Alertes SOS Urgentes"
+                        onAction="#ouvrirAlertesSOS"
+                        prefWidth="240"
+                        prefHeight="54"
+                        style="-fx-background-color: linear-gradient(to right, #e63d63, #ff5b6e);
+                               -fx-text-fill: #3d146b;
+                               -fx-font-size: 16px;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 14;
+                               -fx-cursor: hand;" />
+
+                <TextField fx:id="txtRecherche"
+                           promptText="Rechercher une intervention (Type, description...)"
+                           prefHeight="50"
+                           style="-fx-background-color: #162654;
+                                  -fx-text-fill: white;
+                                  -fx-prompt-text-fill: #8e94b3;
+                                  -fx-background-radius: 12;
+                                  -fx-border-color: white;
+                                  -fx-border-radius: 12;" />
+
+                <HBox spacing="10">
+                    <children>
+                        <Button text="Rechercher"
+                                onAction="#rechercherInterventions"
+                                prefWidth="180"
+                                prefHeight="45"
+                                style="-fx-background-color: linear-gradient(to right, #d9416c, #5b6fff);
+                                       -fx-text-fill: white;
+                                       -fx-font-size: 16px;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 12;
+                                       -fx-cursor: hand;" />
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tableInterventions" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colType" text="TYPE" prefWidth="160"/>
+                        <TableColumn fx:id="colDescription" text="DESCRIPTION" prefWidth="320"/>
+                        <TableColumn fx:id="colDatePlanifiee" text="DATE PLANIFIÉE" prefWidth="210"/>
+                        <TableColumn fx:id="colStatut" text="STATUT" prefWidth="130"/>
+                        <TableColumn fx:id="colMedecin" text="MÉDECIN" prefWidth="130"/>
+                        <TableColumn fx:id="colActions" text="ACTIONS" prefWidth="140"/>
+                    </columns>
+                </TableView>
+
+                <Label fx:id="lblMessage"
+                       text="Chargement..."
+                       style="-fx-text-fill: white; -fx-font-size: 15px;" />
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

@@ -1,7 +1,10 @@
-package com.cardiolink.controllers;
+package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Produit;
+import com.cardiolink.Models.User;
 import com.cardiolink.Services.ProduitService;
+import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.ManagerSession;
 import com.cardiolink.utils.NavigationUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -21,6 +24,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -36,10 +40,21 @@ public class ProduitListAdminController implements Initializable {
     @FXML private Label countLabel;
 
     private final ProduitService produitService = new ProduitService();
+    private final UserService userService = new UserService();
     private List<Produit> tousLesProduits = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+        int userId = ManagerSession.getInstance().getCurrentUserId();
+
+        try {
+            User user = userService.getUserById(userId);
+            System.out.println(user);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
         chargerProduits();
     }
 
@@ -392,6 +407,18 @@ public class ProduitListAdminController implements Initializable {
             NavigationUtil.navigate(
                     (Stage) produitContainer.getScene().getWindow(),
                     "/fxml/admin/commande-list-admin.fxml"
+            );
+        } catch (IOException e) {
+            showError("Navigation impossible.");
+        }
+    }
+
+    @FXML
+    private void goToPredictionIA() {
+        try {
+            NavigationUtil.navigate(
+                    (Stage) produitContainer.getScene().getWindow(),
+                    "/fxml/admin/prediction-ia.fxml"
             );
         } catch (IOException e) {
             showError("Navigation impossible.");

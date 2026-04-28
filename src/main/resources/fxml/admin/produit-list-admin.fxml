@@ -13,7 +13,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.cardiolink.controllers.ProduitListAdminController">
+            fx:controller="com.cardiolink.Controllers.ProduitListAdminController">
 
     <left>
         <VBox spacing="16" prefWidth="290"
@@ -40,7 +40,9 @@
                 <Button text="📋  Commandes" onAction="#goToCommandes"
                         prefHeight="42" maxWidth="1.7976931348623157E308"
                         style="-fx-background-color: #F3F4F6; -fx-text-fill: #111827; -fx-font-size: 14px; -fx-font-weight: 700; -fx-background-radius: 14; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 14;"/>
-
+                <Button text="🤖  Prédiction IA" onAction="#goToPredictionIA"
+                        prefHeight="42" maxWidth="1.7976931348623157E308"
+                        style="-fx-background-color: #F3F4F6; -fx-text-fill: #111827; -fx-font-size: 14px; -fx-font-weight: 700; -fx-background-radius: 14; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 14;"/>
             </VBox>
 
             <Region VBox.vgrow="ALWAYS"/>
@@ -100,7 +102,6 @@
                            style="-fx-text-fill: #6B7280; -fx-font-size: 13px; -fx-font-weight: 700;"/>
                 </HBox>
 
-                <!-- ✅ ScrollPane avec VBox au lieu de TilePane -->
                 <ScrollPane fx:id="produitScrollPane"
                             fitToWidth="true"
                             VBox.vgrow="ALWAYS"
