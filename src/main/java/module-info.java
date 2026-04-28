@@ -8,7 +8,7 @@ module com.cardiolink {
     requires javafx.media;
     requires javafx.graphics;
     requires javafx.base;
-
+    requires java.net.http;
     // --- Database & External Libraries ---
     requires java.sql;
     requires org.controlsfx.controls;
@@ -20,7 +20,7 @@ module com.cardiolink {
     requires jbcrypt;
     requires org.java_websocket;
     requires org.json;
-
+    requires com.fasterxml.jackson.databind;
     // --- Package Exports ---
     // These allow other modules to use your classes (e.g., during compilation)
     exports com.cardiolink;

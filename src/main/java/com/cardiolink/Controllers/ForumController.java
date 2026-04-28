@@ -28,6 +28,7 @@ import com.cardiolink.Services.UserService;
 import com.cardiolink.utils.ManagerSession;
 import com.cardiolink.Services.AIService;
 import java.sql.SQLException;
+import com.cardiolink.Services.ModerationService;
 public class ForumController {
 
     @FXML private VBox postContainer;
@@ -381,15 +382,21 @@ public class ForumController {
         commInput.setPromptText("Écrire un commentaire...");
         HBox.setHgrow(commInput, Priority.ALWAYS);
 
-        Button sendComm = new Button("➤");
-        sendComm.setStyle(
-                "-fx-background-color: #2F60F5; -fx-text-fill: white; " +
-                        "-fx-background-radius: 50; -fx-cursor: hand;"
-        );
 
-        sendComm.setOnAction(e ->
-                handleAddComment(p.getId(), commInput.getText())
-        );
+
+        Button sendComm = new Button("➤");
+        sendComm.setOnAction(e -> {
+            // 1. On tente l'ajout
+            handleAddComment(p.getId(), commInput.getText());
+
+            // 2. On vide le champ après l'action
+            commInput.clear();
+        });
+
+        sendComm.setOnAction(e -> {
+            handleAddComment(p.getId(), commInput.getText());
+            commInput.clear();
+        });
 
         inputBar.getChildren().addAll(commInput, sendComm);
         commentArea.getChildren().addAll(commentsList, inputBar);
@@ -522,36 +529,35 @@ public class ForumController {
     }
 
     private void handleAddComment(int postId, String text) {
-        // 1. Validation de la saisie (Contrôle obligatoire)
+        // 1. Validation de base
         if (text == null || text.trim().isEmpty()) {
-            // Affichage d'un message d'erreur clair
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Erreur de saisie");
-            alert.setHeaderText(null);
-            alert.setContentText("Le commentaire ne peut pas être vide !");
-            alert.showAndWait();
-            return; // On arrête l'exécution ici
+            return;
         }
 
-        try {
-            // 2. Préparation de l'objet (Modèle)
-            Comment c = new Comment();
-            c.setContent(text.trim()); // .trim() enlève les espaces inutiles au début/fin
-            c.setPost_id(postId);
-            c.setUser_id(CURRENT_USER_ID); // ID de l'utilisateur connecté
+        // 2. Modération (L'appel crucial)
+        ModerationService moderationService = new ModerationService();
+        if (!moderationService.isCommentSafe(text)) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Commentaire bloqué");
+            alert.setContentText("⚠️ Votre commentaire contient des propos inappropriés et a été refusé.");
+            alert.showAndWait();
+            return; // ARRÊT : Le code ne va pas plus loin, serviceComment.add() ne sera jamais appelé
+        }
 
-            // 3. Appel du Service (Logique métier / SQL)
+        // 3. Enregistrement (Seulement si la modération a renvoyé true)
+        try {
+            Comment c = new Comment();
+            c.setContent(text.trim());
+            c.setPost_id(postId);
+            c.setUser_id(CURRENT_USER_ID);
+
+            // Cette méthode appelle ton INSERT SQL
             serviceComment.add(c);
 
-            // 4. Mise à jour de la Vue
-            loadPosts(); // On recharge les posts pour afficher le nouveau commentaire
-
+            // Rafraîchir l'affichage après l'ajout réussi
+            loadPosts();
         } catch (Exception e) {
-            // Message d'erreur technique si le service échoue
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Erreur lors de l'ajout du commentaire en base de données.");
-            alert.show();
         }
     }
     private void handleEditComment(Comment c) {
