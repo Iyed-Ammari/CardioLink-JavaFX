@@ -96,4 +96,16 @@ public class LoginController {
     }
 
     private void showError(String msg) { errorLabel.setText("⚠ " + msg); }
+    @FXML
+    private void goToForgotPassword(javafx.scene.input.MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/forgot_password.fxml"));
+            Scene scene = new Scene(loader.load(), 900, 560);
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setTitle("CardioLink - Mot de passe oublié");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
 }

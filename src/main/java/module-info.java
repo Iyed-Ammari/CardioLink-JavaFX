@@ -20,6 +20,7 @@ module com.cardiolink {
     requires jbcrypt;
     requires org.java_websocket;
     requires org.json;
+    requires jakarta.mail;
 
     // --- Package Exports ---
     // These allow other modules to use your classes (e.g., during compilation)

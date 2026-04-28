@@ -1,6 +1,7 @@
 package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.User;
+import com.cardiolink.Services.EmailVerificationService;
 import com.cardiolink.Services.UserService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -41,89 +42,103 @@ public class RegisterController {
     private void handleRegister() {
         clearErrors();
 
-        String email    = emailField.getText().trim();
-        String password = passwordField.getText().trim();
-        String nom      = nomField.getText().trim();
-        String prenom   = prenomField.getText().trim();
-        String phone    = phoneField.getText().trim();
-        String role     = roleCombo.getValue();
+        String email     = emailField.getText().trim();
+        String password  = passwordField.getText().trim();
+        String nom       = nomField.getText().trim();
+        String prenom    = prenomField.getText().trim();
+        String phone     = phoneField     != null ? phoneField.getText().trim()     : "";
         String allergies = allergiesField != null ? allergiesField.getText().trim() : "";
         String adresse   = adresseField   != null ? adresseField.getText().trim()   : "";
+        String role      = roleCombo.getValue();
 
         boolean hasError = false;
 
         if (email.isEmpty()) {
-            setError(emailField, "L'email est obligatoire !");
-            hasError = true;
+            setError(emailField, "L'email est obligatoire !"); hasError = true;
         } else if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            setError(emailField, "Format d'email invalide ! Ex: nom@domaine.com");
-            hasError = true;
+            setError(emailField, "Format d'email invalide !"); hasError = true;
+        } else {
+            String emailLower = email.toLowerCase();
+            if (emailLower.endsWith("@gamil.com") || emailLower.endsWith("@gmial.com") ||
+                    emailLower.endsWith("@gmai.com")  || emailLower.endsWith("@gnail.com")) {
+                setError(emailField, "Vouliez-vous dire @gmail.com ?"); hasError = true;
+            }
         }
 
         if (password.isEmpty()) {
-            setError(passwordField, "Le mot de passe est obligatoire !");
-            hasError = true;
+            setError(passwordField, "Le mot de passe est obligatoire !"); hasError = true;
         } else if (password.length() < 4) {
-            setError(passwordField, "Minimum 4 caractères !");
-            hasError = true;
+            setError(passwordField, "Minimum 4 caractères !"); hasError = true;
         }
 
         if (nom.isEmpty()) {
-            setError(nomField, "Le nom est obligatoire !");
-            hasError = true;
+            setError(nomField, "Le nom est obligatoire !"); hasError = true;
         } else if (!nom.matches("[a-zA-ZÀ-ÿ\\s-]+")) {
-            setError(nomField, "Le nom ne doit contenir que des lettres !");
-            hasError = true;
+            setError(nomField, "Le nom ne doit contenir que des lettres !"); hasError = true;
         }
 
         if (prenom.isEmpty()) {
-            setError(prenomField, "Le prénom est obligatoire !");
-            hasError = true;
+            setError(prenomField, "Le prénom est obligatoire !"); hasError = true;
         } else if (!prenom.matches("[a-zA-ZÀ-ÿ\\s-]+")) {
-            setError(prenomField, "Le prénom ne doit contenir que des lettres !");
-            hasError = true;
+            setError(prenomField, "Le prénom ne doit contenir que des lettres !"); hasError = true;
         }
 
         if (!phone.isEmpty() && !phone.matches("^[\\+]?[0-9\\s-]{8,15}$")) {
-            setError(phoneField, "Numéro de téléphone invalide !");
-            hasError = true;
+            setError(phoneField, "Numéro de téléphone invalide !"); hasError = true;
         }
 
         if (role == null || role.isEmpty()) {
-            showError("Veuillez sélectionner un rôle !");
-            hasError = true;
+            showError("Veuillez sélectionner un rôle !"); hasError = true;
         }
 
         if (!termsCheck.isSelected()) {
-            showError("Vous devez accepter les Terms and Conditions !");
-            hasError = true;
+            showError("Vous devez accepter les Terms and Conditions !"); hasError = true;
         }
 
         if (hasError) return;
 
-        // ✅ Tout OK → enregistrement
         try {
+            // ── Créer le user avec is_verified = false ──────
             User user = new User();
             user.setEmail(email);
             user.setPassword(password);
             user.setNom(nom);
             user.setPrenom(prenom);
+            user.setTel(phone.isEmpty()    ? "" : phone);
+            user.setAdresse(adresse.isEmpty() ? "" : adresse);
             user.setRoles(role);
             user.setActive(true);
-            user.setTel(phone);
-            user.setAdresse(adresse);
-            user.setVerified(true);
-
+            user.setVerified(false);
             userService.addUser(user);
 
-            showSuccess("✅ Compte créé avec succès ! Vous pouvez vous connecter.");
-            clearFields();
+            // ── Récupérer l'utilisateur créé ─────────────
+            User created = userService.findByEmail(email);
 
-        } catch (SQLException e) {
+            if (created != null) {
+                // ── Envoyer email de vérification ─────────
+                EmailVerificationService verifyService =
+                        new EmailVerificationService();
+
+                String token = verifyService.generateVerificationToken(created.getId());
+                verifyService.sendVerificationEmail(email, token, prenom);
+
+                // ── Naviguer vers la page de vérification ─
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/verify_email.fxml"));
+                Scene scene = new Scene(loader.load(), 900, 560);
+                VerifyEmailController ctrl = loader.getController();
+                ctrl.setUserData(created.getId(), email, prenom);
+                Stage stage = (Stage) emailField.getScene().getWindow();
+                stage.setTitle("CardioLink - Vérification Email");
+                stage.setScene(scene);
+                stage.show();
+            }
+
+        } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("Duplicate")) {
                 setError(emailField, "Cet email est déjà utilisé !");
             } else {
-                showError("Erreur serveur : " + e.getMessage());
+                showError("Erreur : " + e.getMessage());
             }
             e.printStackTrace();
         }
@@ -133,24 +148,20 @@ public class RegisterController {
     private void goToLogin(MouseEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/login.fxml")
-            );
+                    getClass().getResource("/login.fxml"));
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) emailField.getScene().getWindow();
             stage.setTitle("CardioLink - Login");
             stage.setScene(scene);
             stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void setError(Control field, String message) {
         field.setStyle(
                 "-fx-border-color: #E24B4A; -fx-border-width: 1.5;" +
                         "-fx-border-radius: 10; -fx-background-radius: 10;" +
-                        "-fx-padding: 10 14; -fx-font-size: 13px;"
-        );
+                        "-fx-padding: 10 14; -fx-font-size: 13px;");
         showError(message);
     }
 
@@ -164,7 +175,7 @@ public class RegisterController {
         passwordField.setStyle(normal);
         nomField.setStyle(normal);
         prenomField.setStyle(normal);
-        phoneField.setStyle(normal);
+        if (phoneField != null) phoneField.setStyle(normal);
         errorLabel.setText("");
         successLabel.setText("");
     }
@@ -177,7 +188,7 @@ public class RegisterController {
         passwordField.clear();
         nomField.clear();
         prenomField.clear();
-        phoneField.clear();
+        if (phoneField    != null) phoneField.clear();
         if (allergiesField != null) allergiesField.clear();
         if (adresseField   != null) adresseField.clear();
         termsCheck.setSelected(false);

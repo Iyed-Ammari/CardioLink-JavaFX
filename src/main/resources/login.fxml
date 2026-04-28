@@ -50,8 +50,9 @@
         </Button>
 
         <Label text="Forgot your password?"
-               style="-fx-font-size: 13px; -fx-text-fill: #888888;
-                      -fx-padding: 14 0 0 0; -fx-cursor: hand;"/>
+               onMouseClicked="#goToForgotPassword"
+               style="-fx-font-size: 13px; -fx-text-fill: #7F77DD;
+              -fx-font-weight: bold; -fx-padding: 14 0 0 0; -fx-cursor: hand;"/>
 
         <Separator><VBox.margin><Insets top="14" bottom="10"/></VBox.margin></Separator>
 
