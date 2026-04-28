@@ -126,9 +126,14 @@ public class ProduitListAdminController implements Initializable {
         card.setPadding(new Insets(16, 18, 16, 18));
         card.setAlignment(Pos.CENTER_LEFT);
         card.setMaxWidth(Double.MAX_VALUE);
+
+        boolean isPromo = produit.isPromoAuto();
+        String borderColor = isPromo ? "rgba(245,158,11,0.5)" : "#E5E7EB";
+        String borderWidth = isPromo ? "2" : "1.5";
+
         card.setStyle(
                 "-fx-background-color: white; -fx-background-radius: 16;" +
-                        "-fx-border-color: #E5E7EB; -fx-border-radius: 16; -fx-border-width: 1.5;" +
+                        "-fx-border-color: " + borderColor + "; -fx-border-radius: 16; -fx-border-width: " + borderWidth + ";" +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);"
         );
 
@@ -159,8 +164,24 @@ public class ProduitListAdminController implements Initializable {
         VBox infos = new VBox(5);
         HBox.setHgrow(infos, Priority.ALWAYS);
 
+        // Nom + badge promo sur la même ligne
+        HBox nomRow = new HBox(8);
+        nomRow.setAlignment(Pos.CENTER_LEFT);
+
         Label nomLbl = new Label(produit.getNom() != null ? produit.getNom() : "—");
         nomLbl.setStyle("-fx-text-fill: #111827; -fx-font-size: 15px; -fx-font-weight: 800;");
+        nomRow.getChildren().add(nomLbl);
+
+        // Badge PROMO AUTO visible uniquement pour l'admin
+        if (isPromo) {
+            Label promoBadge = new Label("⏰ PROMO AUTO");
+            promoBadge.setStyle(
+                    "-fx-background-color: rgba(245,158,11,0.15); -fx-text-fill: #B45309;" +
+                            "-fx-font-size: 10px; -fx-font-weight: 900;" +
+                            "-fx-padding: 3 8; -fx-background-radius: 6;"
+            );
+            nomRow.getChildren().add(promoBadge);
+        }
 
         String desc = produit.getDescription() != null && !produit.getDescription().isBlank()
                 ? (produit.getDescription().length() > 80
@@ -175,7 +196,6 @@ public class ProduitListAdminController implements Initializable {
         Label stockBadge = new Label(
                 dispo ? "✓ " + produit.getStock() + " en stock" : "⚠ Rupture de stock"
         );
-
         stockBadge.setStyle(
                 dispo
                         ? "-fx-background-color: rgba(16,185,129,0.10); -fx-text-fill: #0F766E; " +
@@ -184,14 +204,31 @@ public class ProduitListAdminController implements Initializable {
                           "-fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 3 8; -fx-background-radius: 6;"
         );
 
-        infos.getChildren().addAll(nomLbl, descLbl, stockBadge);
+        infos.getChildren().addAll(nomRow, descLbl, stockBadge);
+
+        // Zone prix — avec ou sans promo
+        VBox prixBox = new VBox(2);
+        prixBox.setAlignment(Pos.CENTER_RIGHT);
+        prixBox.setMinWidth(130);
+        prixBox.setPrefWidth(130);
 
         BigDecimal prix = produit.getPrix() != null ? produit.getPrix() : BigDecimal.ZERO;
-        Label prixLbl = new Label(prix.toPlainString() + " DT");
-        prixLbl.setMinWidth(130);
-        prixLbl.setPrefWidth(130);
-        prixLbl.setAlignment(Pos.CENTER_RIGHT);
-        prixLbl.setStyle("-fx-text-fill: #F82239; -fx-font-size: 20px; -fx-font-weight: 900;");
+
+        if (isPromo) {
+            Label prixBarre = new Label(prix.toPlainString() + " DT");
+            prixBarre.setStyle(
+                    "-fx-text-fill: #9CA3AF; -fx-font-size: 12px; -fx-font-weight: 700;" +
+                            "-fx-strikethrough: true; -fx-alignment: CENTER_RIGHT;"
+            );
+            Label prixPromoLbl = new Label(produit.getPrixPromo().toPlainString() + " DT");
+            prixPromoLbl.setStyle("-fx-text-fill: #F82239; -fx-font-size: 18px; -fx-font-weight: 900; -fx-alignment: CENTER_RIGHT;");
+            prixBox.getChildren().addAll(prixBarre, prixPromoLbl);
+        } else {
+            Label prixLbl = new Label(prix.toPlainString() + " DT");
+            prixLbl.setAlignment(Pos.CENTER_RIGHT);
+            prixLbl.setStyle("-fx-text-fill: #F82239; -fx-font-size: 20px; -fx-font-weight: 900;");
+            prixBox.getChildren().add(prixLbl);
+        }
 
         VBox actions = new VBox(8);
         actions.setAlignment(Pos.CENTER);
@@ -242,17 +279,18 @@ public class ProduitListAdminController implements Initializable {
         btnDelete.setOnAction(e -> supprimerProduit(produit));
 
         actions.getChildren().addAll(btnEdit, btnDelete);
-        card.getChildren().addAll(imagePane, infos, prixLbl, actions);
+        card.getChildren().addAll(imagePane, infos, prixBox, actions);
 
+        String hoverBorder = isPromo ? "rgba(245,158,11,0.6)" : "rgba(47,96,245,0.3)";
         card.setOnMouseEntered(e -> card.setStyle(
                 "-fx-background-color: white; -fx-background-radius: 16;" +
-                        "-fx-border-color: rgba(47,96,245,0.3); -fx-border-radius: 16; -fx-border-width: 1.5;" +
+                        "-fx-border-color: " + hoverBorder + "; -fx-border-radius: 16; -fx-border-width: 2;" +
                         "-fx-effect: dropshadow(gaussian, rgba(16,24,40,0.10), 14, 0.15, 0, 4);" +
                         "-fx-translate-y: -1;"
         ));
         card.setOnMouseExited(e -> card.setStyle(
                 "-fx-background-color: white; -fx-background-radius: 16;" +
-                        "-fx-border-color: #E5E7EB; -fx-border-radius: 16; -fx-border-width: 1.5;" +
+                        "-fx-border-color: " + borderColor + "; -fx-border-radius: 16; -fx-border-width: " + borderWidth + ";" +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);" +
                         "-fx-translate-y: 0;"
         ));
