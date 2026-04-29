@@ -515,4 +515,50 @@ public class CommandeService implements Iservice<Commande> {
                 getChiffreAffaires().toPlainString()
         );
     }
+
+    // ─────────────────────────────────────────────────────────
+    // EXPIRATION AUTOMATIQUE — 3 jours sans paiement
+    // Retourne le nombre de commandes annulées
+    // ─────────────────────────────────────────────────────────
+    public int annulerCommandesExpirees(int userId) {
+        String sql =
+                "SELECT id, date_commande, statut, montant_total, user_id " +
+                        "FROM commande " +
+                        "WHERE user_id = ? " +
+                        "AND statut = 'EN_ATTENTE_PAIEMENT' " +
+                        "AND date_commande < NOW() - INTERVAL 3 DAY"; // PRODUCTION
+        // "AND date_commande < NOW() - INTERVAL 3 HOUR"; // TEST
+
+        List<Commande> expirees = new ArrayList<>();
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    expirees.add(mapResultSet(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ annulerCommandesExpirees : " + e.getMessage());
+            return 0;
+        }
+
+        int count = 0;
+        for (Commande c : expirees) {
+            try {
+                c.annuler();
+                update(c);
+                count++;
+            } catch (Exception e) {
+                System.err.println("❌ Impossible d'annuler commande #" + c.getId() + " : " + e.getMessage());
+            }
+        }
+        return count;
+    }
+
+    public long heuresAvantExpiration(Commande commande) {
+        if (commande.getDateCommande() == null) return -1;
+        LocalDateTime expiration = commande.getDateCommande().plusDays(3); // PRODUCTION
+        // LocalDateTime expiration = commande.getDateCommande().plusHours(3); // TEST
+        return java.time.Duration.between(LocalDateTime.now(), expiration).toHours();
+    }
 }

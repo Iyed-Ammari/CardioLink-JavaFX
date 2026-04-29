@@ -70,10 +70,19 @@ public class PatientCommandeListController implements Initializable {
 
     private void chargerCommandes() {
         try {
-            List<Commande> commandes = commandeService.findByUser(
-                    ManagerSession.getInstance().getCurrentUserId()
-            );
-            afficherCommandes(commandes);
+            int userId = ManagerSession.getInstance().getCurrentUserId();
+
+            // Annuler automatiquement les commandes expirées (> 3 jours sans paiement)
+            int nbExpirees = commandeService.annulerCommandesExpirees(userId);
+            if (nbExpirees > 0) {
+                showInfo("⚠ " + nbExpirees + " commande(s) annulée(s) automatiquement — délai de paiement dépassé.");
+            }
+
+            List<Commande> commandes = commandeService.findByUser(userId);
+            List<Commande> commandesSansPanier = commandes.stream()
+                    .filter(c -> c.getStatut() != Commande.Statut.PANIER)
+                    .collect(java.util.stream.Collectors.toList());
+            afficherCommandes(commandesSansPanier);
         } catch (Exception e) {
             showError("Erreur chargement : " + e.getMessage());
         }
@@ -164,6 +173,31 @@ public class PatientCommandeListController implements Initializable {
         montantLbl.setStyle("-fx-text-fill: #F82239; -fx-font-size: 20px; -fx-font-weight: 900;");
 
         card.getChildren().addAll(header, dateLbl, articlesLbl, montantLbl);
+
+        // Badge expiration pour les commandes EN_ATTENTE_PAIEMENT
+        if (st == Commande.Statut.EN_ATTENTE_PAIEMENT) {
+            long heuresRestantes = commandeService.heuresAvantExpiration(commande);
+            if (heuresRestantes > 0 && heuresRestantes <= 24) {
+                // Moins de 24h → badge rouge urgent
+                Label expireBadge = new Label("⏰ Expire dans " + heuresRestantes + "h — Payez maintenant !");
+                expireBadge.setStyle(
+                        "-fx-background-color: rgba(248,34,57,0.10); -fx-text-fill: #F82239;" +
+                                "-fx-font-size: 12px; -fx-font-weight: 800;" +
+                                "-fx-padding: 6 12; -fx-background-radius: 8;"
+                );
+                card.getChildren().add(expireBadge);
+            } else if (heuresRestantes > 24 && heuresRestantes <= 72) {
+                // Entre 24h et 72h → badge bleu informatif
+                long joursRestants = heuresRestantes / 24;
+                Label expireBadge = new Label("⏳ " + joursRestants + " jour(s) restant(s) pour payer");
+                expireBadge.setStyle(
+                        "-fx-background-color: rgba(47,96,245,0.08); -fx-text-fill: #2F60F5;" +
+                                "-fx-font-size: 12px; -fx-font-weight: 800;" +
+                                "-fx-padding: 6 12; -fx-background-radius: 8;"
+                );
+                card.getChildren().add(expireBadge);
+            }
+        }
 
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
