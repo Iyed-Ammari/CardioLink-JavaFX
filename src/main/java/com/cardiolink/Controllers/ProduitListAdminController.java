@@ -24,7 +24,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.SQLException;
+import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -49,9 +49,9 @@ public class ProduitListAdminController implements Initializable {
         int userId = ManagerSession.getInstance().getCurrentUserId();
 
         try {
-            User user = userService.getUserById(userId);
+            User user = userService.getById(userId);
             System.out.println(user);
-        } catch (SQLException e) {
+        } catch (SQLDataException e) {
             throw new RuntimeException(e);
         }
 
@@ -149,7 +149,13 @@ public class ProduitListAdminController implements Initializable {
 
         if (produit.getImageUrl() != null && !produit.getImageUrl().isBlank()) {
             try {
-                ImageView iv = new ImageView(new Image(produit.getImageUrl(), true));
+                String imageUrl = produit.getImageUrl();
+                // Corriger le format file: pour Windows
+                if (imageUrl.startsWith("file:") && !imageUrl.startsWith("file:///")) {
+                    String withoutScheme = imageUrl.substring(5).replaceAll("^/+", "");
+                    imageUrl = "file:///" + withoutScheme;
+                }
+                ImageView iv = new ImageView(new Image(imageUrl, true));
                 iv.setFitWidth(80);
                 iv.setFitHeight(80);
                 iv.setPreserveRatio(false);
@@ -174,11 +180,11 @@ public class ProduitListAdminController implements Initializable {
         nomLbl.setStyle("-fx-text-fill: #111827; -fx-font-size: 15px; -fx-font-weight: 800;");
         nomRow.getChildren().add(nomLbl);
 
-        // Badge PROMO AUTO visible uniquement pour l'admin
+        // Badge PROMO AUTO — rouge selon charte
         if (isPromo) {
             Label promoBadge = new Label("⏰ PROMO AUTO");
             promoBadge.setStyle(
-                    "-fx-background-color: rgba(245,158,11,0.15); -fx-text-fill: #B45309;" +
+                    "-fx-background-color: rgba(248,34,57,0.10); -fx-text-fill: #F82239;" +
                             "-fx-font-size: 10px; -fx-font-weight: 900;" +
                             "-fx-padding: 3 8; -fx-background-radius: 6;"
             );
@@ -301,7 +307,7 @@ public class ProduitListAdminController implements Initializable {
         actions.getChildren().addAll(btnEdit, btnDelete);
         card.getChildren().addAll(imagePane, infos, prixBox, actions);
 
-        String hoverBorder = isPromo ? "rgba(245,158,11,0.6)" : "rgba(47,96,245,0.3)";
+        String hoverBorder = isPromo ? "rgba(248,34,57,0.5)" : "rgba(47,96,245,0.3)";
         card.setOnMouseEntered(e -> card.setStyle(
                 "-fx-background-color: white; -fx-background-radius: 16;" +
                         "-fx-border-color: " + hoverBorder + "; -fx-border-radius: 16; -fx-border-width: 2;" +
