@@ -38,6 +38,9 @@ public class PatientProduitListController implements Initializable {
     @FXML private Label      messageLabel;
     @FXML private Label      countLabel;
     @FXML private Button     btnFavoris;
+    @FXML private Button     btnProduits;
+    @FXML private Button     btnPanier;
+    @FXML private Button     btnCommandes;
 
     private final ProduitService  produitService  = new ProduitService();
     private final CommandeService commandeService = new CommandeService();
@@ -175,31 +178,40 @@ public class PatientProduitListController implements Initializable {
         StackPane.setMargin(stockBadge, new Insets(10, 10, 0, 0));
         imagePane.getChildren().add(stockBadge);
 
-        // Bouton cœur favori (haut gauche si pas promo, sinon en dessous du badge promo)
-        boolean estFavori = ManagerSession.getInstance().isFavori(produit.getId());
+        // Bouton cœur favori — rouge #F82239 charte graphique
+        boolean estFavori = produit.isFavoriPour(ManagerSession.getInstance().getCurrentUserId());
         Label coeur = new Label(estFavori ? "♥" : "♡");
         coeur.setFocusTraversable(false);
         coeur.setStyle(
                 "-fx-font-size: 22px; -fx-cursor: hand; -fx-text-fill: " +
-                        (estFavori ? "#F82239" : "rgba(255,255,255,0.85)") + ";" +
+                        (estFavori ? "#F82239" : "white") + ";" +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);"
         );
         coeur.setOnMouseClicked(e -> {
-            ManagerSession.getInstance().toggleFavori(produit.getId());
-            boolean nowFavori = ManagerSession.getInstance().isFavori(produit.getId());
-            coeur.setText(nowFavori ? "♥" : "♡");
-            coeur.setStyle(
-                    "-fx-font-size: 22px; -fx-cursor: hand; -fx-text-fill: " +
-                            (nowFavori ? "#F82239" : "rgba(255,255,255,0.85)") + ";" +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);"
-            );
-            // Mettre à jour le compteur dans le bouton sidebar
-            mettreAJourBtnFavoris();
-            if (modeFavoris && !nowFavori) {
-                // Si on est en mode favoris et qu'on retire → recharger la vue
-                goToFavoris();
+            try {
+                int userId = ManagerSession.getInstance().getCurrentUserId();
+                produitService.toggleFavori(produit.getId(), userId);
+                // Recharger ce produit depuis la base pour avoir l'état à jour
+                Produit updated = produitService.getById(produit.getId());
+                boolean nowFavori = updated != null && updated.isFavoriPour(userId);
+                coeur.setText(nowFavori ? "♥" : "♡");
+                coeur.setStyle(
+                        "-fx-font-size: 22px; -fx-cursor: hand; -fx-text-fill: " +
+                                (nowFavori ? "#F82239" : "white") + ";" +
+                                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);"
+                );
+                // Mettre à jour la liste en mémoire
+                if (updated != null) {
+                    produitsCourants.replaceAll(p2 ->
+                            p2.getId().equals(produit.getId()) ? updated : p2
+                    );
+                }
+                mettreAJourBtnFavoris();
+                if (modeFavoris && !nowFavori) goToFavoris();
+                showInfo(nowFavori ? "♥ Ajouté aux favoris" : "♡ Retiré des favoris");
+            } catch (Exception ex) {
+                showError("❌ " + ex.getMessage());
             }
-            showInfo(nowFavori ? "♥ Ajouté aux favoris" : "♡ Retiré des favoris");
         });
 
         if (!isPromo) {
@@ -207,7 +219,6 @@ public class PatientProduitListController implements Initializable {
             StackPane.setMargin(coeur, new Insets(8, 0, 0, 10));
             imagePane.getChildren().add(coeur);
         } else {
-            // Si promo, le cœur va en bas à gauche pour ne pas chevaucher le badge promo
             StackPane.setAlignment(coeur, Pos.BOTTOM_LEFT);
             StackPane.setMargin(coeur, new Insets(0, 0, 8, 10));
             imagePane.getChildren().add(coeur);
@@ -701,63 +712,93 @@ public class PatientProduitListController implements Initializable {
     @FXML private void goToProduits() {
         modeFavoris = false;
         savedScrollV = 0;
+        activerBoutonSidebar(btnProduits);
         chargerProduits();
-        if (btnFavoris != null) {
-            btnFavoris.setStyle("-fx-background-color: #F3F4F6; -fx-text-fill: #111827; -fx-font-size: 16px; -fx-font-weight: 800; -fx-background-radius: 18; -fx-cursor: hand;");
-        }
     }
 
     @FXML private void goToFavoris() {
         modeFavoris = true;
         savedScrollV = 0;
+        activerBoutonSidebar(btnFavoris);
 
-        // Mettre à jour style bouton sidebar
-        if (btnFavoris != null) {
-            btnFavoris.setStyle("-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 800; -fx-background-radius: 18; -fx-cursor: hand;");
+        try {
+            int userId = ManagerSession.getInstance().getCurrentUserId();
+            List<Produit> favoris = produitService.getFavorisByUser(userId);
+
+            if (favoris.isEmpty()) {
+                if (productContainer != null) productContainer.getChildren().clear();
+                if (countLabel != null) countLabel.setText("0 favori");
+
+                VBox empty = new VBox(16);
+                empty.setAlignment(Pos.CENTER);
+                empty.setPadding(new Insets(60));
+
+                Label ico = new Label("♡");
+                ico.setStyle("-fx-font-size: 56px; -fx-text-fill: #F82239;");
+
+                Label titre = new Label("Aucun favori");
+                titre.setStyle("-fx-text-fill: #111827; -fx-font-size: 18px; -fx-font-weight: 900;");
+
+                Label msg = new Label("Cliquez sur ♡ sur un produit pour l'ajouter à vos favoris.");
+                msg.setStyle("-fx-text-fill: #9CA3AF; -fx-font-size: 13px; -fx-font-weight: 700; -fx-text-alignment: center;");
+                msg.setWrapText(true);
+
+                Button btnVoirTout = new Button("🛍  Voir tous les produits");
+                btnVoirTout.setPrefHeight(46);
+                btnVoirTout.setStyle(
+                        "-fx-background-color: linear-gradient(to right, #F82239, #2F60F5);" +
+                                "-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 800;" +
+                                "-fx-background-radius: 14; -fx-padding: 10 24; -fx-cursor: hand;"
+                );
+                btnVoirTout.setOnAction(e -> goToProduits());
+
+                empty.getChildren().addAll(ico, titre, msg, btnVoirTout);
+                if (productContainer != null) productContainer.getChildren().add(empty);
+                if (messageLabel != null) messageLabel.setText("");
+                return;
+            }
+
+            afficherProduits(favoris);
+            showInfo("♥ " + favoris.size() + " produit(s) en favori.");
+
+        } catch (Exception e) {
+            showError("Erreur chargement favoris : " + e.getMessage());
         }
+    }
 
-        // Filtrer les produits favoris
-        java.util.Set<Integer> favorisIds = ManagerSession.getInstance().getFavoris();
+    private static final String BTN_ACTIF   = "-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 800; -fx-background-radius: 18; -fx-cursor: hand;";
+    private static final String BTN_INACTIF = "-fx-background-color: #F3F4F6; -fx-text-fill: #111827; -fx-font-size: 16px; -fx-font-weight: 800; -fx-background-radius: 18; -fx-cursor: hand;";
 
-        if (favorisIds.isEmpty()) {
-            if (productContainer != null) productContainer.getChildren().clear();
-            if (countLabel != null) countLabel.setText("0 favori");
-
-            VBox empty = new VBox(12);
-            empty.setAlignment(Pos.CENTER);
-            empty.setPadding(new Insets(40));
-            Label ico = new Label("♡");
-            ico.setStyle("-fx-font-size: 48px; -fx-text-fill: #F82239;");
-            Label msg = new Label("Aucun produit en favori.\nCliquez sur ♡ pour en ajouter.");
-            msg.setStyle("-fx-text-fill: #9CA3AF; -fx-font-size: 14px; -fx-font-weight: 700; -fx-text-alignment: center;");
-            msg.setWrapText(true);
-            empty.getChildren().addAll(ico, msg);
-            if (productContainer != null) productContainer.getChildren().add(empty);
-            showInfo("♡ Aucun favori pour le moment.");
-            return;
-        }
-
-        List<Produit> favoris = produitsCourants.stream()
-                .filter(p -> favorisIds.contains(p.getId()))
-                .toList();
-
-        afficherProduits(favoris);
-        showInfo("♥ " + favoris.size() + " produit(s) en favori.");
+    private void activerBoutonSidebar(Button actif) {
+        if (btnProduits  != null) btnProduits.setStyle(BTN_INACTIF);
+        if (btnPanier    != null) btnPanier.setStyle(BTN_INACTIF);
+        if (btnCommandes != null) btnCommandes.setStyle(BTN_INACTIF);
+        if (btnFavoris   != null) btnFavoris.setStyle(BTN_INACTIF);
+        if (actif        != null) actif.setStyle(BTN_ACTIF);
     }
 
     private void mettreAJourBtnFavoris() {
         if (btnFavoris == null) return;
-        int nb = ManagerSession.getInstance().getFavoris().size();
-        btnFavoris.setText(nb > 0 ? "♥  Favoris (" + nb + ")" : "♡  Mes favoris");
+        try {
+            int userId = ManagerSession.getInstance().getCurrentUserId();
+            long nb = produitsCourants.stream()
+                    .filter(p -> p.isFavoriPour(userId))
+                    .count();
+            btnFavoris.setText(nb > 0 ? "♥  Favoris (" + nb + ")" : "♡  Mes favoris");
+        } catch (Exception ignored) {
+            btnFavoris.setText("♡  Mes favoris");
+        }
     }
 
     @FXML private void goToPanier() {
+        activerBoutonSidebar(btnPanier);
         try {
             NavigationUtil.navigate((Stage) productContainer.getScene().getWindow(), "/fxml/patient/panier-patient.fxml");
         } catch (Exception e) { showError("Impossible d'ouvrir le panier."); }
     }
 
     @FXML private void goToCommandes() {
+        activerBoutonSidebar(btnCommandes);
         try {
             NavigationUtil.navigate((Stage) productContainer.getScene().getWindow(), "/fxml/patient/commande-list-patient.fxml");
         } catch (Exception e) { showError("Impossible d'ouvrir les commandes."); }

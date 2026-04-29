@@ -38,20 +38,30 @@
             </HBox>
 
             <VBox spacing="12" style="-fx-padding: 24 0 0 0;">
-                <Button text="Produits"
+                <Button fx:id="btnProduits"
+                        text="Produits"
                         onAction="#goToProduits"
                         prefHeight="54"
                         maxWidth="1.7976931348623157E308"
                         style="-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 800; -fx-background-radius: 18; -fx-cursor: hand;"/>
 
-                <Button text="Mon panier"
+                <Button fx:id="btnPanier"
+                        text="Mon panier"
                         onAction="#goToPanier"
                         prefHeight="54"
                         maxWidth="1.7976931348623157E308"
                         style="-fx-background-color: #F3F4F6; -fx-text-fill: #111827; -fx-font-size: 16px; -fx-font-weight: 800; -fx-background-radius: 18; -fx-cursor: hand;"/>
 
-                <Button text="Mes commandes"
+                <Button fx:id="btnCommandes"
+                        text="Mes commandes"
                         onAction="#goToCommandes"
+                        prefHeight="54"
+                        maxWidth="1.7976931348623157E308"
+                        style="-fx-background-color: #F3F4F6; -fx-text-fill: #111827; -fx-font-size: 16px; -fx-font-weight: 800; -fx-background-radius: 18; -fx-cursor: hand;"/>
+
+                <Button fx:id="btnFavoris"
+                        text="♡  Mes favoris"
+                        onAction="#goToFavoris"
                         prefHeight="54"
                         maxWidth="1.7976931348623157E308"
                         style="-fx-background-color: #F3F4F6; -fx-text-fill: #111827; -fx-font-size: 16px; -fx-font-weight: 800; -fx-background-radius: 18; -fx-cursor: hand;"/>
