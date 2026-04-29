@@ -19,6 +19,8 @@ module com.cardiolink {
     requires com.google.api.client;
     requires jdk.httpserver;
     requires org.json;
+    requires okhttp3;
+    requires opencv;
 
     // ✅ iText PDF
     requires kernel;

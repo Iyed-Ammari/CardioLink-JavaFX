@@ -190,4 +190,16 @@ public class LoginController {
     private void showError(String msg) {
         errorLabel.setText("⚠ " + msg);
     }
+    @FXML
+    private void handleFaceLogin() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/face_login.fxml"));
+            Scene scene = new Scene(loader.load(), 900, 560);
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setTitle("CardioLink - Connexion Faciale");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
 }

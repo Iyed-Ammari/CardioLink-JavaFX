@@ -7,6 +7,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import java.io.IOException;
+import com.cardiolink.Services.UserService;
+import com.cardiolink.Models.User;
 
 public class VerifyEmailController {
 
@@ -101,20 +103,49 @@ public class VerifyEmailController {
         }).start();
     }
 
-    // ── Retour au login ──────────────────────────────────────
     @FXML
     private void goToLogin() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/login.fxml"));
-            Scene scene = new Scene(loader.load(), 900, 560);
-            Stage stage = (Stage) codeField.getScene().getWindow();
-            stage.setTitle("CardioLink - Login");
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) { e.printStackTrace(); }
-    }
+            // Proposer d'enregistrer le visage
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Reconnaissance Faciale");
+            alert.setHeaderText("Activer la connexion par visage ?");
+            alert.setContentText(
+                    "Voulez-vous enregistrer votre visage pour vous " +
+                            "connecter rapidement la prochaine fois ?");
+            alert.getButtonTypes().setAll(
+                    new ButtonType("Oui, activer"),
+                    new ButtonType("Non, passer"));
 
+            alert.showAndWait().ifPresent(response -> {
+                try {
+                    if (response.getText().equals("Oui, activer")) {
+                        // Aller vers l'enregistrement du visage
+                        FXMLLoader loader = new FXMLLoader(
+                                getClass().getResource("/register_face.fxml"));
+                        Scene scene = new Scene(loader.load(), 900, 560);
+                        RegisterFaceController ctrl = loader.getController();
+                        // Récupérer l'user créé
+                        User user = new UserService().findByEmail(email);
+                        ctrl.setCurrentUser(user);
+                        Stage stage = (Stage) codeField.getScene().getWindow();
+                        stage.setTitle("CardioLink - Enregistrement Visage");
+                        stage.setScene(scene);
+                        stage.show();
+                    } else {
+                        // Aller directement au login
+                        FXMLLoader loader = new FXMLLoader(
+                                getClass().getResource("/login.fxml"));
+                        Scene scene = new Scene(loader.load(), 900, 560);
+                        Stage stage = (Stage) codeField.getScene().getWindow();
+                        stage.setTitle("CardioLink - Login");
+                        stage.setScene(scene);
+                        stage.show();
+                    }
+                } catch (Exception e) { e.printStackTrace(); }
+            });
+        } catch (Exception e) { e.printStackTrace(); }
+    }
     private void clearMessages()         { errorLabel.setText(""); successLabel.setText(""); }
     private void showError(String msg)   { errorLabel.setText("⚠ " + msg); successLabel.setText(""); }
     private void showSuccess(String msg) { successLabel.setText(msg); errorLabel.setText(""); }

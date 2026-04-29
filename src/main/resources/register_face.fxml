@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<HBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.cardiolink.Controllers.RegisterFaceController"
+      prefWidth="900" prefHeight="560"
+      style="-fx-background-color: #f8f8fb;">
+
+    <!-- GAUCHE -->
+    <VBox prefWidth="450" alignment="CENTER"
+          style="-fx-background-color: white; -fx-padding: 40 40 40 40;" spacing="16">
+
+        <Label text="📷  Enregistrer votre visage"
+               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
+        <Label text="Prenez une photo pour activer la connexion faciale."
+               wrapText="true"
+               style="-fx-font-size: 13px; -fx-text-fill: #888; -fx-text-alignment: center;"/>
+
+        <!-- Prévisualisation -->
+        <StackPane style="-fx-background-color: #1a1a2e; -fx-background-radius: 12;"
+                   prefWidth="320" prefHeight="240">
+            <ImageView fx:id="webcamView"
+                       fitWidth="320" fitHeight="240"
+                       preserveRatio="true"/>
+            <Label fx:id="cameraStatus" text="📷 Démarrage..."
+                   style="-fx-text-fill: white; -fx-font-size: 13px;"/>
+        </StackPane>
+
+        <Label fx:id="statusLabel" text=""
+               wrapText="true" maxWidth="370"
+               style="-fx-font-size: 13px; -fx-text-fill: #7F77DD; -fx-text-alignment: center;"/>
+        <Label fx:id="errorLabel" text=""
+               wrapText="true" maxWidth="370"
+               style="-fx-font-size: 12px; -fx-text-fill: #E24B4A; -fx-text-alignment: center;"/>
+
+        <!-- Bouton Capturer -->
+        <Button fx:id="btnCapture" text="📸  Prendre la photo"
+                onAction="#handleCapture"
+                prefWidth="370" prefHeight="44"
+                style="-fx-background-color: linear-gradient(to right, #D4537E, #7F77DD);
+                       -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;
+                       -fx-background-radius: 10; -fx-cursor: hand;"/>
+
+        <!-- Bouton Passer -->
+        <Button text="⏭  Passer cette étape"
+                onAction="#handleSkip"
+                prefWidth="370" prefHeight="40"
+                style="-fx-background-color: transparent; -fx-text-fill: #aaa;
+                       -fx-font-size: 13px; -fx-cursor: hand;
+                       -fx-border-color: #ddd; -fx-border-width: 1;
+                       -fx-border-radius: 10; -fx-background-radius: 10;"/>
+
+    </VBox>
+
+    <!-- DROITE -->
+    <StackPane HBox.hgrow="ALWAYS"
+               style="-fx-background-color: linear-gradient(to bottom right, #fce4ec, #ede7f6);">
+        <VBox alignment="CENTER" spacing="20">
+            <StackPane prefWidth="200" prefHeight="200"
+                       style="-fx-background-color: rgba(180,160,220,0.25);
+                              -fx-background-radius: 100;">
+                <Label text="🔐" style="-fx-font-size: 64px;"/>
+            </StackPane>
+            <Label text="Sécurité Avancée"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #7F77DD;"/>
+            <Label text="Votre visage est votre mot de passe.&#10;Connexion rapide et sécurisée."
+                   wrapText="true"
+                   style="-fx-font-size: 13px; -fx-text-fill: #888;
+                          -fx-text-alignment: center;"/>
+        </VBox>
+    </StackPane>
+
+</HBox>

@@ -256,4 +256,24 @@ public class UserService implements Iservice<User> {
                 rs.getString("image_url")
         );
     }
+    // ── Sauvegarder l'image de visage ────────────────────────────
+    public void saveFaceImage(int userId, String base64Image) throws SQLException {
+        String sql = "UPDATE user SET face_image = ? WHERE id = ?";
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, base64Image);
+        ps.setInt(2, userId);
+        ps.executeUpdate();
+    }
+
+    // ── Récupérer l'image de visage ──────────────────────────────
+    public String getFaceImage(String email) throws SQLException {
+        String sql = "SELECT face_image FROM user WHERE email = ?";
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, email);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getString("face_image");
+        return null;
+    }
 }

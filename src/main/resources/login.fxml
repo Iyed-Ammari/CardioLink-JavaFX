@@ -100,5 +100,16 @@
             <Label text="🔐" style="-fx-font-size: 64px;"/>
         </StackPane>
     </StackPane>
+    <!-- Bouton Face Login -->
+    <Button text="👤  Connexion par visage"
+            onAction="#handleFaceLogin"
+            prefWidth="370" prefHeight="42"
+            style="-fx-background-color: white;
+               -fx-text-fill: #333333; -fx-font-size: 13px; -fx-font-weight: bold;
+               -fx-background-radius: 10; -fx-cursor: hand;
+               -fx-border-color: #dedede; -fx-border-width: 1.5;
+               -fx-border-radius: 10;">
+        <VBox.margin><Insets top="8"/></VBox.margin>
+    </Button>
 
 </HBox>
