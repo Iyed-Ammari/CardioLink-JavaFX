@@ -71,6 +71,11 @@ public class ProduitService implements Iservice<Produit> {
             p.setNbAvis(nbAvis);
         } catch (Exception ignored) {}
 
+        try {
+            String fav = rs.getString("favoris_users");
+            p.setFavorisUsers(fav);
+        } catch (Exception ignored) {}
+
         return p;
     }
 
@@ -240,7 +245,7 @@ public class ProduitService implements Iservice<Produit> {
     @Override
     public List<Produit> getAll() {
         List<Produit> list = new ArrayList<>();
-        String sql = "SELECT id, nom, description, prix, stock, image_url, categorie, note_moyenne, nb_avis FROM produit ORDER BY id DESC";
+        String sql = "SELECT id, nom, description, prix, stock, image_url, categorie, note_moyenne, nb_avis, favoris_users FROM produit ORDER BY id DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -258,7 +263,7 @@ public class ProduitService implements Iservice<Produit> {
 
     @Override
     public Produit getById(int id) {
-        String sql = "SELECT id, nom, description, prix, stock, image_url, categorie, note_moyenne, nb_avis FROM produit WHERE id=?";
+        String sql = "SELECT id, nom, description, prix, stock, image_url, categorie, note_moyenne, nb_avis, favoris_users FROM produit WHERE id=?";
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -383,6 +388,35 @@ public class ProduitService implements Iservice<Produit> {
         }
 
         return list;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // FAVORIS
+    // Toggle favori pour un user — persiste en base
+    // ─────────────────────────────────────────────────────────
+    public void toggleFavori(int produitId, int userId) {
+        Produit p = getById(produitId);
+        if (p == null) throw new RuntimeException("Produit introuvable.");
+
+        p.toggleFavoriPour(userId);
+
+        String sql = "UPDATE produit SET favoris_users = ? WHERE id = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            if (p.getFavorisUsers() == null) ps.setNull(1, Types.VARCHAR);
+            else ps.setString(1, p.getFavorisUsers());
+            ps.setInt(2, produitId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur toggle favori : " + e.getMessage(), e);
+        }
+    }
+
+    // Retourne tous les produits favoris d'un user
+    public List<Produit> getFavorisByUser(int userId) {
+        List<Produit> tous = getAll();
+        return tous.stream()
+                .filter(p -> p.isFavoriPour(userId))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     // ─────────────────────────────────────────────────────────

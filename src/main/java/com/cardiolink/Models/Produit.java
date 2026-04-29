@@ -17,6 +17,8 @@ public class Produit {
     private Integer nbAvis      = 0;
     // Promo auto — calculée en Java via ProduitService.isPromoAuto()
     private boolean promoAuto   = false;
+    // Favoris — IDs des users séparés par virgule ex: "1,3,7"
+    private String  favorisUsers = null;
 
     public Produit() {}
 
@@ -129,6 +131,37 @@ public class Produit {
     public BigDecimal getPrixPromo() {
         if (!promoAuto || prix == null) return prix;
         return prix.multiply(new BigDecimal("0.80")).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    // ── Favoris ──────────────────────────────────────────────
+    public String getFavorisUsers() { return favorisUsers; }
+    public void   setFavorisUsers(String favorisUsers) { this.favorisUsers = favorisUsers; }
+
+    // Vérifie si un user a mis ce produit en favori
+    public boolean isFavoriPour(int userId) {
+        if (favorisUsers == null || favorisUsers.isBlank()) return false;
+        for (String id : favorisUsers.split(",")) {
+            if (id.trim().equals(String.valueOf(userId))) return true;
+        }
+        return false;
+    }
+
+    // Ajoute ou retire un user des favoris
+    public void toggleFavoriPour(int userId) {
+        if (isFavoriPour(userId)) {
+            // Retirer
+            if (favorisUsers == null) return;
+            java.util.List<String> ids = new java.util.ArrayList<>(
+                    java.util.Arrays.asList(favorisUsers.split(","))
+            );
+            ids.removeIf(id -> id.trim().equals(String.valueOf(userId)));
+            favorisUsers = ids.isEmpty() ? null : String.join(",", ids);
+        } else {
+            // Ajouter
+            favorisUsers = (favorisUsers == null || favorisUsers.isBlank())
+                    ? String.valueOf(userId)
+                    : favorisUsers + "," + userId;
+        }
     }
 
     @Override
