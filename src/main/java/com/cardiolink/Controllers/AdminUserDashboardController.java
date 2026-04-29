@@ -233,7 +233,7 @@ public class AdminUserDashboardController implements UserAwareController {
                     getClass().getResource("/admin_edit_user.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             AdminEditUserController ctrl = loader.getController();
-            ctrl.setData(currentUser, u);
+            ctrl.setData( u);
             Stage stage = (Stage) btnHome.getScene().getWindow();
             stage.setScene(scene);
             stage.show();
