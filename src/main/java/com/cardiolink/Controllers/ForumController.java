@@ -1,5 +1,6 @@
 package com.cardiolink.Controllers;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import com.cardiolink.Models.Comment;
 import com.cardiolink.Models.Post;
 import com.cardiolink.Services.ServiceComment;
@@ -29,6 +30,8 @@ import com.cardiolink.utils.ManagerSession;
 import com.cardiolink.Services.AIService;
 import java.sql.SQLException;
 import com.cardiolink.Services.ModerationService;
+import com.cardiolink.Services.RecommendationService;
+import com.fasterxml.jackson.core.type.TypeReference;
 public class ForumController {
 
     @FXML private VBox postContainer;
@@ -55,6 +58,8 @@ public class ForumController {
     private int CURRENT_USER_ID;
     private User currentUser;
     AIService aiService = new AIService();
+    private RecommendationService recService = new RecommendationService();
+    private ObjectMapper mapper = new ObjectMapper();
 
 
     //private final int CURRENT_USER_ID = 7; // Simulé pour CardioLink
@@ -103,13 +108,64 @@ public class ForumController {
     @FXML
     public void loadPosts() {
         try {
-            render(servicePost.getAll());
-        } catch (Exception e) { e.printStackTrace(); }
-    }
+            // 1. Récupération des données
+            List<Post> allPosts = servicePost.getAll();
+            User currentUser = userService.getUserById(CURRENT_USER_ID);
 
+            // --- DEBUG : Vérification de l'utilisateur ---
+            if (currentUser == null) {
+                System.out.println("DEBUG: Utilisateur non trouvé !");
+            } else {
+                System.out.println("DEBUG: Vecteur User trouvé.");
+            }
+
+            // 2. Vérification si on peut utiliser l'IA
+            if (currentUser != null && currentUser.getInterestVector() != null && !currentUser.getInterestVector().trim().isEmpty()) {
+
+                // Conversion du vecteur String en Liste de Double
+                List<Double> userVector = mapper.readValue(
+                        currentUser.getInterestVector(),
+                        new TypeReference<List<Double>>(){}
+                );
+
+                // ============================================================
+                // 🚀 CORRECTION CRUCIALE : NETTOYAGE POUR L'IA
+                // On met l'attribut 'image' à null pour éviter l'Erreur 500
+                // car Python ne doit pas recevoir de chemins de fichiers locaux.
+                for (Post p : allPosts) {
+                    p.setImage(null);
+                    p.setCreated_at(null);
+                }
+                // ============================================================
+
+                System.out.println("DEBUG: Envoi de " + allPosts.size() + " posts au serveur Python pour tri...");
+
+                // 3. Appel du service de recommandation (IA)
+                List<Post> sortedPosts = recService.rankPosts(userVector, allPosts);
+
+                // 4. Affichage des résultats triés
+                render(sortedPosts);
+                System.out.println("DEBUG: Tri IA terminé et affiché.");
+
+            } else {
+                // Si pas d'utilisateur ou pas de vecteur, affichage normal
+                System.out.println("DEBUG: Pas de vecteur utilisateur, affichage standard.");
+                render(allPosts);
+            }
+
+        } catch (Exception e) {
+            System.err.println("ERREUR LOAD POSTS: " + e.getMessage());
+            e.printStackTrace();
+            // En cas d'erreur IA, on affiche quand même les posts sans tri
+            try {
+                render(servicePost.getAll());
+            } catch (Exception ex) {
+                System.err.println("Erreur critique lors du rendu de secours.");
+            }
+        }
+    }
     @FXML
     public void addPost() {
-
         String titre = titleField.getText().trim();
         String contenu = contentField.getText().trim();
 
@@ -124,7 +180,18 @@ public class ForumController {
             p.setUser_id(CURRENT_USER_ID);
             p.setCreated_at(java.time.LocalDateTime.now());
 
-            // ⭐ IMAGE PROPRE MVC
+            // ⭐ ÉTAPE IA : Vectorisation du contenu
+            // On combine titre et contenu pour que l'IA comprenne bien le sujet global
+            String texteComplet = titre + " " + contenu;
+            List<Double> vector = recService.getVector(texteComplet);
+
+            if (vector != null) {
+                // On transforme la liste [0.12, ...] en String JSON pour la base de données
+                String vectorJson = mapper.writeValueAsString(vector);
+                p.setTopicVector(vectorJson);
+            }
+
+            // ⭐ IMAGE PROPRE MVC (Gardé tel quel)
             if (selectedImagePath != null) {
                 String imageName = saveImageToUploads(selectedImagePath);
                 p.setImage(imageName);
@@ -132,9 +199,10 @@ public class ForumController {
                 p.setImage(null);
             }
 
+            // Enregistrement final (incluant maintenant le topic_vector)
             servicePost.add(p);
 
-            // reset UI
+            // Reset UI (Gardé tel quel)
             titleField.clear();
             contentField.clear();
             selectedImagePath = null;
@@ -143,7 +211,7 @@ public class ForumController {
             loadPosts();
             loadStats();
 
-            System.out.println("Publication réussie !");
+            System.out.println("Publication réussie avec signature IA !");
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,17 +1,21 @@
 package com.cardiolink.Models;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Post {
 
     private int id;
     private String title;
     private String content;
+    @JsonIgnore
     private LocalDateTime created_at;
     private int user_id;
     private int likes;
+    @JsonIgnore
     private String image;
     private String embedding;
+    private String topicVector;
 
     // constructeur vide
     public Post() {
@@ -28,6 +32,7 @@ public class Post {
         this.likes = likes;
         this.image = image;
         this.embedding = embedding;
+        this.topicVector = topicVector;
     }
 
     // getters setters
@@ -94,6 +99,8 @@ public class Post {
     public void setEmbedding(String embedding) {
         this.embedding = embedding;
     }
+    public String getTopicVector() { return topicVector; }
+    public void setTopicVector(String topicVector) { this.topicVector = topicVector; }
 
     @Override
     public String toString() {
@@ -105,6 +112,7 @@ public class Post {
                 ", user_id=" + user_id +
                 ", likes=" + likes +
                 ", image='" + image + '\'' +
+                ", topicVector='" + topicVector + '\'' +
                 ", embedding='" + embedding + '\'' +
                 '}';
     }

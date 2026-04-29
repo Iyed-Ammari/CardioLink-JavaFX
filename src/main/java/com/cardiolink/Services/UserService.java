@@ -221,7 +221,7 @@ public class UserService implements Iservice<User> {
     }
 
     private User mapUser(ResultSet rs) throws SQLException {
-        return new User(
+        User user = new User(
                 rs.getInt("id"),
                 rs.getString("email"),
                 rs.getString("password"),
@@ -235,5 +235,10 @@ public class UserService implements Iservice<User> {
                 rs.getBoolean("is_verified"),
                 rs.getString("image_url")
         );
+
+       //ligne pour model ia matching
+        user.setInterestVector(rs.getString("interest_vector"));
+
+        return user;
     }
 }
