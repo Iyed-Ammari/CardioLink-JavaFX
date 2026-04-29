@@ -128,7 +128,9 @@ public class ProduitListAdminController implements Initializable {
         card.setMaxWidth(Double.MAX_VALUE);
 
         boolean isPromo = produit.isPromoAuto();
-        String borderColor = isPromo ? "rgba(245,158,11,0.5)" : "#E5E7EB";
+
+        // Charte graphique : bordure normale #E5E7EB, promo = rouge #F82239
+        String borderColor = isPromo ? "rgba(248,34,57,0.45)" : "#E5E7EB";
         String borderWidth = isPromo ? "2" : "1.5";
 
         card.setStyle(
@@ -205,6 +207,24 @@ public class ProduitListAdminController implements Initializable {
         );
 
         infos.getChildren().addAll(nomRow, descLbl, stockBadge);
+
+        // Étoiles en lecture seule côté admin
+        if (produit.getNbAvis() > 0) {
+            HBox etoilesAdmin = new HBox(4);
+            etoilesAdmin.setAlignment(Pos.CENTER_LEFT);
+            double note = produit.getNoteMoyenne();
+            for (int i = 1; i <= 5; i++) {
+                Label star = new Label(i <= Math.round(note) ? "★" : "☆");
+                star.setStyle("-fx-text-fill: #F59E0B; -fx-font-size: 12px;");
+                etoilesAdmin.getChildren().add(star);
+            }
+            Label noteInfo = new Label(
+                    String.format("%.1f", note) + " (" + produit.getNbAvis() + " avis)"
+            );
+            noteInfo.setStyle("-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-font-weight: 700;");
+            etoilesAdmin.getChildren().add(noteInfo);
+            infos.getChildren().add(etoilesAdmin);
+        }
 
         // Zone prix — avec ou sans promo
         VBox prixBox = new VBox(2);
