@@ -3,6 +3,7 @@ package com.cardiolink.Controllers;
 import com.cardiolink.Models.DossierMedical;
 import com.cardiolink.Models.User;
 import com.cardiolink.Services.DossierMedicalService;
+import com.cardiolink.Services.PdfService;          // ✅ import ajouté
 import com.cardiolink.utils.ManagerSession;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -11,7 +12,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -43,7 +46,9 @@ public class DossierMedicalPatientController implements UserAwareController {
     @FXML private VBox editMode;
 
     private DossierMedical dossier;
-    private final DossierMedicalService dossierService = new DossierMedicalService();
+    private final DossierMedicalService dossierService =
+            new DossierMedicalService();
+    private final PdfService pdfService = new PdfService(); // ✅ ajouté
 
     @FXML
     public void initialize() {
@@ -80,26 +85,41 @@ public class DossierMedicalPatientController implements UserAwareController {
         vGroupeSanguin.setText(nvl(dossier.getGroupeSanguin()));
         vAntecedents.setText(nvl(dossier.getAntecedents()));
         vAllergies.setText(nvl(dossier.getAllergies()));
-        vPoids.setText(dossier.getPoids()   != null ? dossier.getPoids()   + " kg" : "-");
-        vTaille.setText(dossier.getTaille() != null ? dossier.getTaille()  + " cm" : "-");
+        vPoids.setText(dossier.getPoids()   != null ?
+                dossier.getPoids()   + " kg" : "-");
+        vTaille.setText(dossier.getTaille() != null ?
+                dossier.getTaille()  + " cm" : "-");
         vTension.setText(
-                (dossier.getTensionSystolique()  != null ? dossier.getTensionSystolique()  + "" : "-") +
+                (dossier.getTensionSystolique()  != null ?
+                        dossier.getTensionSystolique()  + "" : "-") +
                         "/" +
-                        (dossier.getTensionDiastolique() != null ? dossier.getTensionDiastolique() + " mmHg" : "-"));
-        vFreq.setText(dossier.getFrequenceCardiaque() != null
-                ? dossier.getFrequenceCardiaque() + " bpm" : "-");
+                        (dossier.getTensionDiastolique() != null ?
+                                dossier.getTensionDiastolique() + " mmHg" : "-"));
+        vFreq.setText(dossier.getFrequenceCardiaque() != null ?
+                dossier.getFrequenceCardiaque() + " bpm" : "-");
     }
 
     private void fillEditMode() {
         if (dossier == null) return;
-        eGroupeSanguin.setValue(dossier.getGroupeSanguin() != null ? dossier.getGroupeSanguin() : "A+");
-        eAntecedents.setText(dossier.getAntecedents() != null ? dossier.getAntecedents() : "");
-        eAllergies.setText(dossier.getAllergies()     != null ? dossier.getAllergies()     : "");
-        ePoids.setText(dossier.getPoids()               != null ? String.valueOf(dossier.getPoids())               : "");
-        eTaille.setText(dossier.getTaille()             != null ? String.valueOf(dossier.getTaille())             : "");
-        eTenSys.setText(dossier.getTensionSystolique()  != null ? String.valueOf(dossier.getTensionSystolique())  : "");
-        eTenDia.setText(dossier.getTensionDiastolique() != null ? String.valueOf(dossier.getTensionDiastolique()) : "");
-        eFreq.setText(dossier.getFrequenceCardiaque()   != null ? String.valueOf(dossier.getFrequenceCardiaque())   : "");
+        eGroupeSanguin.setValue(
+                dossier.getGroupeSanguin() != null ?
+                        dossier.getGroupeSanguin() : "A+");
+        eAntecedents.setText(
+                dossier.getAntecedents() != null ?
+                        dossier.getAntecedents() : "");
+        eAllergies.setText(
+                dossier.getAllergies() != null ?
+                        dossier.getAllergies() : "");
+        ePoids.setText(dossier.getPoids() != null ?
+                String.valueOf(dossier.getPoids()) : "");
+        eTaille.setText(dossier.getTaille() != null ?
+                String.valueOf(dossier.getTaille()) : "");
+        eTenSys.setText(dossier.getTensionSystolique() != null ?
+                String.valueOf(dossier.getTensionSystolique()) : "");
+        eTenDia.setText(dossier.getTensionDiastolique() != null ?
+                String.valueOf(dossier.getTensionDiastolique()) : "");
+        eFreq.setText(dossier.getFrequenceCardiaque() != null ?
+                String.valueOf(dossier.getFrequenceCardiaque()) : "");
     }
 
     @FXML private void showEditMode() {
@@ -128,16 +148,59 @@ public class DossierMedicalPatientController implements UserAwareController {
             dossierService.save(dossier);
             fillViewMode();
             showViewMode();
-            successLabel.setText("✅ Dossier mis à jour avec succès !");
+            successLabel.setText("Dossier mis a jour avec succes !");
         } catch (SQLException e) {
-            errorLabel.setText("⚠ Erreur : " + e.getMessage());
+            errorLabel.setText("Erreur : " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    @FXML private void handleDownloadPdf() {
+        // ✅ Récupérer le user depuis ManagerSession
+        User user = ManagerSession.getInstance().getCurrentUser();
+        if (user == null || dossier == null) return;
+
+        // ✅ Choisir où sauvegarder
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Enregistrer le dossier medical");
+        chooser.setInitialFileName(
+                "dossier_medical_" + user.getNom() +
+                        "_" + user.getPrenom() + ".pdf");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("PDF", "*.pdf"));
+
+        File file = chooser.showSaveDialog(
+                avatarLabel.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                // ✅ Générer le PDF
+                pdfService.generateDossierPdf(
+                        user, dossier, file.getAbsolutePath());
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("PDF genere !");
+                alert.setHeaderText("Dossier medical telecharge !");
+                alert.setContentText(
+                        "Fichier sauvegarde : " + file.getAbsolutePath());
+                alert.showAndWait();
+
+            } catch (Exception e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setContentText(
+                        "Erreur lors de la generation du PDF : " +
+                                e.getMessage());
+                alert.showAndWait();
+                e.printStackTrace();
+            }
         }
     }
 
     @FXML private void goHome() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard_patient.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/dashboard_patient.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Dashboard");
@@ -150,7 +213,8 @@ public class DossierMedicalPatientController implements UserAwareController {
 
     @FXML private void goProfil() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/profil_patient.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/profil_patient.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Mon Profil");
@@ -163,7 +227,8 @@ public class DossierMedicalPatientController implements UserAwareController {
 
     @FXML private void goCommunity() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/post_view.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/post_view.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Community");
@@ -174,7 +239,8 @@ public class DossierMedicalPatientController implements UserAwareController {
 
     @FXML private void goSuivis() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterSuivi.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/AjouterSuivi.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Mes Suivis");
@@ -188,7 +254,8 @@ public class DossierMedicalPatientController implements UserAwareController {
     @FXML private void handleLogout() {
         ManagerSession.getInstance().logout();
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/login.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/login.fxml"));
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Login");
@@ -198,8 +265,13 @@ public class DossierMedicalPatientController implements UserAwareController {
     }
 
     private Double parseDouble(String s) {
-        try { return s == null || s.trim().isEmpty() ? null : Double.parseDouble(s.trim()); }
-        catch (NumberFormatException e) { return null; }
+        try {
+            return s == null || s.trim().isEmpty() ?
+                    null : Double.parseDouble(s.trim());
+        } catch (NumberFormatException e) { return null; }
     }
-    private String nvl(String s) { return s != null && !s.isEmpty() ? s : "-"; }
+
+    private String nvl(String s) {
+        return s != null && !s.isEmpty() ? s : "-";
+    }
 }
