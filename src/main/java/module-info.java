@@ -14,6 +14,8 @@ module com.cardiolink {
     requires jakarta.mail;
     requires jakarta.activation;
     requires jbcrypt;
+    requires cloudinary.http44;
+    requires cloudinary.core;
 
     // ✅ iText PDF
     requires kernel;

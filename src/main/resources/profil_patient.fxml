@@ -57,7 +57,18 @@
                 <Label text="👤  Mon Profil"
                        style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
 
-                <StackPane>
+                <!-- Après le StackPane du bigAvatar -->
+                <Button text="📷  Changer ma photo"
+                        onAction="#handleChangePhoto"
+                        style="-fx-background-color: white; -fx-text-fill: #7F77DD;
+               -fx-font-size: 13px; -fx-font-weight: bold;
+               -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand;
+               -fx-border-color: #7F77DD; -fx-border-width: 1.5; -fx-border-radius: 20;">
+                    <VBox.margin><Insets top="8" bottom="8"/></VBox.margin>
+                </Button>
+
+                <!-- Photo de profil circulaire (si image Cloudinary disponible) -->
+                <StackPane fx:id="photoPane" prefWidth="100" prefHeight="100">
                     <Circle fx:id="bigAvatarCircle" radius="52"
                             fill="linear-gradient(to bottom right, #E24B4A, #7F77DD)"/>
                     <Label fx:id="bigAvatarLabel" text="?"
@@ -164,6 +175,7 @@
                                    -fx-padding: 13 32; -fx-background-radius: 25; -fx-cursor: hand;
                                    -fx-border-color: #E24B4A; -fx-border-width: 1.5; -fx-border-radius: 25;"/>
                 </HBox>
+
 
                 <VBox minHeight="30"/>
             </VBox>
