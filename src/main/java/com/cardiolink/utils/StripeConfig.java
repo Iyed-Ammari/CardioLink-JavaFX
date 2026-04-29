@@ -6,7 +6,7 @@ public final class StripeConfig {
 
     // ⚠️ Après tes tests, régénère cette clé car elle a été exposée.
     public static final String SECRET_KEY =
-            System.getenv("STRIPE_SECRET_KEY");
+            "sk_test_51TNGS92eXzbzHrlpUqYk46ngY16NS7CvkI5zm6SoVBcxCmqzSMLATljnfqDJdyn4tQIt1xUDZdAazUMvFH9xyU0x00koHZTwCH";
     // Stripe n'affiche pas TND dans la liste actuelle des devises supportées.
     // Pour le test, on utilise EUR côté Stripe.
     public static final String STRIPE_CURRENCY = "eur";

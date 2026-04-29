@@ -1,25 +1,33 @@
 module com.cardiolink {
 
-    // JavaFX Modules
+    // --- JavaFX Modules ---
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
     requires javafx.swing;
     requires javafx.media;
+    requires javafx.graphics;
+    requires javafx.base;
 
-    // Database and External Libraries
+    // --- Database & External Libraries ---
     requires java.sql;
+    requires jdk.httpserver;
+    requires java.desktop;
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
-    requires jbcrypt;
     requires com.almasb.fxgl.all;
+    requires jbcrypt;
     requires org.java_websocket;
     requires org.json;
 
-    // Package Exports
+    // --- AJOUTÉS depuis ton module ---
+    requires stripe.java;
+    requires org.apache.pdfbox;
+
+    // --- Package Exports ---
     exports com.cardiolink;
     exports com.cardiolink.Models;
     exports com.cardiolink.Services;
@@ -27,11 +35,11 @@ module com.cardiolink {
     exports com.cardiolink.Controllers;
     exports com.cardiolink.Test;
 
-    // Reflection Opens (Required for JavaFX FXML and Property access)
+    // --- Reflection Opens ---
     opens com.cardiolink to javafx.fxml;
-    opens com.cardiolink.Models to javafx.fxml, javafx.base;
+    opens com.cardiolink.Controllers to javafx.fxml;
     opens com.cardiolink.Services to javafx.fxml;
     opens com.cardiolink.utils to javafx.fxml;
-    opens com.cardiolink.Controllers to javafx.fxml;
-    opens com.cardiolink.Test to javafx.fxml;
+    opens com.cardiolink.Models to javafx.base, javafx.fxml;
+    opens com.cardiolink.Test to javafx.fxml, javafx.graphics;
 }

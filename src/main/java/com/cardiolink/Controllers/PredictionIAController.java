@@ -17,7 +17,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
+import java.sql.SQLDataException;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -51,9 +51,9 @@ public class PredictionIAController implements Initializable {
         int userId = ManagerSession.getInstance().getCurrentUserId();
 
         try {
-            User user = userService.getUserById(userId);
+            User user = userService.getById(userId);
             System.out.println(user);
-        } catch (SQLException e) {
+        } catch (SQLDataException e) {
             throw new RuntimeException(e);
         }
 

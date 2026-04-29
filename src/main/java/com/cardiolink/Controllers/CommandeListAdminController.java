@@ -19,7 +19,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.SQLException;
+import java.sql.SQLDataException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -50,9 +50,9 @@ public class CommandeListAdminController implements Initializable {
         int userId = ManagerSession.getInstance().getCurrentUserId();
 
         try {
-            User user = userService.getUserById(userId);
+            User user = userService.getById(userId);
             System.out.println(user);
-        } catch (SQLException e) {
+        } catch (SQLDataException e) {
             throw new RuntimeException(e);
         }
 
