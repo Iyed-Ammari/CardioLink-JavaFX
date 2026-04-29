@@ -12,10 +12,9 @@ public class MainApp extends Application {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/login.fxml")
         );
-        Scene scene = new Scene(loader.load(), 1100, 700);
+        Scene scene = new Scene(loader.load(), 900, 560);
         stage.setTitle("CardioLink");
-        stage.setMinWidth(1100);
-        stage.setMinHeight(700);
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }

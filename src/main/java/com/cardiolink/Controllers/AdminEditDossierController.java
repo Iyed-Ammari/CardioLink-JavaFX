@@ -3,8 +3,6 @@ package com.cardiolink.Controllers;
 import com.cardiolink.Models.DossierMedical;
 import com.cardiolink.Models.User;
 import com.cardiolink.Services.DossierMedicalService;
-import com.cardiolink.Services.UserService;
-import com.cardiolink.utils.ManagerSession;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -95,13 +93,13 @@ public class AdminEditDossierController {
         }
     }
 
+    // ── Navigation ───────────────────────────────────────────
     @FXML private void goDossiers() { backToDashboard("dossiers"); }
     @FXML private void goHome()     { backToDashboard("home"); }
     @FXML private void goUsers()    { backToDashboard("users"); }
 
+    // ✅ AJOUT : manquait dans l'ancien code
     @FXML private void handleLogout() {
-        // ── Effacer la session ──
-        ManagerSession.getInstance().logout();
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/login.fxml"));
@@ -122,13 +120,7 @@ public class AdminEditDossierController {
             stage.setScene(scene);
             stage.show();
             AdminUserDashboardController ctrl = loader.getController();
-            // ── Utilise ManagerSession pour récupérer l'admin ──
-            User admin = null;
-            try {
-                admin = new UserService().getUserById(
-                        ManagerSession.getInstance().getCurrentUserId());
-            } catch (SQLException e) { e.printStackTrace(); }
-            ctrl.initAdmin(admin != null ? admin : currentAdmin, section);
+            ctrl.initAdmin(currentAdmin, section);
         } catch (IOException e) { e.printStackTrace(); }
     }
 

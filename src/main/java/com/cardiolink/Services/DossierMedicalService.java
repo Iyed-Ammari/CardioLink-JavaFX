@@ -117,7 +117,6 @@ public class DossierMedicalService implements Iservice<DossierMedical> {
     }
 
     private DossierMedical map(ResultSet rs) throws SQLException {
-
         DossierMedical d = new DossierMedical();
         d.setId(rs.getInt("id"));
         d.setGroupeSanguin(rs.getString("groupe_sanguin"));
