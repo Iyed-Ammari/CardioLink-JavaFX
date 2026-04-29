@@ -212,6 +212,7 @@ public class PatientProduitListController implements Initializable {
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);"
         );
         coeur.setOnMouseClicked(e -> {
+            e.consume(); // Empêche la propagation vers la carte (évite d'ouvrir le détail)
             try {
                 int userId = ManagerSession.getInstance().getCurrentUserId();
                 produitService.toggleFavori(produit.getId(), userId);
@@ -261,6 +262,10 @@ public class PatientProduitListController implements Initializable {
 
         header.getChildren().addAll(catBadge, nomLabel, descLabel);
 
+        // Clic sur le header → ouvrir le détail + récemment vus
+        header.setStyle("-fx-cursor: hand;");
+        header.setOnMouseClicked(e -> ouvrirPopupDetail(produit));
+
         // ── Body ──
         VBox body = new VBox(8);
         body.setPadding(new Insets(8, 18, 18, 18));
@@ -292,6 +297,12 @@ public class PatientProduitListController implements Initializable {
         // Étoiles
         HBox zonesEtoiles = creerZoneEtoiles(produit);
         Button btnNoter = creerBoutonNoter(produit);
+
+        // Clic sur le prix ou les étoiles → ouvrir le détail
+        prixBox.setStyle("-fx-cursor: hand;");
+        prixBox.setOnMouseClicked(e -> ouvrirPopupDetail(produit));
+        zonesEtoiles.setStyle("-fx-cursor: hand;");
+        zonesEtoiles.setOnMouseClicked(e -> ouvrirPopupDetail(produit));
 
         body.getChildren().addAll(prixBox, zonesEtoiles, btnNoter);
 
