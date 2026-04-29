@@ -19,6 +19,7 @@
                wrapText="true"
                style="-fx-font-size: 13px; -fx-text-fill: #888888; -fx-padding: 8 0 24 0;"/>
 
+        <!-- Email -->
         <Label text="Email Address"
                style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;"/>
         <TextField fx:id="emailField" promptText="votre@email.com"
@@ -28,6 +29,7 @@
                           -fx-border-radius: 8; -fx-background-radius: 8;
                           -fx-padding: 10 14; -fx-font-size: 13px;"/>
 
+        <!-- Password -->
         <Label text="Password"
                style="-fx-font-size: 13px; -fx-font-weight: bold;
                       -fx-text-fill: #1a1a2e; -fx-padding: 16 0 6 0;"/>
@@ -38,9 +40,11 @@
                               -fx-border-radius: 8; -fx-background-radius: 8;
                               -fx-padding: 10 14; -fx-font-size: 13px;"/>
 
+        <!-- Error label -->
         <Label fx:id="errorLabel" text=""
                style="-fx-text-fill: #E24B4A; -fx-font-size: 12px; -fx-padding: 6 0 0 0;"/>
 
+        <!-- Bouton Sign In -->
         <Button text="Sign In" onAction="#handleLogin"
                 prefWidth="370" prefHeight="44"
                 style="-fx-background-color: linear-gradient(to right, #D4537E, #7F77DD);
@@ -49,14 +53,33 @@
             <VBox.margin><Insets top="20"/></VBox.margin>
         </Button>
 
+        <!-- Forgot password -->
         <Label text="Forgot your password?"
                onMouseClicked="#goToForgotPassword"
                style="-fx-font-size: 13px; -fx-text-fill: #7F77DD;
-              -fx-font-weight: bold; -fx-padding: 14 0 0 0; -fx-cursor: hand;"/>
+                      -fx-font-weight: bold; -fx-padding: 14 0 0 0; -fx-cursor: hand;"/>
 
-        <Separator><VBox.margin><Insets top="14" bottom="10"/></VBox.margin></Separator>
+        <!-- Séparateur OR -->
+        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 16 0 16 0;">
+            <Separator HBox.hgrow="ALWAYS"/>
+            <Label text="OR"
+                   style="-fx-font-size: 12px; -fx-text-fill: #aaa; -fx-font-weight: bold;"/>
+            <Separator HBox.hgrow="ALWAYS"/>
+        </HBox>
 
-        <!-- ✅ UN SEUL lien Register here en bas -->
+        <!-- Bouton Google -->
+        <Button text="🔵  Continuer avec Google"
+                onAction="#handleGoogleLogin"
+                prefWidth="370" prefHeight="42"
+                style="-fx-background-color: white;
+                       -fx-text-fill: #333333; -fx-font-size: 13px; -fx-font-weight: bold;
+                       -fx-background-radius: 10; -fx-cursor: hand;
+                       -fx-border-color: #dedede; -fx-border-width: 1.5;
+                       -fx-border-radius: 10;"/>
+
+        <Separator><VBox.margin><Insets top="16" bottom="12"/></VBox.margin></Separator>
+
+        <!-- Register -->
         <HBox alignment="CENTER" spacing="4">
             <Label text="Don't have an account?"
                    style="-fx-font-size: 13px; -fx-text-fill: #888888;"/>

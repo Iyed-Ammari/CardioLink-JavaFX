@@ -16,6 +16,9 @@ module com.cardiolink {
     requires jbcrypt;
     requires cloudinary.http44;
     requires cloudinary.core;
+    requires com.google.api.client;
+    requires jdk.httpserver;
+    requires org.json;
 
     // ✅ iText PDF
     requires kernel;
