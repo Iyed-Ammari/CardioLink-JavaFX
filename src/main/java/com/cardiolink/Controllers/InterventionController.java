@@ -100,7 +100,8 @@ public class InterventionController {
 
         colActions.setCellFactory(param -> new TableCell<>() {
             private final Button btnVoir = new Button("👁 Voir");
-            private final HBox box = new HBox(btnVoir);
+            private final Button btnArchiver = new Button("📦 Archiver");
+            private final HBox box = new HBox(8, btnVoir, btnArchiver);
 
             {
                 btnVoir.setStyle("-fx-background-color: linear-gradient(to right, #5d73f1, #7587ff);"
@@ -110,16 +111,42 @@ public class InterventionController {
                         + "-fx-background-radius: 12;"
                         + "-fx-cursor: hand;");
 
+                btnArchiver.setStyle("-fx-background-color: linear-gradient(to right, #ff8a00, #ffb347);"
+                        + "-fx-text-fill: white;"
+                        + "-fx-font-size: 14px;"
+                        + "-fx-font-weight: bold;"
+                        + "-fx-background-radius: 12;"
+                        + "-fx-cursor: hand;");
+
                 btnVoir.setOnAction(event -> {
                     Intervention intervention = getTableView().getItems().get(getIndex());
                     afficherDetails(intervention);
+                });
+
+                btnArchiver.setOnAction(event -> {
+                    Intervention intervention = getTableView().getItems().get(getIndex());
+                    archiverIntervention(intervention);
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : box);
+
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+
+                Intervention intervention = getTableView().getItems().get(getIndex());
+
+                if (intervention != null && "Effectuée".equals(intervention.getStatut())) {
+                    btnArchiver.setDisable(false);
+                } else {
+                    btnArchiver.setDisable(true);
+                }
+
+                setGraphic(box);
             }
         });
     }
@@ -138,7 +165,7 @@ public class InterventionController {
             List<Intervention> interventions = interventionService.getAll();
             data.setAll(interventions);
             tableInterventions.setItems(data);
-            lblMessage.setText("Nombre d'interventions : " + interventions.size());
+            lblMessage.setText("Nombre d'interventions actives : " + interventions.size());
         } catch (Exception e) {
             lblMessage.setText("Erreur de chargement : " + e.getMessage());
             e.printStackTrace();
@@ -190,6 +217,30 @@ public class InterventionController {
         alert.showAndWait();
     }
 
+    private void archiverIntervention(Intervention intervention) {
+        try {
+            if (!"Effectuée".equals(intervention.getStatut())) {
+                lblMessage.setText("Seules les interventions effectuées peuvent être archivées.");
+                return;
+            }
+
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmation.setTitle("Archivage");
+            confirmation.setHeaderText("Archiver l'intervention");
+            confirmation.setContentText("Voulez-vous vraiment archiver cette intervention ?");
+
+            if (confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                interventionService.archive(intervention);
+                lblMessage.setText("Intervention archivée avec succès.");
+                chargerInterventions();
+            }
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur archivage : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     @FXML
     public void ouvrirAlertesSOS() {
         try {
@@ -203,6 +254,23 @@ public class InterventionController {
 
         } catch (Exception e) {
             lblMessage.setText("Erreur ouverture alertes SOS : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void ouvrirArchives() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/InterventionArchive.fxml"));
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = new Stage();
+            stage.setTitle("Interventions Archivées");
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur ouverture archives : " + e.getMessage());
             e.printStackTrace();
         }
     }
