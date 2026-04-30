@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 public class ChatControllerAdvanced implements Initializable {
 
     private static final Map<String, List<String>> SUGGESTIONS = new LinkedHashMap<>();
+
     static {
         SUGGESTIONS.put("URGENT", Arrays.asList("Je vous contacte immédiatement.", "Je prends en charge votre urgence.", "Rendez-vous en consultation d'urgence."));
         SUGGESTIONS.put("NORMAL", Arrays.asList("Merci pour votre message.", "Votre demande est bien reçue.", "Je vous réponds dans les meilleurs délais."));
@@ -44,50 +45,75 @@ public class ChatControllerAdvanced implements Initializable {
 
     private static final List<String> EMOJI_LIST = Arrays.asList("👍", "❤️", "😂", "😮", "😢", "😡", "🙏", "👏");
 
-    @FXML private TextField    searchField;
-    @FXML private ComboBox<String> sortCombo;
-    @FXML private ToggleButton sortOrderBtn;
-    @FXML private ListView<Conversation> convList;
-    @FXML private Label        globalNotifBadge;
-    @FXML private Button       backButton;
-    @FXML private Label        contactAvatar;
-    @FXML private Label        contactNameLabel;
-    @FXML private Label        contactStatusLabel;
-    @FXML private Label        typingLabel;
-    @FXML private Label        convNotifCount;
-    @FXML private Button       filterAll;
-    @FXML private Button       filterPinned;
-    @FXML private Button       filterArchived;
-    @FXML private Button       filterUrgent;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ComboBox<String> sortCombo;
+    @FXML
+    private ToggleButton sortOrderBtn;
+    @FXML
+    private ListView<Conversation> convList;
+    @FXML
+    private Label globalNotifBadge;
+    @FXML
+    private Button backButton;
+    @FXML
+    private Label contactAvatar;
+    @FXML
+    private Label contactNameLabel;
+    @FXML
+    private Label contactStatusLabel;
+    @FXML
+    private Label typingLabel;
+    @FXML
+    private Label convNotifCount;
+    @FXML
+    private Button filterAll;
+    @FXML
+    private Button filterPinned;
+    @FXML
+    private Button filterArchived;
+    @FXML
+    private Button filterUrgent;
 
     // Champ de recherche interne aux messages
-    @FXML private TextField    messageSearchField;
+    @FXML
+    private TextField messageSearchField;
 
-    @FXML private ListView<com.cardiolink.Models.Message> messageListView;
-    @FXML private HBox         suggestionBar;
-    @FXML private Button       suggestion1;
-    @FXML private Button       suggestion2;
-    @FXML private Button       suggestion3;
-    @FXML private Button       emojiPickerBtn;
-    @FXML private TextField    messageInput;
-    @FXML private Button       sendButton;
-    @FXML private ComboBox<String> classificationCombo;
+    @FXML
+    private ListView<com.cardiolink.Models.Message> messageListView;
+    @FXML
+    private HBox suggestionBar;
+    @FXML
+    private Button suggestion1;
+    @FXML
+    private Button suggestion2;
+    @FXML
+    private Button suggestion3;
+    @FXML
+    private Button emojiPickerBtn;
+    @FXML
+    private TextField messageInput;
+    @FXML
+    private Button sendButton;
+    @FXML
+    private ComboBox<String> classificationCombo;
 
-    private final MessageService            messageService      = new MessageService();
-    private final ConversationService       conversationService = new ConversationService();
-    private final MessageReactionService    reactionService     = new MessageReactionService();
-    private final NotificationService       notificationService = new NotificationService();
-    private final MlClassificationService   mlService           = new MlClassificationService();
-    private final InterventionService       interventionService = new InterventionService();
+    private final MessageService messageService = new MessageService();
+    private final ConversationService conversationService = new ConversationService();
+    private final MessageReactionService reactionService = new MessageReactionService();
+    private final NotificationService notificationService = new NotificationService();
+    private final MlClassificationService mlService = new MlClassificationService();
+    private final InterventionService interventionService = new InterventionService();
 
     private boolean mlAvailable = false;
-    private int     currentUserId       = -1;
-    private Conversation selectedConv   = null;
-    private String  activeFilter        = "all";
-    private String  sortOrder           = "DESC";
-    private com.cardiolink.Models.Message lastContextMessage  = null;
+    private int currentUserId = -1;
+    private Conversation selectedConv = null;
+    private String activeFilter = "all";
+    private String sortOrder = "DESC";
+    private com.cardiolink.Models.Message lastContextMessage = null;
 
-    private com.cardiolink.Models.Message editingMessage      = null;
+    private com.cardiolink.Models.Message editingMessage = null;
 
     // Liste en mémoire des messages de la conversation active pour le filtrage
     private List<com.cardiolink.Models.Message> currentConversationMessages = new ArrayList<>();
@@ -115,7 +141,10 @@ public class ChatControllerAdvanced implements Initializable {
         refreshGlobalNotifBadge();
 
         Task<Boolean> mlCheck = new Task<>() {
-            @Override protected Boolean call() { return mlService.isAvailable(); }
+            @Override
+            protected Boolean call() {
+                return mlService.isAvailable();
+            }
         };
         mlCheck.setOnSucceeded(e -> {
             mlAvailable = mlCheck.getValue();
@@ -213,14 +242,14 @@ public class ChatControllerAdvanced implements Initializable {
 
     private void setupConvListCells() {
         convList.setCellFactory(lv -> new ListCell<>() {
-            private final HBox  cell    = new HBox(10);
-            private final Label avatar  = new Label();
-            private final VBox  info    = new VBox(2);
-            private final Label name    = new Label();
+            private final HBox cell = new HBox(10);
+            private final Label avatar = new Label();
+            private final VBox info = new VBox(2);
+            private final Label name = new Label();
             private final Label preview = new Label();
-            private final VBox  right   = new VBox(2);
-            private final Label time    = new Label();
-            private final Label badge   = new Label();
+            private final VBox right = new VBox(2);
+            private final Label time = new Label();
+            private final Label badge = new Label();
 
             {
                 avatar.getStyleClass().addAll("conv-avatar", "avatar-patient");
@@ -243,10 +272,13 @@ public class ChatControllerAdvanced implements Initializable {
             @Override
             protected void updateItem(Conversation conv, boolean empty) {
                 super.updateItem(conv, empty);
-                if (empty || conv == null) { setGraphic(null); return; }
+                if (empty || conv == null) {
+                    setGraphic(null);
+                    return;
+                }
 
                 boolean isPatient = conv.getPatientId() == currentUserId;
-                int contactId     = isPatient ? conv.getMedecinId() : conv.getPatientId();
+                int contactId = isPatient ? conv.getMedecinId() : conv.getPatientId();
 
                 try {
                     User contact = new UserService().getUserById(contactId);
@@ -310,7 +342,7 @@ public class ChatControllerAdvanced implements Initializable {
 
     private void updateChatHeader(Conversation conv) {
         boolean isPatient = conv.getPatientId() == currentUserId;
-        int contactId     = isPatient ? conv.getMedecinId() : conv.getPatientId();
+        int contactId = isPatient ? conv.getMedecinId() : conv.getPatientId();
 
         try {
             User contact = new UserService().getUserById(contactId);
@@ -371,25 +403,25 @@ public class ChatControllerAdvanced implements Initializable {
     private void setupMessageListCells() {
         messageListView.setCellFactory(lv -> new ListCell<>() {
 
-            private final VBox  msgBox    = new VBox(4);
-            private final HBox  row       = new HBox(8);
-            private final VBox  bubbleBox = new VBox(3);
-            private final Label bubble    = new Label();
-            private final HBox  badges    = new HBox(4);
-            private final Label pinBadge  = new Label("📌");
-            private final Label urgBadge  = new Label("🔴 URGENT");
-            private final Label arcBadge  = new Label("🗄");
-            private final HBox  meta      = new HBox(6);
+            private final VBox msgBox = new VBox(4);
+            private final HBox row = new HBox(8);
+            private final VBox bubbleBox = new VBox(3);
+            private final Label bubble = new Label();
+            private final HBox badges = new HBox(4);
+            private final Label pinBadge = new Label("📌");
+            private final Label urgBadge = new Label("🔴 URGENT");
+            private final Label arcBadge = new Label("🗄");
+            private final HBox meta = new HBox(6);
             private final Label timeLabel = new Label();
             private final Label readLabel = new Label();
 
-            private final HBox   actions  = new HBox(4);
-            private final Button pinBtn   = new Button("📌");
-            private final Button arcBtn   = new Button("🗄");
-            private final Button editBtn  = new Button("✏️");
-            private final Button delBtn   = new Button("🗑️");
+            private final HBox actions = new HBox(4);
+            private final Button pinBtn = new Button("📌");
+            private final Button arcBtn = new Button("🗄");
+            private final Button editBtn = new Button("✏️");
+            private final Button delBtn = new Button("🗑️");
 
-            private final HBox  reactionBar = new HBox(4);
+            private final HBox reactionBar = new HBox(4);
 
             {
                 bubble.setWrapText(true);
@@ -426,7 +458,10 @@ public class ChatControllerAdvanced implements Initializable {
             @Override
             protected void updateItem(com.cardiolink.Models.Message msg, boolean empty) {
                 super.updateItem(msg, empty);
-                if (empty || msg == null) { setGraphic(null); return; }
+                if (empty || msg == null) {
+                    setGraphic(null);
+                    return;
+                }
 
                 boolean isMe = msg.getSenderId() == currentUserId;
 
@@ -524,20 +559,35 @@ public class ChatControllerAdvanced implements Initializable {
         });
     }
 
-    @FXML private void handleFilterAll()      { setFilter("all");      }
-    @FXML private void handleFilterPinned()   { setFilter("pinned");   }
-    @FXML private void handleFilterArchived() { setFilter("archived"); }
-    @FXML private void handleFilterUrgent()   { setFilter("urgent");   }
+    @FXML
+    private void handleFilterAll() {
+        setFilter("all");
+    }
+
+    @FXML
+    private void handleFilterPinned() {
+        setFilter("pinned");
+    }
+
+    @FXML
+    private void handleFilterArchived() {
+        setFilter("archived");
+    }
+
+    @FXML
+    private void handleFilterUrgent() {
+        setFilter("urgent");
+    }
 
     private void setFilter(String type) {
         activeFilter = type;
         resetFilterButtons();
 
         Button active = switch (type) {
-            case "pinned"   -> filterPinned;
+            case "pinned" -> filterPinned;
             case "archived" -> filterArchived;
-            case "urgent"   -> filterUrgent;
-            default         -> filterAll;
+            case "urgent" -> filterUrgent;
+            default -> filterAll;
         };
         active.getStyleClass().removeAll("filter-btn");
         active.getStyleClass().add("filter-btn-active");
@@ -553,7 +603,8 @@ public class ChatControllerAdvanced implements Initializable {
     }
 
     // NOUVEAUTÉ : Méthode d'envoi d'email
-    private void sendUrgentEmailAlert(String toEmail, String nomMedecin) {
+    // NOUVEAUTÉ : Méthode d'envoi d'email mise à jour avec le patient et le message
+    private void sendUrgentEmailAlert(String toEmail, String nomMedecin, String nomPatient, String contenuMessage) {
         String fromEmail = "cardiolinkpidev@gmail.com";
         String password = "qpmn qsel rmbg nfny"; // REMPLACER ICI
 
@@ -573,11 +624,13 @@ public class ChatControllerAdvanced implements Initializable {
             javax.mail.Message emailMessage = new MimeMessage(session);
             emailMessage.setFrom(new InternetAddress(fromEmail));
             emailMessage.setRecipients(javax.mail.Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            emailMessage.setSubject("🚨 URGENT : Alerte SOS d'un patient (CardioLink)");
+            emailMessage.setSubject("🚨 URGENT : Alerte SOS de " + nomPatient + " (CardioLink)");
 
             String corpsMessage = "Bonjour Dr. " + nomMedecin + ",\n\n"
                     + "Le modèle d'IA de CardioLink vient de détecter une urgence.\n"
-                    + "Un de vos patients a envoyé un message classé URGENT dans la messagerie.\n\n"
+                    + "Votre patient(e) " + nomPatient + " a envoyé un message classé URGENT dans la messagerie.\n\n"
+                    + "💬 Message du patient :\n"
+                    + "« " + contenuMessage + " »\n\n"
                     + "Une intervention 'Alerte SOS' a été automatiquement créée dans votre planning.\n"
                     + "Veuillez vous connecter à la plateforme immédiatement pour prendre en charge ce patient.\n\n"
                     + "L'équipe CardioLink.";
@@ -643,13 +696,20 @@ public class ChatControllerAdvanced implements Initializable {
 
                 interventionService.add(intervention);
 
-                // 2. Envoi de l'email au médecin de la conversation
+                // ...
+// 2. Récupération du patient actuel (l'expéditeur)
+                User sender = ManagerSession.getInstance().getCurrentUser();
+                String nomCompletPatient = (sender != null) ? sender.getPrenom() + " " + sender.getNom() : "Un patient";
+
+// 3. Envoi de l'email au médecin de la conversation
                 User medecin = new UserService().getUserById(selectedConv.getMedecinId());
                 if (medecin != null && medecin.getEmail() != null) {
                     new Thread(() -> {
-                        sendUrgentEmailAlert(medecin.getEmail(), medecin.getNom());
+                        // CORRECTION ICI : On passe bien les 4 paramètres !
+                        sendUrgentEmailAlert(medecin.getEmail(), medecin.getNom(), nomCompletPatient, content);
                     }).start();
                 }
+// ...
             } catch (Exception e) {
                 System.err.println("[Alerte SOS] Erreur critique lors du traitement de l'urgence : " + e.getMessage());
             }
@@ -715,7 +775,7 @@ public class ChatControllerAdvanced implements Initializable {
                 }
             };
             task.setOnSucceeded(e -> Platform.runLater(() -> showSuggestions(task.getValue())));
-            task.setOnFailed(e   -> Platform.runLater(() -> showStaticSuggestions(lastMsg.getClassification())));
+            task.setOnFailed(e -> Platform.runLater(() -> showStaticSuggestions(lastMsg.getClassification())));
             new Thread(task, "ml-suggestions").start();
         } else {
             showStaticSuggestions(lastMsg.getClassification());
@@ -723,7 +783,10 @@ public class ChatControllerAdvanced implements Initializable {
     }
 
     private void showSuggestions(List<String> pool) {
-        if (pool == null || pool.isEmpty()) { hideSuggestions(); return; }
+        if (pool == null || pool.isEmpty()) {
+            hideSuggestions();
+            return;
+        }
         Button[] btns = {suggestion1, suggestion2, suggestion3};
         for (int i = 0; i < btns.length; i++) {
             if (i < pool.size()) {
@@ -750,9 +813,20 @@ public class ChatControllerAdvanced implements Initializable {
         suggestionBar.setManaged(false);
     }
 
-    @FXML private void handleSuggestion1() { applySuggestion(suggestion1.getText()); }
-    @FXML private void handleSuggestion2() { applySuggestion(suggestion2.getText()); }
-    @FXML private void handleSuggestion3() { applySuggestion(suggestion3.getText()); }
+    @FXML
+    private void handleSuggestion1() {
+        applySuggestion(suggestion1.getText());
+    }
+
+    @FXML
+    private void handleSuggestion2() {
+        applySuggestion(suggestion2.getText());
+    }
+
+    @FXML
+    private void handleSuggestion3() {
+        applySuggestion(suggestion3.getText());
+    }
 
     private void applySuggestion(String text) {
         messageInput.setText(text);
@@ -763,12 +837,15 @@ public class ChatControllerAdvanced implements Initializable {
 
     @FXML
     private void handleSearch() {
-        String search  = searchField.getText();
-        String sortBy  = getSortByParam();
+        String search = searchField.getText();
+        String sortBy = getSortByParam();
         loadConversations(search, sortBy, sortOrder);
     }
 
-    @FXML private void handleSort() { handleSearch(); }
+    @FXML
+    private void handleSort() {
+        handleSearch();
+    }
 
     @FXML
     private void handleSortOrder() {
@@ -781,10 +858,10 @@ public class ChatControllerAdvanced implements Initializable {
         String selected = sortCombo.getValue();
         if (selected == null) return "updated";
         return switch (selected) {
-            case "Créé"    -> "created";
+            case "Créé" -> "created";
             case "Contact" -> "contact";
-            case "Statut"  -> "status";
-            default        -> "updated";
+            case "Statut" -> "status";
+            default -> "updated";
         };
     }
 
@@ -838,10 +915,10 @@ public class ChatControllerAdvanced implements Initializable {
     }
 
     public void onWsMessageReceived(JSONObject json) {
-        int convId   = json.optInt("conversationId", -1);
+        int convId = json.optInt("conversationId", -1);
         int senderId = json.optInt("senderId", -1);
-        String content  = json.optString("content", "");
-        String classif  = json.optString("classification", "NORMAL");
+        String content = json.optString("content", "");
+        String classif = json.optString("classification", "NORMAL");
 
         if (convId < 0 || senderId == currentUserId) return;
 
@@ -915,8 +992,8 @@ public class ChatControllerAdvanced implements Initializable {
     }
 
     public void onWsPinChanged(JSONObject json) {
-        int msgId    = json.optInt("messageId", -1);
-        boolean pin  = json.optBoolean("isPinned", false);
+        int msgId = json.optInt("messageId", -1);
+        boolean pin = json.optBoolean("isPinned", false);
         if (msgId < 0) return;
 
         messageService.setPinned(msgId, pin);
@@ -1021,8 +1098,13 @@ public class ChatControllerAdvanced implements Initializable {
         }
     }
 
-    private void setupSortCombo() { sortCombo.getSelectionModel().selectFirst(); }
-    private void setupClassificationCombo() { classificationCombo.getSelectionModel().selectFirst(); }
+    private void setupSortCombo() {
+        sortCombo.getSelectionModel().selectFirst();
+    }
+
+    private void setupClassificationCombo() {
+        classificationCombo.getSelectionModel().selectFirst();
+    }
 
     private void scrollToBottom() {
         if (!messageListView.getItems().isEmpty()) {
@@ -1032,7 +1114,7 @@ public class ChatControllerAdvanced implements Initializable {
 
     private String getInitials(String prenom, String nom) {
         String p = (prenom != null && !prenom.isEmpty()) ? prenom.substring(0, 1).toUpperCase() : "";
-        String n = (nom    != null && !nom.isEmpty())    ? nom.substring(0, 1).toUpperCase()    : "";
+        String n = (nom != null && !nom.isEmpty()) ? nom.substring(0, 1).toUpperCase() : "";
         return p + n;
     }
 
@@ -1044,7 +1126,7 @@ public class ChatControllerAdvanced implements Initializable {
     private String formatTime(String datetime) {
         if (datetime == null || datetime.isEmpty()) return "";
         try {
-            DateTimeFormatter in  = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            DateTimeFormatter in = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             DateTimeFormatter out = DateTimeFormatter.ofPattern("HH:mm");
             return LocalDateTime.parse(datetime.length() > 19
                     ? datetime.substring(0, 19) : datetime, in).format(out);
