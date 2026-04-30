@@ -2,6 +2,7 @@ package com.cardiolink.Services;
 
 import com.cardiolink.Models.Suivi;
 import com.cardiolink.utils.MyDatabase;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ public class SuiviService implements Iservice<Suivi> {
 
     @Override
     public void add(Suivi s) throws SQLDataException {
-        String req = "INSERT INTO suivi (type_donnee, valeur, unite, date_saisie, niveau_urgence, patient_id) VALUES (?,?,?,?,?,?)";
+        String req = "INSERT INTO suivi (type_donnee, valeur, unite, date_saisie, niveau_urgence, patient_id, archive) VALUES (?,?,?,?,?,?,?)";
         try (PreparedStatement ps = connection.prepareStatement(req)) {
             ps.setString(1, s.getTypeDonnee());
             ps.setFloat(2, s.getValeur());
@@ -23,6 +24,7 @@ public class SuiviService implements Iservice<Suivi> {
             ps.setTimestamp(4, Timestamp.valueOf(s.getDateSaisie()));
             ps.setString(5, s.getNiveauUrgence());
             ps.setInt(6, s.getPatientId());
+            ps.setBoolean(7, s.isArchive());
             ps.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Erreur SQL lors de l'ajout : " + e.getMessage());
@@ -36,7 +38,6 @@ public class SuiviService implements Iservice<Suivi> {
             ps.setInt(1, s.getId());
             ps.executeUpdate();
         } catch (SQLException e) {
-            // On lève une exception précise pour que le Main sache pourquoi ça a échoué
             throw new SQLDataException("Suppression impossible : " + e.getMessage());
         }
     }
@@ -59,7 +60,7 @@ public class SuiviService implements Iservice<Suivi> {
     @Override
     public List<Suivi> getAll() throws SQLDataException {
         List<Suivi> list = new ArrayList<>();
-        String req = "SELECT * FROM suivi";
+        String req = "SELECT * FROM suivi WHERE archive = false";
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(req)) {
             while (rs.next()) {
@@ -69,6 +70,67 @@ public class SuiviService implements Iservice<Suivi> {
             System.err.println(e.getMessage());
         }
         return list;
+    }
+
+    public List<Suivi> getArchived() throws SQLDataException {
+        List<Suivi> list = new ArrayList<>();
+        String req = "SELECT * FROM suivi WHERE archive = true";
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(req)) {
+            while (rs.next()) {
+                list.add(mapResultSetToSuivi(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        return list;
+    }
+
+    public List<Suivi> getByPatientId(int patientId) throws SQLDataException {
+        List<Suivi> list = new ArrayList<>();
+        String req = "SELECT * FROM suivi WHERE patient_id = ? AND archive = false";
+
+        try (PreparedStatement ps = connection.prepareStatement(req)) {
+            ps.setInt(1, patientId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToSuivi(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+
+        return list;
+    }
+
+    public List<Suivi> getArchivedByPatientId(int patientId) throws SQLDataException {
+        List<Suivi> list = new ArrayList<>();
+        String req = "SELECT * FROM suivi WHERE patient_id = ? AND archive = true";
+
+        try (PreparedStatement ps = connection.prepareStatement(req)) {
+            ps.setInt(1, patientId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToSuivi(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+
+        return list;
+    }
+
+    public void archive(Suivi s) throws SQLDataException {
+        String req = "UPDATE suivi SET archive = true WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(req)) {
+            ps.setInt(1, s.getId());
+            ps.executeUpdate();
+            System.out.println("Suivi archivé !");
+        } catch (SQLException e) {
+            System.err.println("Erreur archive Suivi: " + e.getMessage());
+        }
     }
 
     @Override
@@ -91,6 +153,7 @@ public class SuiviService implements Iservice<Suivi> {
         s.setValeur(rs.getFloat("valeur"));
         s.setUnite(rs.getString("unite"));
         s.setPatientId(rs.getInt("patient_id"));
+        s.setArchive(rs.getBoolean("archive"));
 
         Timestamp ts = rs.getTimestamp("date_saisie");
         if (ts != null) {
