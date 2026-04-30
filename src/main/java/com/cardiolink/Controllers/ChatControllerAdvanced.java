@@ -18,6 +18,11 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import org.json.JSONObject;
 
+// Imports pour l'envoi d'email
+import javax.mail.*;
+import javax.mail.internet.*;
+import java.util.Properties;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -55,10 +60,10 @@ public class ChatControllerAdvanced implements Initializable {
     @FXML private Button       filterArchived;
     @FXML private Button       filterUrgent;
 
-    // NOUVEAUTÉ : Champ de recherche interne aux messages
+    // Champ de recherche interne aux messages
     @FXML private TextField    messageSearchField;
 
-    @FXML private ListView<Message> messageListView;
+    @FXML private ListView<com.cardiolink.Models.Message> messageListView;
     @FXML private HBox         suggestionBar;
     @FXML private Button       suggestion1;
     @FXML private Button       suggestion2;
@@ -73,18 +78,19 @@ public class ChatControllerAdvanced implements Initializable {
     private final MessageReactionService    reactionService     = new MessageReactionService();
     private final NotificationService       notificationService = new NotificationService();
     private final MlClassificationService   mlService           = new MlClassificationService();
+    private final InterventionService       interventionService = new InterventionService();
 
     private boolean mlAvailable = false;
     private int     currentUserId       = -1;
     private Conversation selectedConv   = null;
     private String  activeFilter        = "all";
     private String  sortOrder           = "DESC";
-    private Message lastContextMessage  = null;
+    private com.cardiolink.Models.Message lastContextMessage  = null;
 
-    private Message editingMessage      = null;
+    private com.cardiolink.Models.Message editingMessage      = null;
 
-    // NOUVEAUTÉ : Liste en mémoire des messages de la conversation active pour le filtrage
-    private List<Message> currentConversationMessages = new ArrayList<>();
+    // Liste en mémoire des messages de la conversation active pour le filtrage
+    private List<com.cardiolink.Models.Message> currentConversationMessages = new ArrayList<>();
 
     private ChatWebSocketClientAdvanced wsClient;
     private Popup emojiPopup;
@@ -259,7 +265,7 @@ public class ChatControllerAdvanced implements Initializable {
                     name.setText("Contact #" + contactId);
                 }
 
-                Message last = messageService.getLastMessageByConversation(conv.getId());
+                com.cardiolink.Models.Message last = messageService.getLastMessageByConversation(conv.getId());
                 preview.setText(last != null ? truncate(last.getContent(), 35) : "Nouvelle conversation");
                 time.setText(formatTime(conv.getUpdated_at()));
 
@@ -314,9 +320,10 @@ public class ChatControllerAdvanced implements Initializable {
                         isPatient ? "Médecin" : "Patient"
                                 + " · " + (conv.isActive() ? "Actif" : "Inactif"));
                 contactAvatar.setText(getInitials(contact.getPrenom(), contact.getNom()));
+                // Nouvelles couleurs CardioLink
                 contactAvatar.setStyle(isPatient
-                        ? "-fx-background-color:#2d6a4f; -fx-background-radius:21px; -fx-min-width:42px; -fx-min-height:42px; -fx-max-width:42px; -fx-max-height:42px; -fx-alignment:center; -fx-font-size:18px; -fx-font-weight:bold; -fx-text-fill:white;"
-                        : "-fx-background-color:#0077b6; -fx-background-radius:21px; -fx-min-width:42px; -fx-min-height:42px; -fx-max-width:42px; -fx-max-height:42px; -fx-alignment:center; -fx-font-size:18px; -fx-font-weight:bold; -fx-text-fill:white;");
+                        ? "-fx-background-color:#E24B4A; -fx-background-radius:21px; -fx-min-width:42px; -fx-min-height:42px; -fx-max-width:42px; -fx-max-height:42px; -fx-alignment:center; -fx-font-size:18px; -fx-font-weight:bold; -fx-text-fill:white;"
+                        : "-fx-background-color:#7F77DD; -fx-background-radius:21px; -fx-min-width:42px; -fx-min-height:42px; -fx-max-width:42px; -fx-max-height:42px; -fx-alignment:center; -fx-font-size:18px; -fx-font-weight:bold; -fx-text-fill:white;");
             }
         } catch (Exception e) {
             contactNameLabel.setText("Contact #" + contactId);
@@ -328,12 +335,10 @@ public class ChatControllerAdvanced implements Initializable {
         convNotifCount.setManaged(unread > 0);
     }
 
-    /* ── NOUVEAUTÉ : Chargement avec la liste en mémoire ── */
     private void loadMessages(String filter) {
         if (selectedConv == null) return;
         currentConversationMessages = messageService.filterByType(selectedConv.getId(), filter);
 
-        // Applique la recherche actuelle (si la barre n'est pas vide)
         applyMessageSearch();
 
         if (!currentConversationMessages.isEmpty()) {
@@ -343,7 +348,6 @@ public class ChatControllerAdvanced implements Initializable {
         scrollToBottom();
     }
 
-    /* ── NOUVEAUTÉ : Méthodes de filtrage local des messages ── */
     @FXML
     private void handleMessageSearch() {
         applyMessageSearch();
@@ -357,7 +361,7 @@ public class ChatControllerAdvanced implements Initializable {
         if (query.isEmpty()) {
             messageListView.getItems().setAll(currentConversationMessages);
         } else {
-            List<Message> filtered = currentConversationMessages.stream()
+            List<com.cardiolink.Models.Message> filtered = currentConversationMessages.stream()
                     .filter(m -> m.getContent() != null && m.getContent().toLowerCase().contains(query))
                     .collect(Collectors.toList());
             messageListView.getItems().setAll(filtered);
@@ -420,7 +424,7 @@ public class ChatControllerAdvanced implements Initializable {
             }
 
             @Override
-            protected void updateItem(Message msg, boolean empty) {
+            protected void updateItem(com.cardiolink.Models.Message msg, boolean empty) {
                 super.updateItem(msg, empty);
                 if (empty || msg == null) { setGraphic(null); return; }
 
@@ -474,7 +478,6 @@ public class ChatControllerAdvanced implements Initializable {
                         messageInput.requestFocus();
                     });
 
-                    // NOUVEAUTÉ : MAJ de currentConversationMessages
                     delBtn.setOnAction(e -> {
                         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Êtes-vous sûr de vouloir supprimer ce message ?", ButtonType.YES, ButtonType.NO);
                         confirm.showAndWait();
@@ -549,6 +552,46 @@ public class ChatControllerAdvanced implements Initializable {
         }
     }
 
+    // NOUVEAUTÉ : Méthode d'envoi d'email
+    private void sendUrgentEmailAlert(String toEmail, String nomMedecin) {
+        String fromEmail = "cardiolinkpidev@gmail.com";
+        String password = "qpmn qsel rmbg nfny"; // REMPLACER ICI
+
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, password);
+            }
+        });
+
+        try {
+            javax.mail.Message emailMessage = new MimeMessage(session);
+            emailMessage.setFrom(new InternetAddress(fromEmail));
+            emailMessage.setRecipients(javax.mail.Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            emailMessage.setSubject("🚨 URGENT : Alerte SOS d'un patient (CardioLink)");
+
+            String corpsMessage = "Bonjour Dr. " + nomMedecin + ",\n\n"
+                    + "Le modèle d'IA de CardioLink vient de détecter une urgence.\n"
+                    + "Un de vos patients a envoyé un message classé URGENT dans la messagerie.\n\n"
+                    + "Une intervention 'Alerte SOS' a été automatiquement créée dans votre planning.\n"
+                    + "Veuillez vous connecter à la plateforme immédiatement pour prendre en charge ce patient.\n\n"
+                    + "L'équipe CardioLink.";
+
+            emailMessage.setText(corpsMessage);
+
+            Transport.send(emailMessage);
+            System.out.println("[Alerte SOS] Email d'urgence envoyé avec succès au Dr. " + nomMedecin + " (" + toEmail + ")");
+
+        } catch (MessagingException e) {
+            System.err.println("[Alerte SOS] Erreur lors de l'envoi de l'email : " + e.getMessage());
+        }
+    }
+
     @FXML
     public void handleSendMessage() {
         if (selectedConv == null) {
@@ -586,7 +629,33 @@ public class ChatControllerAdvanced implements Initializable {
         }
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        Message msg = new Message();
+        // NOUVEAUTÉ : Traitement de l'Alerte SOS si classé URGENT
+        if ("URGENT".equals(classification)) {
+            try {
+                // 1. Création de l'intervention
+                Intervention intervention = new Intervention();
+                intervention.setMedecinId(selectedConv.getMedecinId());
+                intervention.setType("Alerte SOS");
+                intervention.setDescription("message classé URGENT");
+                intervention.setStatut("En attente");
+                intervention.setDatePlanifiee(LocalDateTime.now());
+                intervention.setDateCompletion(LocalDateTime.now().plusHours(1));
+
+                interventionService.add(intervention);
+
+                // 2. Envoi de l'email au médecin de la conversation
+                User medecin = new UserService().getUserById(selectedConv.getMedecinId());
+                if (medecin != null && medecin.getEmail() != null) {
+                    new Thread(() -> {
+                        sendUrgentEmailAlert(medecin.getEmail(), medecin.getNom());
+                    }).start();
+                }
+            } catch (Exception e) {
+                System.err.println("[Alerte SOS] Erreur critique lors du traitement de l'urgence : " + e.getMessage());
+            }
+        }
+
+        com.cardiolink.Models.Message msg = new com.cardiolink.Models.Message();
         msg.setConversationId(selectedConv.getId());
         msg.setSenderId(currentUserId);
         msg.setContent(content);
@@ -614,7 +683,6 @@ public class ChatControllerAdvanced implements Initializable {
                 wsClient.sendMessage(selectedConv.getId(), currentUserId, content, classification);
             }
 
-            // NOUVEAUTÉ : Ajout dans currentConversationMessages + applyMessageSearch
             currentConversationMessages.add(msg);
             applyMessageSearch();
 
@@ -632,7 +700,7 @@ public class ChatControllerAdvanced implements Initializable {
         }
     }
 
-    private void updateSuggestions(Message lastMsg) {
+    private void updateSuggestions(com.cardiolink.Models.Message lastMsg) {
         if (lastMsg == null || lastMsg.getSenderId() == currentUserId) {
             hideSuggestions();
             return;
@@ -750,7 +818,7 @@ public class ChatControllerAdvanced implements Initializable {
         emojiPopup.setAutoHide(true);
     }
 
-    private Message selectedEmojiTargetMessage = null;
+    private com.cardiolink.Models.Message selectedEmojiTargetMessage = null;
 
     @FXML
     private void handleEmojiPickerToggle() {
@@ -763,7 +831,7 @@ public class ChatControllerAdvanced implements Initializable {
         }
     }
 
-    private void showEmojiPickerFor(Message msg) {
+    private void showEmojiPickerFor(com.cardiolink.Models.Message msg) {
         selectedEmojiTargetMessage = msg;
         var bounds = emojiPickerBtn.localToScreen(emojiPickerBtn.getBoundsInLocal());
         emojiPopup.show(emojiPickerBtn, bounds.getMinX(), bounds.getMinY() - 60);
@@ -783,7 +851,7 @@ public class ChatControllerAdvanced implements Initializable {
             return;
         }
 
-        Message received = new Message();
+        com.cardiolink.Models.Message received = new com.cardiolink.Models.Message();
         received.setConversationId(convId);
         received.setSenderId(senderId);
         received.setContent(content);
@@ -800,7 +868,6 @@ public class ChatControllerAdvanced implements Initializable {
             System.err.println("[ChatAdv] Erreur lors de la sauvegarde du message : " + e.getMessage());
         }
 
-        // NOUVEAUTÉ : Insertion dans la liste en mémoire + applyMessageSearch()
         String receivedDate = received.getDate();
         int insertIndex = currentConversationMessages.size();
         for (int i = 0; i < currentConversationMessages.size(); i++) {
@@ -825,13 +892,11 @@ public class ChatControllerAdvanced implements Initializable {
         String content = json.optString("content", "");
         if (msgId < 0) return;
 
-        // Mise à jour de la liste mémoire
         currentConversationMessages.stream()
                 .filter(m -> m.getId() == msgId)
                 .findFirst()
                 .ifPresent(m -> m.setContent(content));
 
-        // Rafraichit la vue pour refléter l'édition ET l'éventuelle recherche
         applyMessageSearch();
     }
 
@@ -839,7 +904,6 @@ public class ChatControllerAdvanced implements Initializable {
         int msgId = json.optInt("messageId", -1);
         if (msgId < 0) return;
 
-        // Suppression de la liste mémoire puis maj
         currentConversationMessages.removeIf(m -> m.getId() == msgId);
         applyMessageSearch();
     }
@@ -937,7 +1001,9 @@ public class ChatControllerAdvanced implements Initializable {
     private void handleBackButton() {
         try {
             User user = ManagerSession.getInstance().getCurrentUser();
-            String fxml = "/dashboard_patient.fxml";
+            String fxml = (user != null && user.getRoleClean().contains("MEDECIN"))
+                    ? "/dashboard_admin.fxml"
+                    : "/dashboard_patient.fxml";
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(new Scene(FXMLLoader.load(getClass().getResource(fxml))));
         } catch (IOException e) {
