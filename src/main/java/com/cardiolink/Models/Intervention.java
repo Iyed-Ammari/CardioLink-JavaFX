@@ -12,6 +12,8 @@ public class Intervention {
     private int medecinId;
     private Suivi suiviOrigine;
     private boolean archive;
+    private Double latitude;
+    private Double longitude;
 
     public Intervention() {
         this.datePlanifiee = LocalDateTime.now();
@@ -100,6 +102,22 @@ public class Intervention {
 
     public void setArchive(boolean archive) {
         this.archive = archive;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
     public void markAsCompleted() {

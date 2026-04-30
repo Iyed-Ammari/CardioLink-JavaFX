@@ -12,6 +12,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
+import java.awt.Desktop;
+import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +25,9 @@ public class InterventionController {
 
     @FXML
     private TableView<Intervention> tableInterventions;
+
+    @FXML
+    private TableColumn<Intervention, String> colId;
 
     @FXML
     private TableColumn<Intervention, String> colType;
@@ -55,6 +60,9 @@ public class InterventionController {
     }
 
     private void configurerColonnes() {
+        colId.setCellValueFactory(cell ->
+                new SimpleStringProperty(String.valueOf(cell.getValue().getId())));
+
         colType.setCellValueFactory(cell ->
                 new SimpleStringProperty(cell.getValue().getType()));
 
@@ -101,7 +109,8 @@ public class InterventionController {
         colActions.setCellFactory(param -> new TableCell<>() {
             private final Button btnVoir = new Button("👁 Voir");
             private final Button btnArchiver = new Button("📦 Archiver");
-            private final HBox box = new HBox(8, btnVoir, btnArchiver);
+            private final Button btnLocalisation = new Button("📍 Localisation");
+            private final HBox box = new HBox(8, btnVoir, btnArchiver, btnLocalisation);
 
             {
                 btnVoir.setStyle("-fx-background-color: linear-gradient(to right, #5d73f1, #7587ff);"
@@ -118,6 +127,13 @@ public class InterventionController {
                         + "-fx-background-radius: 12;"
                         + "-fx-cursor: hand;");
 
+                btnLocalisation.setStyle("-fx-background-color: linear-gradient(to right, #1abc9c, #16a085);"
+                        + "-fx-text-fill: white;"
+                        + "-fx-font-size: 14px;"
+                        + "-fx-font-weight: bold;"
+                        + "-fx-background-radius: 12;"
+                        + "-fx-cursor: hand;");
+
                 btnVoir.setOnAction(event -> {
                     Intervention intervention = getTableView().getItems().get(getIndex());
                     afficherDetails(intervention);
@@ -126,6 +142,11 @@ public class InterventionController {
                 btnArchiver.setOnAction(event -> {
                     Intervention intervention = getTableView().getItems().get(getIndex());
                     archiverIntervention(intervention);
+                });
+
+                btnLocalisation.setOnAction(event -> {
+                    Intervention intervention = getTableView().getItems().get(getIndex());
+                    ouvrirLocalisation(intervention);
                 });
             }
 
@@ -140,11 +161,14 @@ public class InterventionController {
 
                 Intervention intervention = getTableView().getItems().get(getIndex());
 
-                if (intervention != null && "Effectuée".equals(intervention.getStatut())) {
-                    btnArchiver.setDisable(false);
-                } else {
-                    btnArchiver.setDisable(true);
-                }
+                btnArchiver.setDisable(intervention == null || !"Effectuée".equals(intervention.getStatut()));
+
+                boolean hasLocation = intervention != null
+                        && intervention.getLatitude() != null
+                        && intervention.getLongitude() != null;
+
+                btnLocalisation.setDisable(!hasLocation);
+                btnLocalisation.setOpacity(hasLocation ? 1.0 : 0.45);
 
                 setGraphic(box);
             }
@@ -206,13 +230,16 @@ public class InterventionController {
         alert.setTitle("Détails Intervention");
         alert.setHeaderText(intervention.getType());
         alert.setContentText(
-                "Description : " + intervention.getDescription() + "\n\n" +
+                "ID : " + intervention.getId() + "\n" +
+                        "Description : " + intervention.getDescription() + "\n\n" +
                         "Statut : " + intervention.getStatut() + "\n" +
                         "Date planifiée : " +
                         (intervention.getDatePlanifiee() != null
                                 ? intervention.getDatePlanifiee().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                                 : "-") + "\n" +
-                        "Médecin : " + intervention.getMedecinId()
+                        "Médecin : " + intervention.getMedecinId() + "\n" +
+                        "Latitude : " + (intervention.getLatitude() != null ? intervention.getLatitude() : "-") + "\n" +
+                        "Longitude : " + (intervention.getLongitude() != null ? intervention.getLongitude() : "-")
         );
         alert.showAndWait();
     }
@@ -237,6 +264,28 @@ public class InterventionController {
 
         } catch (Exception e) {
             lblMessage.setText("Erreur archivage : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void ouvrirLocalisation(Intervention intervention) {
+        try {
+            if (intervention.getLatitude() == null || intervention.getLongitude() == null) {
+                lblMessage.setText("Aucune localisation disponible pour cette intervention.");
+                return;
+            }
+
+            double lat = intervention.getLatitude();
+            double lng = intervention.getLongitude();
+
+            String url = "https://www.google.com/maps?q=" + lat + "," + lng;
+
+            Desktop.getDesktop().browse(new URI(url));
+
+            lblMessage.setText("Localisation ouverte dans le navigateur.");
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur ouverture localisation : " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -16,7 +16,7 @@ public class InterventionService implements Iservice<Intervention> {
 
     @Override
     public void add(Intervention i) throws SQLDataException {
-        String req = "INSERT INTO intervention (type, description, statut, date_planifiee, medecin_id, suivi_origine_id, archive) VALUES (?,?,?,?,?,?,?)";
+        String req = "INSERT INTO intervention (type, description, statut, date_planifiee, medecin_id, suivi_origine_id, archive, latitude, longitude) VALUES (?,?,?,?,?,?,?,?,?)";
         try (PreparedStatement ps = connection.prepareStatement(req)) {
             ps.setString(1, i.getType());
             ps.setString(2, i.getDescription());
@@ -31,6 +31,18 @@ public class InterventionService implements Iservice<Intervention> {
             }
 
             ps.setBoolean(7, i.isArchive());
+
+            if (i.getLatitude() != null) {
+                ps.setDouble(8, i.getLatitude());
+            } else {
+                ps.setNull(8, Types.DOUBLE);
+            }
+
+            if (i.getLongitude() != null) {
+                ps.setDouble(9, i.getLongitude());
+            } else {
+                ps.setNull(9, Types.DOUBLE);
+            }
 
             ps.executeUpdate();
             System.out.println("Intervention ajoutée !");
@@ -138,6 +150,16 @@ public class InterventionService implements Iservice<Intervention> {
         Timestamp dateCompletion = rs.getTimestamp("date_completion");
         if (dateCompletion != null) {
             i.setDateCompletion(dateCompletion.toLocalDateTime());
+        }
+
+        double latitude = rs.getDouble("latitude");
+        if (!rs.wasNull()) {
+            i.setLatitude(latitude);
+        }
+
+        double longitude = rs.getDouble("longitude");
+        if (!rs.wasNull()) {
+            i.setLongitude(longitude);
         }
 
         return i;
