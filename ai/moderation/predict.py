@@ -1,17 +1,23 @@
 from transformers import pipeline
 
-# Crée un pipeline de modération de texte
-moderation = pipeline("text-classification", model="facebook/roberta-hate-speech")
+# Utilise EXACTEMENT le même modèle que app.py
+MODEL_NAME = "unitary/multilingual-toxic-xlm-roberta"
+moderation = pipeline("text-classification", model=MODEL_NAME, top_k=None)
 
-# Texte à tester
-texte = "Je vais te tuer"  # ou input() pour lire dynamiquement
+texte = "C'est un exemple de commentaire"
 
-result = moderation(texte)[0]
+results = moderation(texte)[0]
 
-label = result['label']
-score = result['score']
+is_toxic = False
+for prediction in results:
+    label = prediction['label']
+    score = prediction['score']
 
-if label != "LABEL_0" and score > 0.6:  # seuil 60%
-    print("⚠ Commentaire BLOQUÉ (toxique)")
-else:
+    # Même logique que dans ton app.py
+    if score > 0.60 and label in ['toxic', 'severe_toxic', 'insult', 'identity_hate', 'threat']:
+        is_toxic = True
+        print(f"⚠ BLOQUÉ : {label} ({score:.2%})")
+        break
+
+if not is_toxic:
     print("✅ Commentaire OK")

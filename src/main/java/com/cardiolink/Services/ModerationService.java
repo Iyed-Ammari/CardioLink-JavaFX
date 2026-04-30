@@ -23,20 +23,21 @@ public class ModerationService {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             JsonNode data = objectMapper.readTree(response.body());
 
-            String label = data.get("label").asText();
+            // RÉCUPÉRATION DIRECTE DU BOOLEAN DÉCIDÉ PAR PYTHON
+            boolean isToxic = data.get("is_toxic").asBoolean();
             double score = data.get("score").asDouble();
+            String label = data.get("label").asText();
 
-            // LOGIQUE DE BLOCAGE (Identique à ton Symfony)
-            // On bloque si c'est "negative" et que le score dépasse 0.60
-            if ("negative".equals(label) && score > 0.60) {
-                System.out.println("Modération JavaFX : Contenu toxique détecté !");
-                return false; // Bloque
+            if (isToxic) {
+                System.out.println("Modération CardioLink : BLOQUÉ [" + label + "] Score: " + score);
+                return false; // Bloque le commentaire
             }
-            return true; // Autorise
+
+            return true; // Autorise le commentaire
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return true; // Si Python est éteint, on laisse passer (comme dans Symfony)
+            System.err.println("Erreur Modération (Python éteint ?) : " + e.getMessage());
+            return true; // En cas de panne, on laisse passer pour ne pas bloquer l'appli
         }
     }
 }

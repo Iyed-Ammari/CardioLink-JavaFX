@@ -1,44 +1,60 @@
 from fastapi import FastAPI
 from transformers import pipeline
 import uvicorn
-import sys
 
 app = FastAPI()
 
-# Modele alternatif très stable et léger (distilbert multilingue)
-model_name = "lxyuan/distilbert-base-multilingual-cased-sentiments-student"
+# Modèle spécialisé dans la toxicité multilingue
+# Il détecte : toxic, severe_toxic, obscene, threat, insult, identity_hate
+MODEL_NAME = "unitary/multilingual-toxic-xlm-roberta"
 
-print(f"Chargement du modele : {model_name}")
+print(f"Chargement du modèle expert en toxicité : {MODEL_NAME}")
 
 try:
-    # On charge le pipeline de sentiment (plus simple d'accès)
-    classifier = pipeline("sentiment-analysis", model=model_name)
-    print("MODELE PRET")
+    # On utilise 'text-classification' pour ce modèle spécifique
+    toxic_classifier = pipeline("text-classification", model=MODEL_NAME, top_k=None)
+    print("MODELE DE PROTECTION PRET")
 except Exception as e:
     print(f"Erreur au chargement : {str(e)}")
-    classifier = None
+    toxic_classifier = None
 
 @app.post("/predict")
 async def predict(data: dict):
-    if classifier is None:
+    if toxic_classifier is None:
         return {"is_toxic": False, "score": 0.0, "label": "error"}
 
     text = data.get('text', "")
-    result = classifier(text)[0]
 
-    label = result['label'] # 'negative', 'neutral' ou 'positive'
-    score = result['score']
+    # Le modèle renvoie une liste de scores pour chaque catégorie
+    results = toxic_classifier(text)[0]
 
-    # Un message est considéré toxique ici s'il est "negative" avec un haut score
-    # Ce modèle est très bon pour "Merci" (positive) vs "Idiot" (negative)
-    is_toxic = True if (label.lower() == "negative" and score > 0.50) else False
+    # On cherche si une des catégories de toxicité dépasse un certain seuil
+    # On cible particulièrement : 'toxic', 'insult', 'identity_hate', 'threat'
+    is_toxic = False
+    highest_score = 0.0
+    detected_label = "clean"
 
-    print(f"Texte: {text} | Label: {label} | Score: {score:.4f}")
+    for prediction in results:
+        label = prediction['label']
+        score = prediction['score']
+
+        # On garde le score le plus haut pour le renvoyer à Java
+        if score > highest_score:
+            highest_score = score
+
+        # SEUIL DE TOLÉRANCE : 0.6 (60%)
+        # Si le score de haine ou d'insulte est > 0.6, on bloque
+        if score > 0.60:
+            if label in ['toxic', 'severe_toxic', 'insult', 'identity_hate', 'threat']:
+                is_toxic = True
+                detected_label = label
+
+    print(f"Analyse : '{text}' | Résultat : {detected_label} ({highest_score:.4f})")
 
     return {
         "is_toxic": is_toxic,
-        "score": float(score),
-        "label": label.lower().strip()
+        "score": float(highest_score),
+        "label": detected_label
     }
 
 if __name__ == "__main__":
