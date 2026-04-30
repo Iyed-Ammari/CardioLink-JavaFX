@@ -142,7 +142,15 @@ public class ForumController {
 
                 // 3. Appel du service de recommandation (IA)
                 List<Post> sortedPosts = recService.rankPosts(userVector, allPosts);
-
+                System.out.println("=== VERIFICATION DU TRI IA ===");
+                if (sortedPosts != null && !sortedPosts.isEmpty()) {
+                    for (int i = 0; i < Math.min(sortedPosts.size(), 5); i++) {
+                        // On affiche l'ID pour vérifier si l'ordre change par rapport à la BDD
+                        System.out.println("Position " + i + " : ID " + sortedPosts.get(i).getId());
+                    }
+                } else {
+                    System.out.println("ERREUR : La liste retournée par l'IA est vide !");
+                }
                 // 4. Affichage des résultats triés
                 render(sortedPosts);
                 System.out.println("DEBUG: Tri IA terminé et affiché.");
