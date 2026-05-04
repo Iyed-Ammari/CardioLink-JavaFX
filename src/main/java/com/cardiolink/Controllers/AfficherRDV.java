@@ -2,6 +2,7 @@ package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Rendezvous;
 import com.cardiolink.Services.ServiceRendezvous;
+import com.cardiolink.utils.ManagerSession;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -64,7 +65,8 @@ public class AfficherRDV {
     private void loadData() {
         try {
             rendezvousList.clear();
-            List<Rendezvous> data = serviceRV.getAll();
+            int userId = ManagerSession.getInstance().getCurrentUserId();
+            List<Rendezvous> data = serviceRV.getByPatientId(userId);
             rendezvousList.addAll(data);
         } catch (SQLDataException e) {
             showAlert("Erreur", "Base de données inaccessible", Alert.AlertType.ERROR);
@@ -170,7 +172,7 @@ public class AfficherRDV {
 
     @FXML
     void goToMenu(ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/MenuRDV.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/dashboard_patient.fxml"));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
     }

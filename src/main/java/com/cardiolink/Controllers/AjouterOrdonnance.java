@@ -127,7 +127,7 @@ public class AjouterOrdonnance {
     void goToMenu(ActionEvent event) {
         try {
             // Chargement de la page MenuRDV
-            Parent root = FXMLLoader.load(getClass().getResource("/MenuRDV.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/ListeOrdonnances.fxml"));
 
             // Récupération de la fenêtre actuelle (Stage)
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();

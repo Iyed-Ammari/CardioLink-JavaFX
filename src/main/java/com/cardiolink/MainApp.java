@@ -1,12 +1,16 @@
 package com.cardiolink;
 
+import com.cardiolink.Models.Rendezvous;
+import com.cardiolink.Services.ServiceRendezvous;
+import com.cardiolink.utils.ManagerSession;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class MainApp extends Application {
+import java.util.List;
 
+public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(

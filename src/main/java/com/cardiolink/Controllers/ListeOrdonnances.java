@@ -53,7 +53,7 @@ public class ListeOrdonnances {
     @FXML
     void goToMenu(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/MenuRDV.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/dashboard_patient.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
         } catch (IOException e) {

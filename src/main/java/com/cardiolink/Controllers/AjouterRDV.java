@@ -102,7 +102,7 @@ public class AjouterRDV {
     }
     @FXML
     void goToMenu(ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/MenuRDV.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/dashboard_patient.fxml"));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
         stage.show();
