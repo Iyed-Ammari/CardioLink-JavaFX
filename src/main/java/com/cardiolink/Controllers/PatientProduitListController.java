@@ -42,6 +42,9 @@ public class PatientProduitListController implements Initializable {
     @FXML private Button     btnCommandes;
     @FXML private VBox       recentlyViewedSection;
     @FXML private VBox       recentlyViewedContainer;
+    @FXML private Label      sidebarInitial;
+    @FXML private Label      sidebarNom;
+    @FXML private Label      sidebarRole;
 
     private final ProduitService  produitService  = new ProduitService();
     private final CommandeService commandeService = new CommandeService();
@@ -59,7 +62,17 @@ public class PatientProduitListController implements Initializable {
         int userId = ManagerSession.getInstance().getCurrentUserId();
         try {
             User user = userService.getById(userId);
-            System.out.println(user);
+            System.out.println("userId: " + userId);
+            if (user != null) {
+                String initial = user.getNom() != null && !user.getNom().isEmpty()
+                        ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+                if (sidebarInitial != null) sidebarInitial.setText(initial);
+                if (sidebarNom != null) sidebarNom.setText(
+                        (user.getNom() != null ? user.getNom() : "") + " " +
+                        (user.getPrenom() != null ? user.getPrenom() : ""));
+                if (sidebarRole != null) sidebarRole.setText(
+                        user.getRoleClean() != null ? user.getRoleClean() : "—");
+            }
         } catch (SQLDataException e) {
             throw new RuntimeException(e);
         }
@@ -912,6 +925,23 @@ public class PatientProduitListController implements Initializable {
         try {
             NavigationUtil.navigate((Stage) productContainer.getScene().getWindow(), "/fxml/patient/commande-list-patient.fxml");
         } catch (Exception e) { showError("Impossible d'ouvrir les commandes."); }
+    }
+
+    @FXML private void goToDashboard() {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/dashboard_patient.fxml"));
+            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load(), 1100, 650);
+            Stage stage = (Stage) productContainer.getScene().getWindow();
+            stage.setTitle("CardioLink");
+            stage.setScene(scene);
+            stage.show();
+            Object ctrl = loader.getController();
+            if (ctrl instanceof UserAwareController) {
+                ((UserAwareController) ctrl).setCurrentUser(
+                        com.cardiolink.utils.ManagerSession.getInstance().getCurrentUser());
+            }
+        } catch (Exception e) { showError("Navigation impossible."); }
     }
 
     private void showError(String m) {

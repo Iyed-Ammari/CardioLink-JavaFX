@@ -42,6 +42,10 @@ public class PredictionIAController implements Initializable {
 
     @FXML private VBox resultsContainer;
 
+    @FXML private Label sidebarInitial;
+    @FXML private Label sidebarNom;
+    @FXML private Label sidebarRole;
+
     private final PredictionService predictionService = new PredictionService();
     private final UserService userService = new UserService();
 
@@ -52,7 +56,17 @@ public class PredictionIAController implements Initializable {
 
         try {
             User user = userService.getById(userId);
-            System.out.println(user);
+            System.out.println("userId: " + userId);
+            if (user != null) {
+                String initial = user.getNom() != null && !user.getNom().isEmpty()
+                        ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+                if (sidebarInitial != null) sidebarInitial.setText(initial);
+                if (sidebarNom != null) sidebarNom.setText(
+                        (user.getNom() != null ? user.getNom() : "") + " " +
+                        (user.getPrenom() != null ? user.getPrenom() : ""));
+                if (sidebarRole != null) sidebarRole.setText(
+                        user.getRoleClean() != null ? user.getRoleClean() : "—");
+            }
         } catch (SQLDataException e) {
             throw new RuntimeException(e);
         }
@@ -66,10 +80,10 @@ public class PredictionIAController implements Initializable {
 
         List<String> months = new ArrayList<>();
 
-        // Commencer au mois prochain (pas le mois actuel, on prédit le futur)
+        // Limiter à 12 mois (1 an) pour performance — pas besoin de 5 ans
         LocalDate today = LocalDate.now();
-        LocalDate debut = today.withDayOfMonth(1).plusMonths(1); // mois prochain
-        LocalDate fin   = today.withDayOfMonth(1).plusYears(5);  // 5 ans dans le futur
+        LocalDate debut = today.withDayOfMonth(1).plusMonths(1);
+        LocalDate fin   = today.withDayOfMonth(1).plusMonths(13);
 
         LocalDate cursor = debut;
         while (!cursor.isAfter(fin)) {
@@ -78,10 +92,7 @@ public class PredictionIAController implements Initializable {
         }
 
         monthBox.setItems(FXCollections.observableArrayList(months));
-
-        // Valeur par défaut = le mois prochain
-        String defaultMonth = String.format("%d-%02d", debut.getYear(), debut.getMonthValue());
-        monthBox.setValue(defaultMonth);
+        monthBox.setValue(months.get(0));
     }
 
     private void initialiserValeursParDefaut() {
@@ -130,7 +141,6 @@ public class PredictionIAController implements Initializable {
             return;
         }
 
-        // Bloquer si le mois sélectionné est dans le passé ou le mois actuel
         try {
             LocalDate today = LocalDate.now().withDayOfMonth(1);
             LocalDate selected = LocalDate.parse(selectedMonth + "-01");
@@ -143,48 +153,53 @@ public class PredictionIAController implements Initializable {
         if (monthLabel != null) monthLabel.setText(selectedMonth);
         if (heroPeriodLabel != null) heroPeriodLabel.setText("📅 " + selectedMonth);
         updateFutureBadge(selectedMonth);
-
         if (resultsContainer != null) resultsContainer.getChildren().clear();
 
-        try {
-            PredictionResponse response = predictionService.predict(selectedMonth);
-            List<PredictionDayPeak> jours = response.getTopJoursPic();
-
-            if (jours == null || jours.isEmpty()) {
-                if (maxLabel != null) maxLabel.setText("0.00");
-                if (countLabel != null) countLabel.setText("0");
-                if (resultCountBadge != null) resultCountBadge.setText("0 jour");
-                afficherErreur("Aucune donnée de pic retournée par l'API.");
-                return;
+        // Appel HTTP en arrière-plan pour ne pas bloquer l'UI
+        final String month = selectedMonth;
+        new Thread(() -> {
+            try {
+                PredictionResponse response = predictionService.predict(month);
+                javafx.application.Platform.runLater(() -> afficherResultats(response, month));
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() ->
+                        afficherErreur("Erreur lors de la prédiction : " + e.getMessage()));
             }
+        }, "prediction-thread").start();
+    }
 
-            double max = 0.0;
-            for (PredictionDayPeak jour : jours) {
-                if (jour.getPrediction() > max) {
-                    max = jour.getPrediction();
-                }
-            }
+    private void afficherResultats(PredictionResponse response, String selectedMonth) {
+        List<PredictionDayPeak> jours = response.getTopJoursPic();
 
-            if (maxLabel != null) maxLabel.setText(String.format(Locale.US, "%.2f", max));
-            if (countLabel != null) countLabel.setText(String.valueOf(jours.size()));
-            if (resultCountBadge != null) {
-                resultCountBadge.setText(jours.size() + (jours.size() > 1 ? " jours" : " jour"));
-            }
-
-            if (monthLabel != null && response.getMois() != null && !response.getMois().isBlank()) {
-                monthLabel.setText(response.getMois());
-            }
-
-            int rank = 1;
-            for (PredictionDayPeak jour : jours) {
-                resultsContainer.getChildren().add(creerCarteJour(rank++, jour, max));
-            }
-
-            afficherSucces("Prédiction chargée avec succès.");
-
-        } catch (Exception e) {
-            afficherErreur("Erreur lors de la prédiction : " + e.getMessage());
+        if (jours == null || jours.isEmpty()) {
+            if (maxLabel != null) maxLabel.setText("0.00");
+            if (countLabel != null) countLabel.setText("0");
+            if (resultCountBadge != null) resultCountBadge.setText("0 jour");
+            afficherErreur("Aucune donnée de pic retournée par l'API.");
+            return;
         }
+
+        double max = 0.0;
+        for (PredictionDayPeak jour : jours) {
+            if (jour.getPrediction() > max) max = jour.getPrediction();
+        }
+
+        if (maxLabel != null) maxLabel.setText(String.format(Locale.US, "%.2f", max));
+        if (countLabel != null) countLabel.setText(String.valueOf(jours.size()));
+        if (resultCountBadge != null)
+            resultCountBadge.setText(jours.size() + (jours.size() > 1 ? " jours" : " jour"));
+
+        if (monthLabel != null && response.getMois() != null && !response.getMois().isBlank())
+            monthLabel.setText(response.getMois());
+
+        if (resultsContainer != null) {
+            resultsContainer.getChildren().clear();
+            int rank = 1;
+            for (PredictionDayPeak jour : jours)
+                resultsContainer.getChildren().add(creerCarteJour(rank++, jour, max));
+        }
+
+        afficherSucces("Prédiction chargée avec succès.");
     }
 
     private void updateFutureBadge(String month) {

@@ -32,6 +32,9 @@ public class AdminDashboardController implements Initializable {
     @FXML private Label nbPayeesLabel;
     @FXML private Label nbLivreesLabel;
     @FXML private Label nbAnnuleesLabel;
+    @FXML private Label sidebarInitial;
+    @FXML private Label sidebarNom;
+    @FXML private Label sidebarRole;
 
     private final CommandeService commandeService = new CommandeService();
     private final ProduitService produitService = new ProduitService();
@@ -40,11 +43,20 @@ public class AdminDashboardController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        // ✅ LIGNES DEMANDÉES PAR TA COLLÈGUE (respectées)
         int userId = ManagerSession.getInstance().getCurrentUserId();
         try {
             User user = userService.getById(userId);
-            System.out.println(user);
+            System.out.println("userId: " + userId);
+            if (user != null) {
+                String initial = user.getNom() != null && !user.getNom().isEmpty()
+                        ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+                if (sidebarInitial != null) sidebarInitial.setText(initial);
+                if (sidebarNom != null) sidebarNom.setText(
+                        (user.getNom() != null ? user.getNom() : "") + " " +
+                        (user.getPrenom() != null ? user.getPrenom() : ""));
+                if (sidebarRole != null) sidebarRole.setText(
+                        user.getRoleClean() != null ? user.getRoleClean() : "—");
+            }
         } catch (SQLDataException e) {
             throw new RuntimeException(e);
         }

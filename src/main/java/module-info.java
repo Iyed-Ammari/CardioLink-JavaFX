@@ -13,19 +13,22 @@ module com.cardiolink {
     requires java.sql;
     requires jdk.httpserver;
     requires java.desktop;
+
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
-    requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires com.almasb.fxgl.all;
+
     requires jbcrypt;
     requires org.java_websocket;
+    requires org.slf4j;
     requires org.json;
 
     // --- AJOUTÉS depuis ton module ---
     requires stripe.java;
     requires org.apache.pdfbox;
+    requires java.mail;
 
     // --- Package Exports ---
     exports com.cardiolink;

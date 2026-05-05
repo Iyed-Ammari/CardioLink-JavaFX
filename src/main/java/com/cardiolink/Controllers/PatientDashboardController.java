@@ -1,6 +1,7 @@
 package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.User;
+import com.cardiolink.utils.ManagerSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -16,6 +17,7 @@ public class PatientDashboardController implements UserAwareController {
     @FXML private Label  welcomeLabel;
     @FXML private Button btnSuivis;
     @FXML private Button btnDossier;
+    @FXML private Button btnMarketplace;
 
     private User currentUser;
 
@@ -35,6 +37,8 @@ public class PatientDashboardController implements UserAwareController {
             btnSuivis.setManaged(isPatient);
             btnDossier.setVisible(isPatient);
             btnDossier.setManaged(isPatient);
+            btnMarketplace.setVisible(isPatient);
+            btnMarketplace.setManaged(isPatient);
         }
     }
 
@@ -61,6 +65,24 @@ public class PatientDashboardController implements UserAwareController {
     }
 
     @FXML private void goHome() { /* déjà ici */ }
+
+    @FXML private void goMarketplace() {
+        try {
+            // Initialiser ManagerSession pour que la marketplace connaisse l'utilisateur connecté
+            ManagerSession.getInstance().setCurrentUser(currentUser);
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/patient/produit-list-patient.fxml"));
+            Scene scene = new Scene(loader.load(), 1100, 650);
+            Stage stage = (Stage) avatarLabel.getScene().getWindow();
+            stage.setTitle("CardioLink - Marketplace");
+            stage.setScene(scene);
+            stage.show();
+            if (loader.getController() instanceof UserAwareController) {
+                ((UserAwareController) loader.getController()).setCurrentUser(currentUser);
+            }
+        } catch (IOException e) { e.printStackTrace(); }
+    }
 
     @FXML private void goCommunity() {
         navigateTo("/com/cardiolink/fxml/community.fxml", "CardioLink - Community", 1100, 650);

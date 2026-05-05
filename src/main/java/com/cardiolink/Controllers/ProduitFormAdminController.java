@@ -37,6 +37,9 @@ public class ProduitFormAdminController implements Initializable {
     @FXML private TextArea descriptionArea;
     @FXML private Label messageLabel;
     @FXML private Label imageHintLabel;
+    @FXML private Label sidebarInitial;
+    @FXML private Label sidebarNom;
+    @FXML private Label sidebarRole;
 
     private final ProduitService produitService = new ProduitService();
     private final UserService userService = new UserService();
@@ -70,10 +73,19 @@ public class ProduitFormAdminController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
 
         int userId = ManagerSession.getInstance().getCurrentUserId();
-
         try {
             User user = userService.getById(userId);
-            System.out.println(user);
+            System.out.println("userId: " + userId);
+            if (user != null) {
+                String initial = user.getNom() != null && !user.getNom().isEmpty()
+                        ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+                if (sidebarInitial != null) sidebarInitial.setText(initial);
+                if (sidebarNom != null) sidebarNom.setText(
+                        (user.getNom() != null ? user.getNom() : "") + " " +
+                        (user.getPrenom() != null ? user.getPrenom() : ""));
+                if (sidebarRole != null) sidebarRole.setText(
+                        user.getRoleClean() != null ? user.getRoleClean() : "—");
+            }
         } catch (SQLDataException e) {
             throw new RuntimeException(e);
         }
@@ -264,6 +276,9 @@ public class ProduitFormAdminController implements Initializable {
         // ── Validation DESCRIPTION (optionnelle mais pas que des espaces) ──
         if (!desc.isEmpty() && desc.isBlank()) {
             showError("⚠ La description ne peut pas contenir uniquement des espaces.");
+            valid = false;
+        } else if (desc.length() > 500) {
+            showError("⚠ La description ne doit pas dépasser 500 caractères.");
             valid = false;
         }
 

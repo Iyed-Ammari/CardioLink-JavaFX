@@ -1,6 +1,7 @@
 package com.cardiolink.Services;
 
 import com.cardiolink.Models.Commande;
+import com.cardiolink.Models.User;
 import com.cardiolink.utils.StripeConfig;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -26,6 +27,8 @@ import java.util.function.Consumer;
 public class PaiementService {
 
     private final CommandeService commandeService = new CommandeService();
+    private final UserService     userService     = new UserService();
+    private final EmailService    emailService    = new EmailService();
 
     public void payerCommandeAvecStripe(
             Commande commande,
@@ -149,6 +152,22 @@ public class PaiementService {
             }
 
             commandeService.payer(commandeFraiche);
+
+            // ✉️ Envoi email de confirmation au patient (non bloquant)
+            try {
+                User patient = userService.getUserById(commandeFraiche.getUserId());
+                if (patient != null && patient.getEmail() != null) {
+                    String nomComplet = (patient.getPrenom() != null ? patient.getPrenom() : "")
+                            + " " + (patient.getNom() != null ? patient.getNom() : "");
+                    emailService.envoyerConfirmationPaiement(
+                            patient.getEmail(),
+                            nomComplet.trim(),
+                            commandeFraiche
+                    );
+                }
+            } catch (Exception emailEx) {
+                System.err.println("⚠ Email confirmation non envoyé : " + emailEx.getMessage());
+            }
 
             if (onSuccess != null) {
                 Platform.runLater(onSuccess);

@@ -68,11 +68,11 @@
                   style="-fx-padding: 14 0 0 0; -fx-border-color: #E5E7EB; -fx-border-width: 1 0 0 0;">
                 <StackPane prefWidth="44" prefHeight="44"
                            style="-fx-background-color: linear-gradient(to bottom right, rgba(248,34,57,0.22), rgba(47,96,245,0.22)); -fx-background-radius: 16;">
-                    <Label text="AD" style="-fx-text-fill: #1F2937; -fx-font-weight: 900;"/>
+                    <Label fx:id="sidebarInitial" text="?" style="-fx-text-fill: #1F2937; -fx-font-weight: 900;"/>
                 </StackPane>
                 <VBox spacing="2">
-                    <Label text="Admin" style="-fx-text-fill: #111827; -fx-font-size: 14px; -fx-font-weight: 800;"/>
-                    <Label text="ROLE_ADMIN" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-font-weight: 700;"/>
+                    <Label fx:id="sidebarNom" text="—" style="-fx-text-fill: #111827; -fx-font-size: 14px; -fx-font-weight: 800;"/>
+                    <Label fx:id="sidebarRole" text="—" style="-fx-text-fill: #6B7280; -fx-font-size: 12px; -fx-font-weight: 700;"/>
                 </VBox>
             </HBox>
         </VBox>
@@ -128,6 +128,17 @@
                                   style="-fx-padding: 4;"/>
                     </content>
                 </ScrollPane>
+
+                <!-- Pagination fixe sous le scroll -->
+                <HBox fx:id="paginationBox" alignment="CENTER" spacing="12"
+                      style="-fx-padding: 10 0 4 0; -fx-border-color: #E5E7EB; -fx-border-width: 1 0 0 0;">
+                    <Button fx:id="btnPrev" text="◀ Précédent" onAction="#handlePrevPage"
+                            style="-fx-background-color: white; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-border-color: #E5E7EB; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 8 18; -fx-cursor: hand;"/>
+                    <Label fx:id="pageInfoLabel" text=""
+                           style="-fx-text-fill: #6B7280; -fx-font-size: 13px; -fx-font-weight: 700;"/>
+                    <Button fx:id="btnNext" text="Suivant ▶" onAction="#handleNextPage"
+                            style="-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-weight: 700; -fx-background-radius: 10; -fx-padding: 8 18; -fx-cursor: hand;"/>
+                </HBox>
 
                 <Label fx:id="messageLabel" text="" wrapText="true"
                        style="-fx-font-size: 13px; -fx-font-weight: 700;"/>

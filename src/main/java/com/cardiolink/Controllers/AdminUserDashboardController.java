@@ -452,6 +452,20 @@ public class AdminUserDashboardController implements UserAwareController {
         } catch (IOException e) { e.printStackTrace(); }
     }
 
+    @FXML private void goToMarketplace() {
+        try {
+            // Initialiser ManagerSession pour la marketplace admin
+            com.cardiolink.utils.ManagerSession.getInstance().setCurrentUser(currentUser);
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/admin/dashboard-admin.fxml"));
+            Scene scene = new Scene(loader.load(), 1400, 850);
+            Stage stage = (Stage) btnHome.getScene().getWindow();
+            stage.setTitle("CardioLink - Marketplace Admin");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
     public void initAdmin(User admin, String section) {
         this.currentUser = admin;
         try {
