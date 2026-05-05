@@ -146,6 +146,13 @@
             <version>1.6.2</version>
         </dependency>
 
+        <!-- iText for PDF Generation -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13.3</version>
+        </dependency>
+
         <!-- Google Calendar API Dependencies -->
         <dependency>
             <groupId>com.google.api-client</groupId>

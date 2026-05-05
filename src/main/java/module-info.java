@@ -13,6 +13,7 @@ module com.cardiolink {
     requires java.sql;
     requires java.mail;
     requires java.net.http;
+    requires itextpdf;
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
