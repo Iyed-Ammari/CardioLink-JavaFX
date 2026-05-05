@@ -19,10 +19,14 @@ public class AjouterOrdonnance {
     @FXML private TextArea txtDiagnostic, txtPrescription;
     @FXML private Label lblPreviewRef, lblPreviewDiag, lblPreviewPrescr;
     @FXML private Button btnSave;
+    @FXML private Button btnDelete;
 
     private ServiceOrdonnance service = new ServiceOrdonnance();
     private boolean isUpdateMode = false;
     private Ordonnance ordToUpdate;
+    private int currentConsultationId;
+    private String currentPatientNom = "Inconnu";
+    private String currentMedecinNom = "Inconnu";
 
     @FXML
     public void initialize() {
@@ -49,16 +53,14 @@ public class AjouterOrdonnance {
             if (isUpdateMode) {
                 // ... logique update ...
             } else {
-                // CORRECTION : S'assurer que l'ID de consultation 1 existe ou en trouver un autre
-                // Pour le test, on va supposer que vous avez lié l'ordonnance à un RDV existant
                 Ordonnance ord = new Ordonnance(
                         ref,
                         LocalDateTime.now(),
-                        4, // Assurez-vous que cet ID existe dans la table rendez_vous !
+                        currentConsultationId,
                         diag,
                         prescr,
-                        "Dr. Ahmed", // Devrait idéalement venir de la session utilisateur
-                        "Patient Test"
+                        currentMedecinNom,
+                        currentPatientNom
                 );
 
                 service.add(ord);
@@ -98,8 +100,7 @@ public class AjouterOrdonnance {
 
 
     @FXML
-    void clearFields(ActionEvent event) { // <-- CORRIGÉ : Paramètre ajouté
-        txtReference.clear();
+    void clearFields(ActionEvent event) {
         txtDiagnostic.clear();
         txtPrescription.clear();
         txtReference.setEditable(true);
@@ -108,8 +109,29 @@ public class AjouterOrdonnance {
     }
 
     @FXML
+    void handleDelete(ActionEvent event) {
+        if (ordToUpdate != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation de suppression");
+            alert.setHeaderText("Supprimer cette ordonnance ?");
+            alert.setContentText("Cette action est irréversible.");
+
+            java.util.Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                try {
+                    service.delete(ordToUpdate);
+                    showSuccess("Ordonnance supprimée avec succès.");
+                    goToAfficher(event);
+                } catch (Exception e) {
+                    showError("Erreur lors de la suppression : " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    @FXML
     void goToAfficher(ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/OrdonnanceMedecin.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/AfficherRDVMedecin.fxml"));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
     }
@@ -119,15 +141,52 @@ public class AjouterOrdonnance {
         this.ordToUpdate = ord;
         txtReference.setText(ord.getReference());
         txtReference.setEditable(false);
+        txtReference.setDisable(true);
         txtDiagnostic.setText(ord.getDiagnostic());
         txtPrescription.setText(ord.getNotes());
         if (btnSave != null) btnSave.setText("Mettre à jour");
+        if (btnDelete != null) btnDelete.setVisible(true);
+    }
+
+    public void preparerCreation(com.cardiolink.Models.Rendezvous rv) {
+        this.isUpdateMode = false;
+        this.currentConsultationId = rv.getId();
+        if (btnDelete != null) btnDelete.setVisible(false);
+        
+        try {
+            com.cardiolink.Services.UserService userService = new com.cardiolink.Services.UserService();
+            com.cardiolink.Models.User patient = userService.getUserById(rv.getPatientId());
+            if (patient != null) {
+                this.currentPatientNom = patient.getNom() + " " + patient.getPrenom();
+            }
+            
+            com.cardiolink.Models.User medecin = userService.getUserById(rv.getMedecinId());
+            if (medecin != null) {
+                this.currentMedecinNom = medecin.getNom() + " " + medecin.getPrenom();
+            }
+        } catch(java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+
+        String lastRef = service.getLastReference();
+        String newRef = "ORD-001";
+        if (lastRef != null && lastRef.startsWith("ORD-")) {
+            try {
+                int num = Integer.parseInt(lastRef.substring(4));
+                newRef = String.format("ORD-%03d", num + 1);
+            } catch (NumberFormatException e) {
+                // Ignore and use default
+            }
+        }
+        txtReference.setText(newRef);
+        txtReference.setEditable(false);
+        txtReference.setDisable(true);
     }
     @FXML
     void goToMenu(ActionEvent event) {
         try {
             // Chargement de la page MenuRDV
-            Parent root = FXMLLoader.load(getClass().getResource("/ListeOrdonnances.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/AfficherRDVMedecin.fxml"));
 
             // Récupération de la fenêtre actuelle (Stage)
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();

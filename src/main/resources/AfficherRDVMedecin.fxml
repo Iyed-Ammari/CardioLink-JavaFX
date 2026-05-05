@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #1a1c2e;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.AfficherRDVMedecin">
+    <children>
+        <VBox spacing="20.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="20.0">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#goToMenu" style="-fx-background-color: #25273c; -fx-background-radius: 50; -fx-cursor: hand;" text="🏠" textFill="WHITE">
+                            <font>
+                                <Font size="18.0" />
+                            </font>
+                        </Button>
+                        <VBox HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Espace Médecin" textFill="#826cfd">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Mes Rendez-vous" textFill="WHITE">
+                                    <font>
+                                        <Font name="System Bold" size="28.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </VBox>
+                        <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: linear-gradient(to right, #ff5f6d, #826cfd); -fx-background-radius: 10; -fx-cursor: hand;" text="+ Nouveau RDV" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Button>
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #25273c; -fx-padding: 15; -fx-background-radius: 12;">
+                    <children>
+                        <VBox spacing="5.0">
+                            <Label text="Recherche rapide" textFill="#b0b0b0" />
+                            <TextField fx:id="searchField" prefWidth="200.0" promptText="Nom patient, Type..." style="-fx-background-color: #1a1c2e; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 8; -fx-background-radius: 8;" />
+                        </VBox>
+
+                        <VBox spacing="5.0">
+                            <Label text="Filtrer par Statut" textFill="#b0b0b0" />
+                            <ComboBox fx:id="filterStatut" prefWidth="150.0" style="-fx-background-color: #1a1c2e; -fx-border-color: #3d3f58; -fx-border-radius: 8;" />
+                        </VBox>
+
+                        <VBox alignment="BOTTOM_CENTER" spacing="5.0">
+                            <Button mnemonicParsing="false" onAction="#handleSortDate" prefHeight="35.0" style="-fx-background-color: #3d3f58; -fx-cursor: hand;" text="📅 Trier par Date" textFill="WHITE" />
+                        </VBox>
+
+                        <VBox alignment="BOTTOM_CENTER" spacing="5.0">
+                            <Button mnemonicParsing="false" onAction="#resetFilters" prefHeight="35.0" style="-fx-background-color: #e74c3c; -fx-cursor: hand;" text="Réinitialiser" textFill="WHITE" />
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tableRDV" prefHeight="400.0" prefWidth="990.0" style="-fx-background-color: transparent; -fx-border-color: #3d3f58; -fx-control-inner-background: #1a1c2e;">
+                    <columns>
+                        <TableColumn fx:id="colDate" prefWidth="150.0" text="Date &amp; Heure" />
+                        <TableColumn fx:id="colPatient" prefWidth="180.0" text="Patient" />
+                        <TableColumn fx:id="colType" prefWidth="150.0" text="Type" />
+                        <TableColumn fx:id="colStatut" prefWidth="140.0" text="Statut" />
+                        <TableColumn fx:id="colOrdonnance" prefWidth="180.0" text="Ordonnance" />
+                        <TableColumn fx:id="colActions" prefWidth="180.0" text="Actions" />
+                    </columns>
+                </TableView>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

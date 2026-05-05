@@ -101,4 +101,41 @@ public class ServiceOrdonnance implements Iservice<Ordonnance> {
         }
         return false;
     }
+
+    public Ordonnance getByConsultationId(int consultationId) {
+        String query = "SELECT * FROM ordonnance WHERE consultation_id = ?";
+        try (PreparedStatement pst = connection.prepareStatement(query)) {
+            pst.setInt(1, consultationId);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                Ordonnance ord = new Ordonnance();
+                ord.setId(rs.getInt("id"));
+                ord.setReference(rs.getString("reference"));
+                Timestamp ts = rs.getTimestamp("date_creation");
+                if (ts != null) ord.setDateCreation(ts.toLocalDateTime());
+                ord.setConsultationId(rs.getInt("consultation_id"));
+                ord.setDiagnostic(rs.getString("diagnostic"));
+                ord.setNotes(rs.getString("notes"));
+                ord.setMedecinNom(rs.getString("medecin_nom"));
+                ord.setPatientNom(rs.getString("patient_nom"));
+                return ord;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur getByConsultationId ordonnance: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public String getLastReference() {
+        String query = "SELECT reference FROM ordonnance ORDER BY id DESC LIMIT 1";
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getString("reference");
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur getLastReference ordonnance: " + e.getMessage());
+        }
+        return null;
+    }
 }

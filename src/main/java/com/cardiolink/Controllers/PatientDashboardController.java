@@ -116,11 +116,11 @@ public class PatientDashboardController implements UserAwareController {
                 stage.setScene(scene);
                 stage.show();
             }else{
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/OrdonnanceMedecin.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherRDVMedecin.fxml"));
                 Scene scene = new Scene(loader.load(), 1100, 650);
 
                 Stage stage = (Stage) avatarLabel.getScene().getWindow();
-                stage.setTitle("CardioLink - RDV");
+                stage.setTitle("CardioLink - Mes Rendez-vous");
                 stage.setScene(scene);
                 stage.show();
             }
