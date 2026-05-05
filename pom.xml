@@ -139,6 +139,13 @@
             <version>8.0.33</version>
         </dependency>
 
+        <!-- JavaMail API for Email Notifications -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
         <!-- Google Calendar API Dependencies -->
         <dependency>
             <groupId>com.google.api-client</groupId>

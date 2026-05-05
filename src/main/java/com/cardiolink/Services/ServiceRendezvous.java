@@ -176,4 +176,31 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
         return liste;
     }
 
+    public List<Rendezvous> getAppointmentsForTomorrow() {
+        List<Rendezvous> liste = new ArrayList<>();
+        // Sélectionne les rendez-vous dont la date est exactement demain
+        String query = "SELECT * FROM rendez_vous WHERE DATE(date_heure) = CURDATE() + INTERVAL 1 DAY";
+
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            while (rs.next()) {
+                Rendezvous rv = new Rendezvous();
+                rv.setId(rs.getInt("id"));
+                Timestamp ts = rs.getTimestamp("date_heure");
+                if (ts != null) {
+                    rv.setDateHeure(ts.toLocalDateTime());
+                }
+                rv.setStatut(rs.getString("statut"));
+                rv.setType(rs.getString("type"));
+                rv.setRemarques(rs.getString("remarques"));
+                rv.setLienVisio(rs.getString("lien_visio"));
+                rv.setPatientId(rs.getInt("patient_id"));
+                rv.setMedecinId(rs.getInt("medecin_id"));
+                liste.add(rv);
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur getAppointmentsForTomorrow: " + e.getMessage());
+        }
+        return liste;
+    }
 }

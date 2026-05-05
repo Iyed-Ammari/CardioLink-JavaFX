@@ -11,6 +11,8 @@ module com.cardiolink {
 
     // --- Database & External Libraries ---
     requires java.sql;
+    requires java.mail;
+    requires java.net.http;
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
