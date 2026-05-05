@@ -36,6 +36,11 @@
                                 </Label>
                             </children>
                         </VBox>
+                        <Button mnemonicParsing="false" onAction="#syncWithGoogleCalendar" prefHeight="40.0" prefWidth="220.0" style="-fx-background-color: #34a853; -fx-background-radius: 10; -fx-cursor: hand;" text="📅 Sync Google Calendar" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: linear-gradient(to right, #ff5f6d, #826cfd); -fx-background-radius: 10; -fx-cursor: hand;" text="+ Nouveau RDV" textFill="WHITE">
                             <font>
                                 <Font name="System Bold" size="14.0" />

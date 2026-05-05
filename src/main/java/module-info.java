@@ -20,6 +20,14 @@ module com.cardiolink {
     requires jbcrypt;
     requires org.java_websocket;
     requires org.json;
+    requires com.google.api.client.auth;
+    requires com.google.api.client.extensions.java6.auth;
+    requires com.google.api.client.extensions.jetty.auth;
+    requires google.api.client;
+    requires com.google.api.client;
+    requires com.google.api.client.json.gson;
+    requires com.google.api.services.calendar;
+    requires jdk.httpserver;
 
     // --- Package Exports ---
     // These allow other modules to use your classes (e.g., during compilation)

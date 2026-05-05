@@ -285,6 +285,80 @@ public class AfficherRDVMedecin {
     }
 
     @FXML
+    void syncWithGoogleCalendar(ActionEvent event) {
+        Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+        infoAlert.setTitle("Synchronisation Google Calendar");
+        infoAlert.setHeaderText("Synchronisation en cours...");
+        infoAlert.setContentText("Veuillez patienter pendant que vos rendez-vous sont synchronisés. Si c'est la première fois, une fenêtre de navigateur va s'ouvrir pour vous demander l'autorisation.");
+        infoAlert.show();
+
+        // Exécuter la synchronisation en arrière-plan pour ne pas bloquer l'interface
+        new Thread(() -> {
+            try {
+                com.cardiolink.Services.GoogleCalendarService calendarService = new com.cardiolink.Services.GoogleCalendarService();
+                
+                if (!calendarService.isInitialized()) {
+                    javafx.application.Platform.runLater(() -> {
+                        infoAlert.close();
+                        showAlert("Erreur d'initialisation", calendarService.getInitError(), Alert.AlertType.ERROR);
+                    });
+                    return;
+                }
+
+                int successCount = 0;
+                int failCount = 0;
+
+                for (Rendezvous rv : rendezvousList) {
+                    try {
+                        String patientName = "Inconnu";
+                        User patient = userService.getUserById(rv.getPatientId());
+                        if (patient != null) {
+                            patientName = patient.getNom() + " " + patient.getPrenom();
+                        }
+                        calendarService.pushRendezvousToCalendar(rv, patientName);
+                        successCount++;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        failCount++;
+                    }
+                }
+
+                final int s = successCount;
+                final int f = failCount;
+                javafx.application.Platform.runLater(() -> {
+                    infoAlert.close();
+                    showAlert("Synchronisation Terminée", s + " rendez-vous synchronisés.\n" + f + " échecs.", Alert.AlertType.INFORMATION);
+                    
+                    // Ouvrir Google Calendar après la synchronisation (en vue Mois pour voir les événements)
+                    try {
+                        String url = "https://calendar.google.com/calendar/r/month";
+                        if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+                            java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                        } else {
+                            String os = System.getProperty("os.name").toLowerCase();
+                            if (os.contains("win")) {
+                                Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url});
+                            } else if (os.contains("mac")) {
+                                Runtime.getRuntime().exec(new String[]{"open", url});
+                            } else if (os.contains("nix") || os.contains("nux")) {
+                                Runtime.getRuntime().exec(new String[]{"xdg-open", url});
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                javafx.application.Platform.runLater(() -> {
+                    infoAlert.close();
+                    showAlert("Erreur", "Une erreur est survenue lors de la synchronisation : " + e.getMessage(), Alert.AlertType.ERROR);
+                });
+            }
+        }).start();
+    }
+
+    @FXML
     void goToMenu(ActionEvent event) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("/dashboard_patient.fxml"));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
