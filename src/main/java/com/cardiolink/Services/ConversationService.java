@@ -108,4 +108,122 @@ public class ConversationService implements Iservice<Conversation> {
 
         return null;
     }
+
+    /* ─────────────────────────────────────────────────────────────────
+       getConversationsByUser — conversations où l'user est patient OU médecin
+    ───────────────────────────────────────────────────────────────── */
+    public List<Conversation> getConversationsByUser(int userId) {
+        List<Conversation> conversations = new ArrayList<>();
+        String sql = "SELECT * FROM conversation "
+                   + "WHERE patient_id = ? OR medecin_id = ? "
+                   + "ORDER BY updated_at DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) conversations.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("[ConversationService] getConversationsByUser: " + e.getMessage());
+        }
+        return conversations;
+    }
+
+    /* ─────────────────────────────────────────────────────────────────
+       findByUserWithSearchAndSort — Query builder avancé
+
+       Paramètres :
+         userId  → utilisateur connecté (patient_id OR medecin_id)
+         search  → filtre sur le nom du contact (null = pas de filtre)
+         sortBy  → "updated" | "created" | "contact" | "status"
+         order   → "ASC" | "DESC"
+
+       Jointures avec la table user pour :
+         up (user patient)  → permettre filtre/tri par nom patient
+         um (user médecin) → permettre filtre/tri par nom médecin
+    ───────────────────────────────────────────────────────────────── */
+    public List<Conversation> findByUserWithSearchAndSort(
+            int userId, String search, String sortBy, String order) {
+
+        List<Conversation> conversations = new ArrayList<>();
+
+        // Sécurisation de l'ordre (anti-injection)
+        String safeOrder = "DESC".equalsIgnoreCase(order) ? "DESC" : "ASC";
+
+        // Colonne de tri
+        String orderClause;
+        switch (sortBy == null ? "updated" : sortBy.toLowerCase()) {
+            case "created":
+                orderClause = "c.created_at";
+                break;
+            case "contact":
+                // Tri par nom du contact (l'autre participant)
+                orderClause = "CASE WHEN c.patient_id = ? THEN um.nom ELSE up.nom END";
+                break;
+            case "status":
+                orderClause = "c.is_active";
+                break;
+            default: // "updated"
+                orderClause = "c.updated_at";
+                break;
+        }
+
+        boolean hasSearch = search != null && !search.trim().isEmpty();
+        boolean hasDynamicSort = "contact".equalsIgnoreCase(sortBy);
+
+        StringBuilder sql = new StringBuilder(
+            "SELECT c.* FROM conversation c "
+          + "LEFT JOIN user up ON c.patient_id  = up.id "
+          + "LEFT JOIN user um ON c.medecin_id = um.id "
+          + "WHERE (c.patient_id = ? OR c.medecin_id = ?) "
+        );
+
+        if (hasSearch) {
+            sql.append("AND (up.nom LIKE ? OR up.prenom LIKE ? "
+                     + "OR um.nom LIKE ? OR um.prenom LIKE ?) ");
+        }
+
+        sql.append("ORDER BY ").append(orderClause).append(" ").append(safeOrder);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int idx = 1;
+
+            // Paramètre pour hasDynamicSort (CASE WHEN)
+            if (hasDynamicSort) ps.setInt(idx++, userId);
+
+            // WHERE patient_id = ? OR medecin_id = ?
+            ps.setInt(idx++, userId);
+            ps.setInt(idx++, userId);
+
+            // Filtre de recherche
+            if (hasSearch) {
+                String like = "%" + search.trim() + "%";
+                ps.setString(idx++, like); // up.nom
+                ps.setString(idx++, like); // up.prenom
+                ps.setString(idx++, like); // um.nom
+                ps.setString(idx++, like); // um.prenom
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) conversations.add(mapRow(rs));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[ConversationService] findByUserWithSearchAndSort: " + e.getMessage());
+        }
+
+        return conversations;
+    }
+
+    /* ──────── Helper mapper ────────────────────────────────────────── */
+    private Conversation mapRow(ResultSet rs) throws SQLException {
+        Conversation c = new Conversation();
+        c.setId(rs.getInt("id"));
+        c.setPatientId(rs.getInt("patient_id"));
+        c.setMedecinId(rs.getInt("medecin_id"));
+        c.setCreated_at(rs.getString("created_at"));
+        c.setUpdated_at(rs.getString("updated_at"));
+        c.setActive(rs.getBoolean("is_active"));
+        return c;
+    }
 }

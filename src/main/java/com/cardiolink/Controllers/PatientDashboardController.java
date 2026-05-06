@@ -145,7 +145,7 @@ public class PatientDashboardController implements UserAwareController {
 
     @FXML private void goChat() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ChatView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/chat_advanced.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             Stage stage = (Stage) avatarLabel.getScene().getWindow();
             stage.setTitle("CardioLink - Chat");

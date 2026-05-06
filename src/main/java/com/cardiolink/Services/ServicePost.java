@@ -1,7 +1,11 @@
 package com.cardiolink.Services;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.List;
+import java.util.ArrayList;
 import com.cardiolink.Models.Post;
 import com.cardiolink.utils.MyDatabase;
+import com.cardiolink.Services.RecommendationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,21 +20,18 @@ public class ServicePost implements Iservice<Post> {
     }
 
     @Override
-    public void add(Post post) throws SQLDataException {
+    public void add(Post p) throws SQLDataException {
         try {
+            String sql = "INSERT INTO post (title, content, image, user_id, created_at,topic_vector) VALUES (?, ?, ?, ?, ?,?)";
 
-            String query = "INSERT INTO post (title, content, created_at, user_id) VALUES (?, ?, ?, ?)";
-
-            PreparedStatement ps = cnx.prepareStatement(query);
-
-            ps.setString(1, post.getTitle());
-            ps.setString(2, post.getContent());
-            ps.setTimestamp(3, Timestamp.valueOf(post.getCreated_at()));
-            ps.setInt(4, post.getUser_id());
-
+            PreparedStatement ps = cnx.prepareStatement(sql);
+            ps.setString(1, p.getTitle());
+            ps.setString(2, p.getContent());
+            ps.setString(3, p.getImage());
+            ps.setInt(4, p.getUser_id());
+            ps.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+            ps.setString(6, p.getTopicVector());
             ps.executeUpdate();
-
-            System.out.println("Post ajouté !");
 
         } catch (SQLException e) {
             throw new SQLDataException(e.getMessage());
@@ -106,6 +107,10 @@ public class ServicePost implements Iservice<Post> {
                 p.setContent(rs.getString("content"));
                 p.setCreated_at(rs.getTimestamp("created_at").toLocalDateTime());
                 p.setUser_id(rs.getInt("user_id"));
+
+                // 🔥 IMPORTANT FIX
+                p.setImage(rs.getString("image"));
+                p.setTopicVector(rs.getString("topic_vector"));
 
                 posts.add(p);
             }
@@ -316,4 +321,254 @@ public class ServicePost implements Iservice<Post> {
 
         return posts;
     }
+    //likes
+    // Assure-toi d'avoir ces objets dans ton ServicePost
+    private RecommendationService recService = new RecommendationService();
+    private ObjectMapper mapper = new ObjectMapper();
+
+    public boolean toggleLike(int postId, int userId) throws SQLDataException {
+        try {
+            // 1. Vérifier si déjà liké
+            String check = "SELECT 1 FROM post_likes WHERE post_id=? AND user_id=?";
+            PreparedStatement psCheck = cnx.prepareStatement(check);
+            psCheck.setInt(1, postId);
+            psCheck.setInt(2, userId);
+            ResultSet rs = psCheck.executeQuery();
+
+            if (rs.next()) {
+                // DEJA LIKE -> UNLIKE (On ne change pas l'IA ici ou on peut diminuer légèrement)
+                String delete = "DELETE FROM post_likes WHERE post_id=? AND user_id=?";
+                PreparedStatement psDel = cnx.prepareStatement(delete);
+                psDel.setInt(1, postId);
+                psDel.setInt(2, userId);
+                psDel.executeUpdate();
+                return false;
+            } else {
+                // PAS ENCORE LIKE -> ON VA LIKER
+
+                // A. Nettoyage des dislikes (ton code actuel)
+                String clearDislike = "DELETE FROM post_dislike WHERE post_id=? AND user_id=?";
+                PreparedStatement psClear = cnx.prepareStatement(clearDislike);
+                psClear.setInt(1, postId);
+                psClear.setInt(2, userId);
+                psClear.executeUpdate();
+
+                // B. Ajout du Like en base (ton code actuel)
+                String insert = "INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)";
+                PreparedStatement psIns = cnx.prepareStatement(insert);
+                psIns.setInt(1, postId);
+                psIns.setInt(2, userId);
+                psIns.executeUpdate();
+
+                // ⭐ C. LOGIQUE IA : MISE À JOUR DES INTÉRÊTS ⭐
+                updateUserInterests(postId, userId, true);
+
+                return true;
+            }
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public int countLikes(int postId) throws SQLDataException {
+        try {
+            String query = "SELECT COUNT(*) FROM post_likes WHERE post_id=?";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, postId);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public boolean isLikedByUser(int postId, int userId) throws SQLDataException {
+        try {
+            String query = "SELECT 1 FROM post_likes WHERE post_id=? AND user_id=?";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, postId);
+            ps.setInt(2, userId);
+
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public int getUserFlames(int userId) throws SQLDataException {
+        try {
+
+            String query = "SELECT created_at FROM post WHERE user_id=? ORDER BY created_at DESC";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, userId);
+
+            ResultSet rs = ps.executeQuery();
+
+            int flames = 0;
+            Timestamp previous = null;
+
+            long now = System.currentTimeMillis();
+
+            while (rs.next()) {
+
+                Timestamp postDate = rs.getTimestamp("created_at");
+
+                if (previous == null) {
+                    long diff = now - postDate.getTime();
+
+                    // TEST 1 min
+                    if (diff <= 60000) { // 1h
+                        flames = 1;
+                        previous = postDate;
+                    } else {
+                        break;
+                    }
+
+                } else {
+
+                    long diff = previous.getTime() - postDate.getTime();
+
+                    if (diff <= 60000) {
+                        flames++;
+                        previous = postDate;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            return flames;
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public boolean toggleDislike(int postId, int userId) throws SQLDataException {
+        try {
+            // 1. Vérifier si déjà disliké
+            String check = "SELECT 1 FROM post_dislike WHERE post_id=? AND user_id=?";
+            PreparedStatement psCheck = cnx.prepareStatement(check);
+            psCheck.setInt(1, postId);
+            psCheck.setInt(2, userId);
+            ResultSet rs = psCheck.executeQuery();
+
+            if (rs.next()) {
+                // Déjà disliké -> On retire le Dislike
+                String delete = "DELETE FROM post_dislike WHERE post_id=? AND user_id=?";
+                PreparedStatement psDel = cnx.prepareStatement(delete);
+                psDel.setInt(1, postId);
+                psDel.setInt(2, userId);
+                psDel.executeUpdate();
+                return false;
+            } else {
+                // Pas encore disliké -> On va DISLIKER
+
+                // A. On supprime le like s'il existe
+                String clearLike = "DELETE FROM post_likes WHERE post_id=? AND user_id=?";
+                PreparedStatement psClear = cnx.prepareStatement(clearLike);
+                psClear.setInt(1, postId);
+                psClear.setInt(2, userId);
+                psClear.executeUpdate();
+
+                // B. On ajoute le Dislike en base
+                String insert = "INSERT INTO post_dislike (post_id, user_id) VALUES (?, ?)";
+                PreparedStatement psIns = cnx.prepareStatement(insert);
+                psIns.setInt(1, postId);
+                psIns.setInt(2, userId);
+                psIns.executeUpdate();
+
+                // ⭐ C. LOGIQUE IA : MISE À JOUR NÉGATIVE DES INTÉRÊTS ⭐
+                // On envoie 'false' pour que le vecteur s'éloigne de ce sujet
+                updateUserInterests(postId, userId, false);
+
+                return true;
+            }
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public int countDislikes(int postId) throws SQLDataException {
+        try {
+            String query = "SELECT COUNT(*) FROM post_dislike WHERE post_id=?";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, postId);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public boolean isDislikedByUser(int postId, int userId) throws SQLDataException {
+        try {
+            String query = "SELECT 1 FROM post_dislike WHERE post_id=? AND user_id=?";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, postId);
+            ps.setInt(2, userId);
+
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    // ⭐ AJOUTE CETTE MÉTHODE POUR CORRIGER L'ERREUR "cannot find symbol" ⭐
+    private void updateUserInterests(int postId, int userId, boolean isLike) {
+        try {
+            // 1. Récupérer le topic_vector du post et le interest_vector de l'utilisateur
+            String query = "SELECT p.topic_vector, u.interest_vector " +
+                    "FROM post p, user u " +
+                    "WHERE p.id = ? AND u.id = ?";
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ps.setInt(1, postId);
+            ps.setInt(2, userId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String postVecJson = rs.getString("topic_vector");
+                String userVecJson = rs.getString("interest_vector");
+
+                // On ne peut mettre à jour que si le post possède déjà une signature IA
+                if (postVecJson != null && !postVecJson.isEmpty()) {
+
+                    // Convertir les JSON (String) en Listes Java
+                    List<Double> postVec = mapper.readValue(postVecJson, new TypeReference<List<Double>>(){});
+
+                    List<Double> userVec;
+                    if (userVecJson != null && !userVecJson.isEmpty()) {
+                        userVec = mapper.readValue(userVecJson, new TypeReference<List<Double>>(){});
+                    } else {
+                        userVec = new ArrayList<>(); // Nouveau profil si vide
+                    }
+
+                    // 2. Calculer le nouveau profil via le service IA (Pointant sur le port 8007)
+                    List<Double> updatedVec = recService.updateInterest(userVec, postVec, isLike);
+
+                    // 3. Sauvegarder le résultat en format JSON dans la table USER
+                    String updatedJson = mapper.writeValueAsString(updatedVec);
+                    String updateSql = "UPDATE user SET interest_vector = ? WHERE id = ?";
+                    PreparedStatement psUpdate = cnx.prepareStatement(updateSql);
+                    psUpdate.setString(1, updatedJson);
+                    psUpdate.setInt(2, userId);
+                    psUpdate.executeUpdate();
+
+                    System.out.println("IA : Profil de l'utilisateur " + userId + " mis à jour avec succès !");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur IA lors de la mise à jour des intérêts : " + e.getMessage());
+        }
+    }
+
 }
