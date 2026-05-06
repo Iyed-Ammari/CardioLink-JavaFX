@@ -256,6 +256,19 @@ public class AfficherRDVMedecin {
         filterStatut.setValue("Tous");
     }
 
+    @FXML
+    void showPrediction(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/PredictionRDV.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de charger la page de prédiction.", Alert.AlertType.ERROR);
+        }
+    }
+
     private void modifierRendezvous(Rendezvous selected, ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterRDV.fxml"));

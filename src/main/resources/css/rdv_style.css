@@ -275,31 +275,39 @@
     -fx-background-color: #826cfd;
 }
 
-/* Specific for DatePicker */
-.date-picker-popup .month-year-pane {
-    -fx-background-color: #1a1c2e;
-}
-.date-picker-popup .calendar-grid {
-    -fx-background-color: #1a1c2e;
+/* Chart Styling */
+.chart {
+    -fx-padding: 10;
 }
 
-/* Custom Scrollbar Styling */
-.scroll-bar:vertical {
+.chart-content {
+    -fx-padding: 10;
+}
+
+.chart-title {
+    -fx-text-fill: white;
+}
+
+.axis {
+    -fx-tick-label-fill: white;
+    -fx-tick-mark-stroke: rgba(255, 255, 255, 0.3);
+}
+
+.axis-label {
+    -fx-text-fill: #826cfd;
+}
+
+.chart-legend {
     -fx-background-color: transparent;
-    -fx-width: 8;
+    -fx-text-fill: white;
 }
 
-.scroll-bar:vertical .thumb {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
-    -fx-background-radius: 10;
+.chart-legend-item {
+    -fx-text-fill: white;
 }
 
-.scroll-bar:vertical .thumb:hover {
-    -fx-background-color: rgba(130, 108, 253, 0.5);
-}
+.default-color0.chart-series-line { -fx-stroke: #826cfd; }
+.default-color0.chart-line-symbol { -fx-background-color: #826cfd, white; }
 
-.scroll-bar:vertical .track,
-.scroll-bar:vertical .increment-button,
-.scroll-bar:vertical .decrement-button {
-    -fx-background-color: transparent;
-}
+.default-color1.chart-series-line { -fx-stroke: #ec4899; -fx-stroke-dash-array: 5 5; }
+.default-color1.chart-line-symbol { -fx-background-color: #ec4899, white; }

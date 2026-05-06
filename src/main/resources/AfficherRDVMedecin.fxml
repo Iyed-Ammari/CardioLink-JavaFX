@@ -26,6 +26,7 @@
                         </VBox>
                         <HBox spacing="10.0">
                            <children>
+                               <Button mnemonicParsing="false" onAction="#showPrediction" prefHeight="50.0" styleClass="info-button" text="📈 Voir Prédiction" />
                                <Button mnemonicParsing="false" onAction="#syncWithGoogleCalendar" prefHeight="50.0" styleClass="google-btn" text="📅 Google Calendar" />
                                <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="50.0" prefWidth="180.0" styleClass="gradient-button" text="+ Nouveau RDV" />
                            </children>
