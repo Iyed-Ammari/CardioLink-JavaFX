@@ -47,6 +47,8 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
                 if (ts != null) rv.setDateHeure(ts.toLocalDateTime());
                 rv.setStatut(rs.getString("statut"));
                 rv.setType(rs.getString("type"));
+                rv.setLienVisio(rs.getString("lien_visio"));
+                rv.setRemarques(rs.getString("remarques"));
                 rv.setPatientId(rs.getInt("patient_id"));
                 rv.setMedecinId(rs.getInt("medecin_id"));
                 liste.add(rv);
@@ -59,13 +61,14 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
 
     @Override
     public void update(Rendezvous rv) throws SQLDataException {
-        String query = "UPDATE rendez_vous SET date_heure=?, statut=?, type=?, remarques=? WHERE id=?";
+        String query = "UPDATE rendez_vous SET date_heure=?, statut=?, type=?, lien_visio=?, remarques=? WHERE id=?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setTimestamp(1, Timestamp.valueOf(rv.getDateHeure()));
             pst.setString(2, rv.getStatut());
             pst.setString(3, rv.getType());
-            pst.setString(4, rv.getRemarques());
-            pst.setInt(5, rv.getId());
+            pst.setString(4, rv.getLienVisio());
+            pst.setString(5, rv.getRemarques());
+            pst.setInt(6, rv.getId());
             pst.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Erreur update rdv: " + e.getMessage());
@@ -96,6 +99,8 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
                 if (ts != null) rv.setDateHeure(ts.toLocalDateTime());
                 rv.setStatut(rs.getString("statut"));
                 rv.setType(rs.getString("type"));
+                rv.setLienVisio(rs.getString("lien_visio"));
+                rv.setRemarques(rs.getString("remarques"));
                 rv.setPatientId(rs.getInt("patient_id"));
                 rv.setMedecinId(rs.getInt("medecin_id"));
                 return rv;

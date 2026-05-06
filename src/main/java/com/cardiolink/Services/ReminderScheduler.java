@@ -58,7 +58,7 @@ public class ReminderScheduler {
                 String patientName = patient.getPrenom() + " " + patient.getNom();
                 String doctorName = "Dr. " + medecin.getNom();
                 
-                boolean success = emailService.sendReminder(patient.getEmail(), patientName, doctorName, rv.getDateHeure());
+                boolean success = emailService.sendReminder(patient.getEmail(), patientName, doctorName, rv.getDateHeure(), rv.getLienVisio());
                 
                 if (success) {
                     // Marquer comme envoyé uniquement si l'envoi a réussi

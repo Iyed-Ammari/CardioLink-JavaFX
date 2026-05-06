@@ -78,7 +78,8 @@
                         <TableColumn fx:id="colMedecin" prefWidth="130.0" text="Médecin" />
                         <TableColumn fx:id="colType" prefWidth="160.0" text="Type" />
                         <TableColumn fx:id="colStatut" prefWidth="120.0" text="Statut" />
-                        <TableColumn fx:id="colMotif" prefWidth="260.0" text="Motif / Remarques" />
+                        <TableColumn fx:id="colMotif" prefWidth="240.0" text="Motif / Remarques" />
+                        <TableColumn fx:id="colVisio" prefWidth="120.0" text="Visio" />
                     </columns>
                 </TableView>
 

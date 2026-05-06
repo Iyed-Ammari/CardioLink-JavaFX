@@ -13,7 +13,7 @@ public class EmailService {
     // IMPORTANT: Remplacez par votre Mot de passe d'application généré par Google (16 caractères, sans espaces)
     private static final String SENDER_APP_PASSWORD = "kghedulqvoohstxz";
 
-    public boolean sendReminder(String recipientEmail, String patientName, String doctorName, LocalDateTime appointmentDate) {
+    public boolean sendReminder(String recipientEmail, String patientName, String doctorName, LocalDateTime appointmentDate, String lienVisio) {
         if (recipientEmail == null || recipientEmail.isEmpty()) {
             return false;
         }
@@ -39,9 +39,20 @@ public class EmailService {
 
             String formattedDate = appointmentDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH:mm"));
 
+            String visioSection = "";
+            if (lienVisio != null && !lienVisio.isEmpty()) {
+                visioSection = "<div style='background-color: #f0f7ff; padding: 15px; border-radius: 8px; border: 1px solid #007bff; margin-top: 20px;'>"
+                        + "<h3 style='color: #007bff; margin-top: 0;'>Consultation en Visio</h3>"
+                        + "<p>Votre consultation se déroulera en ligne. Vous pouvez rejoindre la réunion en cliquant sur le bouton ci-dessous :</p>"
+                        + "<a href='" + lienVisio + "' style='background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;'>Rejoindre la Visio (Jitsi)</a>"
+                        + "<p style='font-size: 0.9em; color: #666; margin-top: 10px;'>Lien direct : <a href='" + lienVisio + "'>" + lienVisio + "</a></p>"
+                        + "</div>";
+            }
+
             String htmlContent = "<h2>Bonjour " + patientName + ",</h2>"
                     + "<p>Nous vous rappelons que vous avez un rendez-vous prévu demain le <strong>" + formattedDate + "</strong> "
                     + "avec le <strong>" + doctorName + "</strong>.</p>"
+                    + visioSection
                     + "<p>Merci d'être présent 10 minutes à l'avance.</p>"
                     + "<br><p>Cordialement,<br>L'équipe CardioLink</p>";
 

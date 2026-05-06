@@ -31,6 +31,7 @@ public class AfficherRDV {
     @FXML private TableColumn<Rendezvous, String> colStatut;
     @FXML private TableColumn<Rendezvous, String> colType;
     @FXML private TableColumn<Rendezvous, String> colMotif;
+    @FXML private TableColumn<Rendezvous, Void> colVisio;
 
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterStatut;
@@ -48,6 +49,37 @@ public class AfficherRDV {
         colStatut.setCellValueFactory(new PropertyValueFactory<>("statut"));
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
         colMotif.setCellValueFactory(new PropertyValueFactory<>("remarques"));
+
+        // 1.1 Configuration de la colonne Visio
+        colVisio.setCellFactory(tc -> new TableCell<Rendezvous, Void>() {
+            private final Button btn = new Button("Rejoindre");
+            {
+                btn.setStyle("-fx-background-color: #007bff; -fx-text-fill: white; -fx-cursor: hand;");
+                btn.setOnAction(e -> {
+                    Rendezvous rv = getTableView().getItems().get(getIndex());
+                    if (rv.getLienVisio() != null && !rv.getLienVisio().isEmpty()) {
+                        openUrl(rv.getLienVisio());
+                    } else {
+                        showAlert("Info", "Aucun lien de visio disponible.", Alert.AlertType.INFORMATION);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    Rendezvous rv = getTableView().getItems().get(getIndex());
+                    if ("Téléconsultation".equals(rv.getType())) {
+                        setGraphic(btn);
+                    } else {
+                        setGraphic(null);
+                    }
+                }
+            }
+        });
 
         // 2. Initialisation des menus de filtrage
         filterStatut.getItems().addAll("Tous", "En attente", "Confirmé", "Annulé", "Terminé");
@@ -175,6 +207,26 @@ public class AfficherRDV {
         Parent root = FXMLLoader.load(getClass().getResource("/dashboard_patient.fxml"));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
+    }
+
+    private void openUrl(String url) {
+        try {
+            if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+            } else {
+                String os = System.getProperty("os.name").toLowerCase();
+                if (os.contains("win")) {
+                    Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url});
+                } else if (os.contains("mac")) {
+                    Runtime.getRuntime().exec(new String[]{"open", url});
+                } else if (os.contains("nix") || os.contains("nux")) {
+                    Runtime.getRuntime().exec(new String[]{"xdg-open", url});
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'ouvrir le lien : " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
     private void showAlert(String title, String content, Alert.AlertType type) {

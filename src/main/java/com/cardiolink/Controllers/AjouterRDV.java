@@ -26,6 +26,7 @@ public class AjouterRDV {
     @FXML private Button btnSave;
 
     private ServiceRendezvous serviceRV = new ServiceRendezvous();
+    private com.cardiolink.Services.UserService userService = new com.cardiolink.Services.UserService();
     private boolean modeModification = false;
     private int idAModifier;
 
@@ -68,8 +69,26 @@ public class AjouterRDV {
             rv.setType(type.getValue());
             rv.setRemarques(remarques.getText());
             rv.setStatut("En attente");
-            rv.setPatientId(1); // Valeur par défaut pour le test
-            rv.setMedecinId(1);  // Valeur par défaut pour le test
+            
+            int currentUserId = com.cardiolink.utils.ManagerSession.getInstance().getCurrentUserId();
+            com.cardiolink.Models.User currentUser = userService.getUserById(currentUserId);
+            
+            if (currentUser != null && currentUser.getRoleClean().contains("MEDECIN")) {
+                rv.setMedecinId(currentUserId);
+                rv.setPatientId(1); // Par défaut pour le moment
+            } else {
+                rv.setPatientId(currentUserId);
+                rv.setMedecinId(1); // Par défaut pour le moment
+            }
+
+            // Génération du lien Jitsi si c'est une téléconsultation
+            if ("Téléconsultation".equals(rv.getType())) {
+                // Utilisation d'un format plus pro : CardioLink-DoctorName-UUID
+                String roomName = "CardioLink-" + java.util.UUID.randomUUID().toString().substring(0, 12);
+                rv.setLienVisio("https://meet.jit.si/" + roomName);
+            } else {
+                rv.setLienVisio(null);
+            }
 
             if (modeModification) {
                 rv.setId(idAModifier);

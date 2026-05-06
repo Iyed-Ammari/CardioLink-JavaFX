@@ -79,6 +79,7 @@
                         <TableColumn fx:id="colStatut" prefWidth="140.0" text="Statut" />
                         <TableColumn fx:id="colOrdonnance" prefWidth="180.0" text="Ordonnance" />
                         <TableColumn fx:id="colActions" prefWidth="180.0" text="Actions" />
+                        <TableColumn fx:id="colLienVisio" prefWidth="180.0" text="Lien de Téléconsultation" />
                     </columns>
                 </TableView>
             </children>

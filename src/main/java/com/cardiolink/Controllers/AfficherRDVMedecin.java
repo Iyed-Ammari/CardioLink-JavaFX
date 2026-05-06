@@ -39,6 +39,7 @@ public class AfficherRDVMedecin {
     @FXML private TableColumn<Rendezvous, String> colStatut;
     @FXML private TableColumn<Rendezvous, Void> colOrdonnance;
     @FXML private TableColumn<Rendezvous, Void> colActions;
+    @FXML private TableColumn<Rendezvous, Void> colLienVisio;
 
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterStatut;
@@ -157,6 +158,36 @@ public class AfficherRDVMedecin {
                     setGraphic(null);
                 } else {
                     setGraphic(pane);
+                }
+            }
+        });
+
+        colLienVisio.setCellFactory(tc -> new TableCell<Rendezvous, Void>() {
+            private final Button btnVisio = new Button("Rejoindre Visio");
+            {
+                btnVisio.setStyle("-fx-background-color: #007bff; -fx-text-fill: white; -fx-cursor: hand;");
+                btnVisio.setOnAction(e -> {
+                    Rendezvous rv = getTableView().getItems().get(getIndex());
+                    if (rv.getLienVisio() != null && !rv.getLienVisio().isEmpty()) {
+                        openUrl(rv.getLienVisio());
+                    } else {
+                        showAlert("Info", "Aucun lien de visio disponible pour ce rendez-vous.", Alert.AlertType.INFORMATION);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    Rendezvous rv = getTableView().getItems().get(getIndex());
+                    if ("Téléconsultation".equals(rv.getType())) {
+                        setGraphic(btnVisio);
+                    } else {
+                        setGraphic(null);
+                    }
                 }
             }
         });
@@ -363,6 +394,26 @@ public class AfficherRDVMedecin {
         Parent root = FXMLLoader.load(getClass().getResource("/dashboard_patient.fxml"));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
+    }
+
+    private void openUrl(String url) {
+        try {
+            if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+            } else {
+                String os = System.getProperty("os.name").toLowerCase();
+                if (os.contains("win")) {
+                    Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url});
+                } else if (os.contains("mac")) {
+                    Runtime.getRuntime().exec(new String[]{"open", url});
+                } else if (os.contains("nix") || os.contains("nux")) {
+                    Runtime.getRuntime().exec(new String[]{"xdg-open", url});
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'ouvrir le lien : " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
     private void showAlert(String title, String content, Alert.AlertType type) {
