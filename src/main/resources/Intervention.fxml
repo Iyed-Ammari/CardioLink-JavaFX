@@ -76,12 +76,12 @@
                 <TableView fx:id="tableInterventions" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="colId" text="ID" prefWidth="70"/>
-                        <TableColumn fx:id="colType" text="TYPE" prefWidth="130"/>
-                        <TableColumn fx:id="colDescription" text="DESCRIPTION" prefWidth="250"/>
-                        <TableColumn fx:id="colDatePlanifiee" text="DATE PLANIFIÉE" prefWidth="180"/>
-                        <TableColumn fx:id="colStatut" text="STATUT" prefWidth="130"/>
-                        <TableColumn fx:id="colMedecin" text="MÉDECIN" prefWidth="120"/>
-                        <TableColumn fx:id="colActions" text="ACTIONS" prefWidth="320"/>
+                        <TableColumn fx:id="colType" text="TYPE" prefWidth="120"/>
+                        <TableColumn fx:id="colDescription" text="DESCRIPTION" prefWidth="220"/>
+                        <TableColumn fx:id="colDatePlanifiee" text="DATE PLANIFIÉE" prefWidth="170"/>
+                        <TableColumn fx:id="colStatut" text="STATUT" prefWidth="120"/>
+                        <TableColumn fx:id="colMedecin" text="MÉDECIN" prefWidth="100"/>
+                        <TableColumn fx:id="colActions" text="ACTIONS" prefWidth="430"/>
                     </columns>
                 </TableView>
 

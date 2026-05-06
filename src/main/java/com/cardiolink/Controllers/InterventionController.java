@@ -2,6 +2,7 @@ package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Intervention;
 import com.cardiolink.Services.InterventionService;
+import com.cardiolink.Services.MaterielSuggestionService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -51,6 +52,7 @@ public class InterventionController {
     private Label lblMessage;
 
     private final InterventionService interventionService = new InterventionService();
+    private final MaterielSuggestionService materielSuggestionService = new MaterielSuggestionService();
     private final ObservableList<Intervention> data = FXCollections.observableArrayList();
 
     @FXML
@@ -110,7 +112,8 @@ public class InterventionController {
             private final Button btnVoir = new Button("👁 Voir");
             private final Button btnArchiver = new Button("📦 Archiver");
             private final Button btnLocalisation = new Button("📍 Localisation");
-            private final HBox box = new HBox(8, btnVoir, btnArchiver, btnLocalisation);
+            private final Button btnMateriel = new Button("🧰 Matériel");
+            private final HBox box = new HBox(8, btnVoir, btnArchiver, btnLocalisation, btnMateriel);
 
             {
                 btnVoir.setStyle("-fx-background-color: linear-gradient(to right, #5d73f1, #7587ff);"
@@ -134,6 +137,13 @@ public class InterventionController {
                         + "-fx-background-radius: 12;"
                         + "-fx-cursor: hand;");
 
+                btnMateriel.setStyle("-fx-background-color: linear-gradient(to right, #8e44ad, #c56cf0);"
+                        + "-fx-text-fill: white;"
+                        + "-fx-font-size: 14px;"
+                        + "-fx-font-weight: bold;"
+                        + "-fx-background-radius: 12;"
+                        + "-fx-cursor: hand;");
+
                 btnVoir.setOnAction(event -> {
                     Intervention intervention = getTableView().getItems().get(getIndex());
                     afficherDetails(intervention);
@@ -147,6 +157,11 @@ public class InterventionController {
                 btnLocalisation.setOnAction(event -> {
                     Intervention intervention = getTableView().getItems().get(getIndex());
                     ouvrirLocalisation(intervention);
+                });
+
+                btnMateriel.setOnAction(event -> {
+                    Intervention intervention = getTableView().getItems().get(getIndex());
+                    afficherMaterielSuggere(intervention);
                 });
             }
 
@@ -242,6 +257,23 @@ public class InterventionController {
                         "Longitude : " + (intervention.getLongitude() != null ? intervention.getLongitude() : "-")
         );
         alert.showAndWait();
+    }
+
+    private void afficherMaterielSuggere(Intervention intervention) {
+        try {
+            List<String> materiels = materielSuggestionService.suggererMateriel(intervention);
+            String contenu = "• " + String.join("\n• ", materiels);
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Matériel suggéré");
+            alert.setHeaderText("Assistant de préparation - " + intervention.getType());
+            alert.setContentText("Matériel recommandé :\n\n" + contenu);
+            alert.showAndWait();
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur suggestion matériel : " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void archiverIntervention(Intervention intervention) {

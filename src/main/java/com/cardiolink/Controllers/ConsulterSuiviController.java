@@ -25,6 +25,9 @@ public class ConsulterSuiviController {
     private TextField txtRecherche;
 
     @FXML
+    private ComboBox<String> cbUrgence;
+
+    @FXML
     private TableView<Suivi> tableSuivis;
 
     @FXML
@@ -51,6 +54,10 @@ public class ConsulterSuiviController {
     @FXML
     public void initialize() {
         configurerColonnes();
+
+        cbUrgence.getItems().addAll("Tous", "Normal", "Stable", "Critique", "Valeur invalide");
+        cbUrgence.setValue("Tous");
+
         chargerSuivis();
     }
 
@@ -99,6 +106,7 @@ public class ConsulterSuiviController {
             case "Normal" -> "-fx-background-color: #dff3e6; -fx-text-fill: #26a65b; -fx-padding: 8 18; -fx-background-radius: 10;";
             case "Stable" -> "-fx-background-color: #f7eadf; -fx-text-fill: #ff7a00; -fx-padding: 8 18; -fx-background-radius: 10;";
             case "Critique" -> "-fx-background-color: #f8dede; -fx-text-fill: #e74c3c; -fx-padding: 8 18; -fx-background-radius: 10;";
+            case "Valeur invalide" -> "-fx-background-color: #e6d9ff; -fx-text-fill: #7b2cbf; -fx-padding: 8 18; -fx-background-radius: 10;";
             default -> "-fx-background-color: #e0e0e0; -fx-text-fill: #333333; -fx-padding: 8 18; -fx-background-radius: 10;";
         };
     }
@@ -183,6 +191,33 @@ public class ConsulterSuiviController {
 
         } catch (Exception e) {
             lblMessage.setText("Erreur lors de la recherche.");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void filtrerParUrgence() {
+        try {
+            int patientId = ManagerSession.getInstance().getCurrentUser().getId();
+            String urgenceChoisie = cbUrgence.getValue();
+
+            List<Suivi> suivis = suiviService.getByPatientId(patientId);
+
+            if (urgenceChoisie == null || urgenceChoisie.equals("Tous")) {
+                data.setAll(suivis);
+            } else {
+                data.setAll(
+                        suivis.stream()
+                                .filter(s -> urgenceChoisie.equalsIgnoreCase(s.getNiveauUrgence()))
+                                .collect(Collectors.toList())
+                );
+            }
+
+            tableSuivis.setItems(data);
+            lblMessage.setText("Filtre urgence : " + urgenceChoisie + " | Résultats : " + data.size());
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur filtre urgence : " + e.getMessage());
             e.printStackTrace();
         }
     }

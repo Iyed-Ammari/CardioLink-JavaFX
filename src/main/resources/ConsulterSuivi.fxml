@@ -43,6 +43,12 @@
                                    promptText="Rechercher par type..."
                                    prefWidth="240"
                                    prefHeight="40"/>
+
+                        <ComboBox fx:id="cbUrgence"
+                                  prefWidth="180"
+                                  prefHeight="40"
+                                  onAction="#filtrerParUrgence"
+                                  promptText="Filtrer par urgence"/>
                     </children>
                 </HBox>
 
