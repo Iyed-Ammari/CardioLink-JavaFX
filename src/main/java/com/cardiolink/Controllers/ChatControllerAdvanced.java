@@ -659,6 +659,11 @@ public class ChatControllerAdvanced implements Initializable {
             return;
         }
 
+        if (mlAvailable && mlService.checkToxicity(content)) {
+            showAlert("Votre message contient des propos inappropriés et n'a pas pu être envoyé.");
+            return;
+        }
+
         if (editingMessage != null) {
             messageService.updateContent(editingMessage.getId(), content);
             editingMessage.setContent(content);

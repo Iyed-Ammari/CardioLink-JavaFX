@@ -183,6 +183,36 @@ public class MlClassificationService {
     }
 
     /* ════════════════════════════════════════════════════════════════
+       checkToxicity — POST /check_toxicity
+       Vérifie si un message contient des propos toxiques
+    ════════════════════════════════════════════════════════════════ */
+    public boolean checkToxicity(String content) {
+        if (content == null || content.trim().isEmpty()) {
+            return false;
+        }
+
+        try {
+            JSONObject body = new JSONObject();
+            body.put("content", content.trim());
+
+            JSONObject response = postJson("/check_toxicity", body);
+
+            if (response != null && response.has("is_toxic")) {
+                boolean isToxic = response.getBoolean("is_toxic");
+                if (isToxic) {
+                    System.out.println("[MlService] Message détecté comme toxique ! Score : " + response.optDouble("toxicity_score", 0.0));
+                }
+                return isToxic;
+            }
+        } catch (Exception e) {
+            System.err.println("[MlService] checkToxicity error: " + e.getMessage());
+        }
+
+        // En cas d'erreur du service ML, on ne bloque pas le message par défaut
+        return false;
+    }
+
+    /* ════════════════════════════════════════════════════════════════
        Heuristique rapide (fallback sans Flask)
     ════════════════════════════════════════════════════════════════ */
     private String heuristicClassify(String content) {

@@ -25,6 +25,11 @@ from datetime import datetime
 from flask import Flask, request, jsonify
 from flask import abort
 
+try:
+    from transformers import pipeline
+except ImportError:
+    pipeline = None
+
 # ── Configuration ─────────────────────────────────────────────────────
 MODEL_PATH  = "cardio_model.pkl"
 PORT        = 5000
@@ -71,6 +76,24 @@ def load_model():
     except Exception as e:
         log.error(f"❌ Erreur chargement modèle : {e}")
         return False
+
+toxicity_pipeline = None
+
+def load_toxicity_model():
+    """Charge le modèle de détection de toxicité Hugging Face."""
+    global toxicity_pipeline
+    if pipeline is None:
+        log.error("❌ Bibliothèque 'transformers' non trouvée. Veuillez faire: pip install transformers torch")
+        return False
+    try:
+        log.info("⏳ Chargement du modèle de toxicité (unitary/multilingual-toxic-xlm-roberta)...")
+        toxicity_pipeline = pipeline("text-classification", model="unitary/multilingual-toxic-xlm-roberta", top_k=None)
+        log.info("✅ Modèle de toxicité chargé avec succès.")
+        return True
+    except Exception as e:
+        log.error(f"❌ Erreur chargement modèle toxicité : {e}")
+        return False
+
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -268,6 +291,66 @@ def classes():
     })
 
 
+# ═══════════════════════════════════════════════════════════════════════
+# ENDPOINT 6 : /check_toxicity
+# Vérifie si un message contient des propos toxiques/mauvais mots
+# ═══════════════════════════════════════════════════════════════════════
+@app.route("/check_toxicity", methods=["POST"])
+def check_toxicity():
+    """
+    Corps JSON attendu :
+        { "content": "texte du message" }
+
+    Réponse JSON :
+        {
+          "is_toxic": true/false,
+          "toxicity_score": 0.85
+        }
+    """
+    if toxicity_pipeline is None:
+        return jsonify({"error": "Modèle de toxicité non chargé"}), 503
+
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"error": "Corps JSON requis"}), 400
+
+    content = data.get("content", "").strip()
+    if not content:
+        return jsonify({"error": "Le champ 'content' est vide"}), 400
+
+    try:
+        # Renvoie une liste de dict par label, on cherche 'toxic'
+        results = toxicity_pipeline(content)
+        
+        # Le paramètre top_k=None renvoie [[{'label': 'toxic', 'score': 0.9}, ...]]
+        # On extrait le score pour le label 'toxic'
+        toxic_score = 0.0
+        if isinstance(results, list) and len(results) > 0:
+            if isinstance(results[0], list):
+                labels = results[0]
+            else:
+                labels = results
+                
+            for r in labels:
+                if r.get('label') == 'toxic':
+                    toxic_score = r.get('score', 0.0)
+                    break
+        
+        # Seuil de toxicité (0.5 est un seuil standard)
+        is_toxic = bool(toxic_score > 0.5)
+        
+        log.info(f"🛡️ Toxicité pour '{content[:20]}...' → Toxic: {is_toxic} (Score: {toxic_score:.2f})")
+
+        return jsonify({
+            "is_toxic": is_toxic,
+            "toxicity_score": round(float(toxic_score), 4)
+        })
+
+    except Exception as e:
+        log.error(f"Erreur vérification toxicité : {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 # ── CORS — Autoriser les requêtes depuis JavaFX (localhost) ───────────
 @app.after_request
 def add_cors_headers(response):
@@ -288,15 +371,18 @@ if __name__ == "__main__":
     print("  CardioLink ML Service — Flask API")
     print("=" * 55)
 
-    if load_model():
+    model_loaded = load_model()
+    toxicity_loaded = load_toxicity_model()
+
+    if model_loaded or toxicity_loaded:
         print(f"\n🚀 Serveur démarré sur http://localhost:{PORT}")
         print("   Endpoints disponibles :")
         print("   POST /analyze_message  → classification d'un message")
         print("   POST /analyze_batch    → classification en lot")
         print("   POST /suggest_replies  → suggestions de réponses")
+        print("   POST /check_toxicity   → détection de mots inappropriés")
         print("   GET  /health           → état du service")
         print("   GET  /classes          → classes supportées\n")
         app.run(port=PORT, debug=DEBUG_MODE, host="0.0.0.0")
     else:
-        print("\n❌ Impossible de démarrer sans modèle.")
-        print("   Lancez d'abord : python train_model.py\n")
+        print("\n❌ Impossible de démarrer. Aucun modèle n'a pu être chargé.\n")
