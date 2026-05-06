@@ -28,7 +28,7 @@ public class PaiementService {
 
     private final CommandeService commandeService = new CommandeService();
     private final UserService     userService     = new UserService();
-    private final EmailService    emailService    = new EmailService();
+    private final EmailServiceKhadijaa emailService    = new EmailServiceKhadijaa();
 
     public void payerCommandeAvecStripe(
             Commande commande,

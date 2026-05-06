@@ -17,7 +17,7 @@ import java.util.Properties;
  * Service d'envoi d'email de confirmation de paiement via Gmail SMTP.
  * Fonctionne avec n'importe quel email destinataire.
  */
-public class EmailService {
+public class EmailServiceKhadijaa {
 
     private static final String GMAIL_USER     = "hammamikhadija57@gmail.com";
     private static final String GMAIL_APP_PASS = "ezlklyglgncfdleu"; // mot de passe app Google

@@ -56,6 +56,7 @@ module com.cardiolink {
     requires commons;
     // Apache PDFBox (from File 1)
     requires org.apache.pdfbox;
+    requires java.mail;
 
     // --- Package Exports ---
     exports com.cardiolink;
