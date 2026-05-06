@@ -12,7 +12,7 @@ public class Post {
     private LocalDateTime created_at;
     private int user_id;
     private int likes;
-    @JsonIgnore
+
     private String image;
     private String embedding;
     private String topicVector;

@@ -129,12 +129,12 @@ public class ForumController {
                 );
 
                 // ============================================================
-                // 🚀 CORRECTION CRUCIALE : NETTOYAGE POUR L'IA
+                // coorection
                 // On met l'attribut 'image' à null pour éviter l'Erreur 500
                 // car Python ne doit pas recevoir de chemins de fichiers locaux.
                 for (Post p : allPosts) {
-                    p.setImage(null);
-                    p.setCreated_at(null);
+                    //p.setImage(null);
+                    //p.setCreated_at(null);
                 }
                 // ============================================================
 
