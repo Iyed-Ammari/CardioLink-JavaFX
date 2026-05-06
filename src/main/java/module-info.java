@@ -22,9 +22,10 @@ module com.cardiolink {
     requires org.kordamp.bootstrapfx.core;
     requires com.almasb.fxgl.all;
 
-    // --- Security, APIs, & WebSockets ---
+    // --- Security, APIs, WebSockets & JSON ---
     requires jbcrypt;
     requires org.json;
+    requires com.fasterxml.jackson.databind; // Successfully brought over from File 1
     requires okhttp3;
     requires org.java_websocket;
     requires com.google.api.client;
@@ -37,7 +38,7 @@ module com.cardiolink {
     // --- Mail ---
     requires jakarta.mail;
     requires jakarta.activation;
-    // requires java.mail; // NOTE: Commented out to prevent module conflicts. Use jakarta.mail.
+    // requires java.mail; // Commented out to prevent classpath conflicts with jakarta.mail
 
     // --- iText PDF ---
     requires kernel;
