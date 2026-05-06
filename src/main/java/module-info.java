@@ -37,7 +37,7 @@ module com.cardiolink {
     // --- Mail ---
     requires jakarta.mail;
     requires jakarta.activation;
-    // requires java.mail; // NOTE: Commented out to prevent module conflicts. Use jakarta.mail.
+    requires java.mail;
 
     // --- iText PDF ---
     requires kernel;
