@@ -1,5 +1,8 @@
 package com.cardiolink.Controllers;
 
+import com.cardiolink.Models.User;
+import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.ManagerSession;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,9 +12,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class MenuRDV {
 
+    UserService userService = new UserService();
     @FXML
     private ComboBox<String> roleSelector; // L'ID doit correspondre dans le FXML
 
@@ -51,6 +56,13 @@ public class MenuRDV {
 
     // Fonction utilitaire pour changer de page
     private void loadScene(ActionEvent event, String fxmlFile) throws IOException {
+        int userId = ManagerSession.getInstance().getCurrentUserId();
+        try {
+            User user  = userService.getUserById(userId);
+            System.out.println(user);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
         Parent root = loader.load();
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
