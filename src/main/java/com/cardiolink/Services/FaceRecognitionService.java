@@ -9,69 +9,83 @@ import java.util.Base64;
 public class FaceRecognitionService {
 
     private static final String HF_TOKEN =
-            "hf_njJzAsEDpuviUPXwDZZrDOmmfjHlJmkbJuE";
+            "hf_VOTRE_TOKEN_HUGGINGFACE";
+
+    // ── URL correcte du modèle de comparaison de visages ─────
     private static final String HF_API_URL =
             "https://api-inference.huggingface.co/models/" +
-                    "deepinsight/insightface";
+                    "microsoft/resnet-50";
 
     private final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
             .readTimeout(60,    java.util.concurrent.TimeUnit.SECONDS)
             .build();
 
-    // ── Convertir fichier image en Base64 ────────────────────
+    // ── Convertir image en Base64 ────────────────────────────
     public String imageToBase64(String imagePath) throws Exception {
-        File file = new File(imagePath);
-        byte[] bytes = new FileInputStream(file).readAllBytes();
+        byte[] bytes = new FileInputStream(imagePath).readAllBytes();
         return Base64.getEncoder().encodeToString(bytes);
     }
 
-    // ── Comparer deux images et retourner score similarité ───
-    public double compareFaces(String base64Image1,
-                               String base64Image2) throws Exception {
-        JSONObject body = new JSONObject();
-        body.put("source_image", base64Image1);
-        body.put("target_image", base64Image2);
+    // ── Extraire les features d'une image ────────────────────
+    private float[] extractFeatures(String base64Image) throws Exception {
+        byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
         RequestBody requestBody = RequestBody.create(
-                body.toString(),
-                MediaType.parse("application/json"));
+                imageBytes,
+                MediaType.parse("image/jpeg"));
 
         Request request = new Request.Builder()
                 .url(HF_API_URL)
                 .addHeader("Authorization", "Bearer " + HF_TOKEN)
-                .addHeader("Content-Type", "application/json")
                 .post(requestBody)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful())
+            if (!response.isSuccessful()) {
+                String body = response.body() != null ?
+                        response.body().string() : "";
                 throw new Exception("HuggingFace error: "
-                        + response.code() + " " + response.message());
-
-            String responseBody = response.body().string();
-            JSONObject json = new JSONObject(responseBody);
-
-            if (json.has("similarity"))
-                return json.getDouble("similarity");
-            if (json.has("score"))
-                return json.getDouble("score");
-
-            // Parfois retourné en tableau
-            if (responseBody.startsWith("[")) {
-                JSONArray arr = new JSONArray(responseBody);
-                if (arr.length() > 0 && arr.getJSONObject(0).has("score"))
-                    return arr.getJSONObject(0).getDouble("score");
+                        + response.code() + " " + body);
             }
 
-            throw new Exception("Réponse inattendue : " + responseBody);
+            String responseBody = response.body().string();
+            JSONArray arr = new JSONArray(responseBody);
+
+            float[] features = new float[arr.length()];
+            for (int i = 0; i < arr.length(); i++) {
+                features[i] = (float) arr.getDouble(i);
+            }
+            return features;
         }
     }
 
-    // ── Vérifier si deux visages correspondent (seuil 0.6) ───
+    // ── Calculer similarité cosinus entre deux vecteurs ──────
+    private double cosineSimilarity(float[] v1, float[] v2) {
+        int len = Math.min(v1.length, v2.length);
+        double dot = 0, norm1 = 0, norm2 = 0;
+        for (int i = 0; i < len; i++) {
+            dot   += v1[i] * v2[i];
+            norm1 += v1[i] * v1[i];
+            norm2 += v2[i] * v2[i];
+        }
+        if (norm1 == 0 || norm2 == 0) return 0;
+        return dot / (Math.sqrt(norm1) * Math.sqrt(norm2));
+    }
+
+    // ── Comparer deux images ──────────────────────────────────
+    public double compareFaces(String base64Image1,
+                               String base64Image2) throws Exception {
+        float[] features1 = extractFeatures(base64Image1);
+        float[] features2 = extractFeatures(base64Image2);
+        return cosineSimilarity(features1, features2);
+    }
+
+    // ── Vérifier si même personne (seuil 0.85) ───────────────
     public boolean verifyFace(String base64Captured,
                               String base64Stored) throws Exception {
         double score = compareFaces(base64Captured, base64Stored);
-        return score >= 0.6;
+        System.out.println("Score similarité visage : " + score);
+        return score >= 0.85;
     }
 }
