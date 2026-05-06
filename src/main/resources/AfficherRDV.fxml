@@ -12,81 +12,64 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="950.0" style="-fx-background-color: #1a1c2e;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.AfficherRDV">
+<AnchorPane prefHeight="720.0" prefWidth="1000.0" stylesheets="@css/rdv_style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.AfficherRDV">
     <children>
-        <VBox spacing="20.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="20.0">
+        <VBox spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="main-container">
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="20.0">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#goToMenu" style="-fx-background-color: #25273c; -fx-background-radius: 50; -fx-cursor: hand;" text="🏠" textFill="WHITE">
-                            <font>
-                                <Font size="18.0" />
-                            </font>
-                        </Button>
+                        <Button mnemonicParsing="false" onAction="#goToMenu" styleClass="action-button" text="🏠" />
                         <VBox HBox.hgrow="ALWAYS">
                             <children>
-                                <Label text="Tableau de bord" textFill="#826cfd">
-                                    <font>
-                                        <Font name="System Bold" size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label text="Liste des Rendez-vous" textFill="WHITE">
-                                    <font>
-                                        <Font name="System Bold" size="28.0" />
-                                    </font>
-                                </Label>
+                                <Label styleClass="subtitle-text" text="Tableau de bord patient" />
+                                <Label styleClass="title-text" text="Mes Rendez-vous" />
                             </children>
                         </VBox>
-                        <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: linear-gradient(to right, #ff5f6d, #826cfd); -fx-background-radius: 10; -fx-cursor: hand;" text="+ Nouveau RDV" textFill="WHITE">
-                            <font>
-                                <Font name="System Bold" size="14.0" />
-                            </font>
-                        </Button>
+                        <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="50.0" prefWidth="200.0" styleClass="gradient-button" text="+ Nouveau RDV" />
                     </children>
                 </HBox>
 
-                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #25273c; -fx-padding: 15; -fx-background-radius: 12;">
+                <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="glass-pane" style="-fx-padding: 20;">
                     <children>
-                        <VBox spacing="5.0">
-                            <Label text="Recherche rapide" textFill="#b0b0b0" />
-                            <TextField fx:id="searchField" prefWidth="200.0" promptText="Mot-clé..." style="-fx-background-color: #1a1c2e; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 8; -fx-background-radius: 8;" />
+                        <VBox spacing="8.0">
+                            <Label styleClass="label-text" text="Recherche" />
+                            <TextField fx:id="searchField" prefWidth="220.0" promptText="Nom du médecin, motif..." />
                         </VBox>
 
-                        <VBox spacing="5.0">
-                            <Label text="Filtrer par Statut" textFill="#b0b0b0" />
-                            <ComboBox fx:id="filterStatut" prefWidth="150.0" style="-fx-background-color: #1a1c2e; -fx-border-color: #3d3f58; -fx-border-radius: 8;" />
+                        <VBox spacing="8.0">
+                            <Label styleClass="label-text" text="Statut" />
+                            <ComboBox fx:id="filterStatut" prefWidth="160.0" promptText="Tous les statuts" />
                         </VBox>
 
-                        <VBox spacing="5.0">
-                            <Label text="Filtrer par Type" textFill="#b0b0b0" />
-                            <ComboBox fx:id="filterType" prefWidth="180.0" style="-fx-background-color: #1a1c2e; -fx-border-color: #3d3f58; -fx-border-radius: 8;" />
+                        <VBox spacing="8.0">
+                            <Label styleClass="label-text" text="Type" />
+                            <ComboBox fx:id="filterType" prefWidth="180.0" promptText="Types de RDV" />
                         </VBox>
 
-                        <VBox alignment="BOTTOM_CENTER" spacing="5.0">
-                            <Button mnemonicParsing="false" onAction="#handleSortDate" prefHeight="35.0" style="-fx-background-color: #3d3f58; -fx-cursor: hand;" text="📅 Trier par Date" textFill="WHITE" />
-                        </VBox>
-
-                        <VBox alignment="BOTTOM_CENTER" spacing="5.0">
-                            <Button mnemonicParsing="false" onAction="#resetFilters" prefHeight="35.0" style="-fx-background-color: #e74c3c; -fx-cursor: hand;" text="Réinitialiser" textFill="WHITE" />
-                        </VBox>
+                        <HBox alignment="BOTTOM_CENTER" spacing="12.0">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#handleSortDate" styleClass="action-button" text="📅 Trier" />
+                                <Button mnemonicParsing="false" onAction="#resetFilters" styleClass="reset-btn" text="Réinitialiser" />
+                            </children>
+                        </HBox>
                     </children>
                 </HBox>
 
-                <TableView fx:id="tableRDV" prefHeight="350.0" prefWidth="840.0" style="-fx-background-color: transparent; -fx-border-color: #3d3f58; -fx-control-inner-background: #1a1c2e;">
+                <TableView fx:id="tableRDV" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colDate" prefWidth="150.0" text="Date &amp; Heure" />
-                        <TableColumn fx:id="colMedecin" prefWidth="130.0" text="Médecin" />
+                        <TableColumn fx:id="colDate" prefWidth="160.0" text="Date &amp; Heure" />
+                        <TableColumn fx:id="colMedecin" prefWidth="150.0" text="Médecin" />
                         <TableColumn fx:id="colType" prefWidth="160.0" text="Type" />
                         <TableColumn fx:id="colStatut" prefWidth="120.0" text="Statut" />
-                        <TableColumn fx:id="colMotif" prefWidth="240.0" text="Motif / Remarques" />
-                        <TableColumn fx:id="colVisio" prefWidth="120.0" text="Visio" />
+                        <TableColumn fx:id="colMotif" prefWidth="270.0" text="Motif / Remarques" />
+                        <TableColumn fx:id="colVisio" prefWidth="110.0" text="Lien Visio" />
                     </columns>
                 </TableView>
 
                 <HBox alignment="CENTER_RIGHT" spacing="15.0">
                     <children>
-                        <Button onAction="#handleUpdate" prefHeight="45.0" prefWidth="150.0" style="-fx-background-color: #25273c; -fx-text-fill: white; -fx-border-color: #826cfd; -fx-border-radius: 8; -fx-cursor: hand;" text="Modifier" />
-                        <Button onAction="#handleDelete" prefHeight="45.0" prefWidth="150.0" style="-fx-background-color: #25273c; -fx-text-fill: #e74c3c; -fx-border-color: #e74c3c; -fx-border-radius: 8; -fx-cursor: hand;" text="Supprimer" />
+                        <Button onAction="#handleUpdate" prefHeight="45.0" prefWidth="160.0" styleClass="action-button" text="Modifier" />
+                        <Button onAction="#handleDelete" prefHeight="45.0" prefWidth="160.0" styleClass="action-button delete-button" text="Supprimer" />
                     </children>
                 </HBox>
             </children>

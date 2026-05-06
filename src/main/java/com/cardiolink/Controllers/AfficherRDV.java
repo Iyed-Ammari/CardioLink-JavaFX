@@ -54,7 +54,7 @@ public class AfficherRDV {
         colVisio.setCellFactory(tc -> new TableCell<Rendezvous, Void>() {
             private final Button btn = new Button("Rejoindre");
             {
-                btn.setStyle("-fx-background-color: #007bff; -fx-text-fill: white; -fx-cursor: hand;");
+                btn.getStyleClass().addAll("button-in-table", "info-button");
                 btn.setOnAction(e -> {
                     Rendezvous rv = getTableView().getItems().get(getIndex());
                     if (rv.getLienVisio() != null && !rv.getLienVisio().isEmpty()) {

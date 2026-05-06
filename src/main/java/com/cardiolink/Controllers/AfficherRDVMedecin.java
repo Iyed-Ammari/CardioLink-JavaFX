@@ -128,10 +128,10 @@ public class AfficherRDVMedecin {
                     Ordonnance ord = serviceOrd.getByConsultationId(rv.getId());
                     if (ord != null) {
                         btn.setText("Consulter");
-                        btn.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-cursor: hand;");
+                        btn.getStyleClass().setAll("button", "button-in-table", "success-button");
                     } else {
                         btn.setText("Créer ordonnance");
-                        btn.setStyle("-fx-background-color: #826cfd; -fx-text-fill: white; -fx-cursor: hand;");
+                        btn.getStyleClass().setAll("button", "button-in-table", "primary-button");
                     }
                     setGraphic(btn);
                 }
@@ -144,9 +144,9 @@ public class AfficherRDVMedecin {
             private final HBox pane = new HBox(10, btnModif, btnSuppr);
 
             {
-                btnModif.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;");
-                btnSuppr.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
-
+                btnModif.getStyleClass().addAll("button-in-table", "edit-button");
+                btnSuppr.getStyleClass().addAll("button-in-table", "delete-button");
+                
                 btnModif.setOnAction(e -> modifierRendezvous(getTableView().getItems().get(getIndex()), e));
                 btnSuppr.setOnAction(e -> supprimerRendezvous(getTableView().getItems().get(getIndex())));
             }
@@ -165,7 +165,7 @@ public class AfficherRDVMedecin {
         colLienVisio.setCellFactory(tc -> new TableCell<Rendezvous, Void>() {
             private final Button btnVisio = new Button("Rejoindre Visio");
             {
-                btnVisio.setStyle("-fx-background-color: #007bff; -fx-text-fill: white; -fx-cursor: hand;");
+                btnVisio.getStyleClass().addAll("button-in-table", "info-button");
                 btnVisio.setOnAction(e -> {
                     Rendezvous rv = getTableView().getItems().get(getIndex());
                     if (rv.getLienVisio() != null && !rv.getLienVisio().isEmpty()) {

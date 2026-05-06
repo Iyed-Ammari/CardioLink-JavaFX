@@ -11,67 +11,50 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="1050.0" style="-fx-background-color: #1a1c2e;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.AfficherRDVMedecin">
+<AnchorPane prefHeight="720.0" prefWidth="1100.0" stylesheets="@css/rdv_style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.AfficherRDVMedecin">
     <children>
-        <VBox spacing="20.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="20.0">
+        <VBox spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="main-container">
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="20.0">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#goToMenu" style="-fx-background-color: #25273c; -fx-background-radius: 50; -fx-cursor: hand;" text="🏠" textFill="WHITE">
-                            <font>
-                                <Font size="18.0" />
-                            </font>
-                        </Button>
+                        <Button mnemonicParsing="false" onAction="#goToMenu" styleClass="action-button" text="🏠" />
                         <VBox HBox.hgrow="ALWAYS">
                             <children>
-                                <Label text="Espace Médecin" textFill="#826cfd">
-                                    <font>
-                                        <Font name="System Bold" size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label text="Mes Rendez-vous" textFill="WHITE">
-                                    <font>
-                                        <Font name="System Bold" size="28.0" />
-                                    </font>
-                                </Label>
+                                <Label styleClass="subtitle-text" text="Espace Praticien" />
+                                <Label styleClass="title-text" text="Mes Consultations" />
                             </children>
                         </VBox>
-                        <Button mnemonicParsing="false" onAction="#syncWithGoogleCalendar" prefHeight="40.0" prefWidth="220.0" style="-fx-background-color: #34a853; -fx-background-radius: 10; -fx-cursor: hand;" text="📅 Sync Google Calendar" textFill="WHITE">
-                            <font>
-                                <Font name="System Bold" size="14.0" />
-                            </font>
-                        </Button>
-                        <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: linear-gradient(to right, #ff5f6d, #826cfd); -fx-background-radius: 10; -fx-cursor: hand;" text="+ Nouveau RDV" textFill="WHITE">
-                            <font>
-                                <Font name="System Bold" size="14.0" />
-                            </font>
-                        </Button>
+                        <HBox spacing="10.0">
+                           <children>
+                               <Button mnemonicParsing="false" onAction="#syncWithGoogleCalendar" prefHeight="50.0" styleClass="google-btn" text="📅 Google Calendar" />
+                               <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="50.0" prefWidth="180.0" styleClass="gradient-button" text="+ Nouveau RDV" />
+                           </children>
+                        </HBox>
                     </children>
                 </HBox>
 
-                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #25273c; -fx-padding: 15; -fx-background-radius: 12;">
+                <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="glass-pane" style="-fx-padding: 20;">
                     <children>
-                        <VBox spacing="5.0">
-                            <Label text="Recherche rapide" textFill="#b0b0b0" />
-                            <TextField fx:id="searchField" prefWidth="200.0" promptText="Nom patient, Type..." style="-fx-background-color: #1a1c2e; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 8; -fx-background-radius: 8;" />
+                        <VBox spacing="8.0">
+                            <Label styleClass="label-text" text="Recherche rapide" />
+                            <TextField fx:id="searchField" prefWidth="250.0" promptText="Patient, type, motif..." />
                         </VBox>
 
-                        <VBox spacing="5.0">
-                            <Label text="Filtrer par Statut" textFill="#b0b0b0" />
-                            <ComboBox fx:id="filterStatut" prefWidth="150.0" style="-fx-background-color: #1a1c2e; -fx-border-color: #3d3f58; -fx-border-radius: 8;" />
+                        <VBox spacing="8.0">
+                            <Label styleClass="label-text" text="Filtrer par Statut" />
+                            <ComboBox fx:id="filterStatut" prefWidth="180.0" promptText="Tous les statuts" />
                         </VBox>
 
-                        <VBox alignment="BOTTOM_CENTER" spacing="5.0">
-                            <Button mnemonicParsing="false" onAction="#handleSortDate" prefHeight="35.0" style="-fx-background-color: #3d3f58; -fx-cursor: hand;" text="📅 Trier par Date" textFill="WHITE" />
-                        </VBox>
-
-                        <VBox alignment="BOTTOM_CENTER" spacing="5.0">
-                            <Button mnemonicParsing="false" onAction="#resetFilters" prefHeight="35.0" style="-fx-background-color: #e74c3c; -fx-cursor: hand;" text="Réinitialiser" textFill="WHITE" />
-                        </VBox>
+                        <HBox alignment="BOTTOM_CENTER" spacing="12.0">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#handleSortDate" styleClass="action-button" text="📅 Trier" />
+                                <Button mnemonicParsing="false" onAction="#resetFilters" styleClass="reset-btn" text="Réinitialiser" />
+                            </children>
+                        </HBox>
                     </children>
                 </HBox>
 
-                <TableView fx:id="tableRDV" prefHeight="400.0" prefWidth="990.0" style="-fx-background-color: transparent; -fx-border-color: #3d3f58; -fx-control-inner-background: #1a1c2e;">
+                <TableView fx:id="tableRDV" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="colDate" prefWidth="150.0" text="Date &amp; Heure" />
                         <TableColumn fx:id="colPatient" prefWidth="180.0" text="Patient" />
@@ -79,7 +62,7 @@
                         <TableColumn fx:id="colStatut" prefWidth="140.0" text="Statut" />
                         <TableColumn fx:id="colOrdonnance" prefWidth="180.0" text="Ordonnance" />
                         <TableColumn fx:id="colActions" prefWidth="180.0" text="Actions" />
-                        <TableColumn fx:id="colLienVisio" prefWidth="180.0" text="Lien de Téléconsultation" />
+                        <TableColumn fx:id="colLienVisio" prefWidth="180.0" text="Téléconsultation" />
                     </columns>
                 </TableView>
             </children>
