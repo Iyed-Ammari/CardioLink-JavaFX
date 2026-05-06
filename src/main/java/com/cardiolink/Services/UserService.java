@@ -13,20 +13,29 @@ public class UserService implements Iservice<User> {
     @Override
     public void add(User user) throws SQLDataException {
         try {
-            String sql = "INSERT INTO user (email, password, nom, prenom, roles, adresse, tel, " +
-                    "is_active, is_verified, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, NOW())";
+            String sql = "INSERT INTO user (email, password, nom, prenom, " +
+                    "roles, adresse, tel, is_active, is_verified, " +
+                    "created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, NOW())";
             Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql);
-            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12));
+
+            // ✅ Toujours hasher avec $2a$ (compatible jBCrypt)
+            String salt   = BCrypt.gensalt(10); // 10 au lieu de 12 = plus rapide
+            String hashed = BCrypt.hashpw(user.getPassword(), salt);
+
             stmt.setString(1, user.getEmail());
-            stmt.setString(2, hashedPassword);
+            stmt.setString(2, hashed);
             stmt.setString(3, user.getNom());
             stmt.setString(4, user.getPrenom());
             stmt.setString(5, "[\"" + user.getRoles() + "\"]");
-            stmt.setString(6, user.getAdresse() != null ? user.getAdresse() : "");
-            stmt.setString(7, user.getTel()     != null ? user.getTel()     : "");
+            stmt.setString(6, user.getAdresse() != null ?
+                    user.getAdresse() : "");
+            stmt.setString(7, user.getTel() != null ?
+                    user.getTel() : "");
             stmt.executeUpdate();
-        } catch (SQLException e) { throw new SQLDataException(e.getMessage()); }
+        } catch (SQLException e) {
+            throw new SQLDataException(e.getMessage());
+        }
     }
 
     @Override
@@ -91,8 +100,6 @@ public class UserService implements Iservice<User> {
             return null;
         } catch (SQLException e) { throw new SQLDataException(e.getMessage()); }
     }
-
-    // ── Login avec vérifications ─────────────────────────────
     public User login(String email, String password) throws SQLException {
         String sql = "SELECT * FROM user WHERE email = ?";
         Connection conn = DatabaseConnection.getConnection();
@@ -102,22 +109,29 @@ public class UserService implements Iservice<User> {
 
         if (rs.next()) {
             String storedPassword = rs.getString("password");
-            boolean passwordOk;
+            boolean passwordOk = false;
 
-            if (storedPassword.startsWith("$2y$") ||
-                    storedPassword.startsWith("$2a$")) {
-                String javaHash = storedPassword.replace("$2y$", "$2a$");
-                passwordOk = BCrypt.checkpw(password, javaHash);
+            // ✅ Gérer tous les préfixes BCrypt : $2a$, $2b$, $2y$
+            if (storedPassword != null && storedPassword.startsWith("$2")) {
+                // ✅ Normaliser vers $2a$ pour jBCrypt
+                String normalizedHash = storedPassword
+                        .replaceFirst("^\\$2[by]\\$", "\\$2a\\$");
+                try {
+                    passwordOk = BCrypt.checkpw(password, normalizedHash);
+                } catch (Exception e) {
+                    // ✅ Si BCrypt échoue, essayer comparaison directe
+                    passwordOk = storedPassword.equals(password);
+                }
             } else {
-                passwordOk = storedPassword.equals(password);
+                // Mot de passe en clair (ancien)
+                passwordOk = storedPassword != null &&
+                        storedPassword.equals(password);
             }
 
             if (passwordOk) {
-                // ✅ Vérifier is_verified
                 if (!rs.getBoolean("is_verified")) {
                     throw new SQLException("EMAIL_NOT_VERIFIED");
                 }
-                // ✅ Vérifier is_active
                 if (!rs.getBoolean("is_active")) {
                     throw new SQLException("ACCOUNT_BLOCKED");
                 }
@@ -199,13 +213,19 @@ public class UserService implements Iservice<User> {
         ps.executeUpdate();
     }
 
-    // ✅ Mettre à jour le mot de passe avec BCrypt
-    public void updatePassword(int userId, String newPassword) throws SQLException {
+    // ✅ APRÈS — version corrigée
+    public void updatePassword(int userId, String newPassword)
+            throws SQLException {
+        String toStore;
+        if (newPassword.startsWith("$2")) {
+            toStore = newPassword; // déjà hashé
+        } else {
+            toStore = BCrypt.hashpw(newPassword, BCrypt.gensalt(10));
+        }
         String sql = "UPDATE user SET password = ? WHERE id = ?";
         Connection conn = DatabaseConnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
-        String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
-        ps.setString(1, hashed);
+        ps.setString(1, toStore);
         ps.setInt(2, userId);
         ps.executeUpdate();
     }
@@ -240,5 +260,25 @@ public class UserService implements Iservice<User> {
         user.setInterestVector(rs.getString("interest_vector"));
 
         return user;
+    }
+    // ── Sauvegarder l'image de visage ────────────────────────────
+    public void saveFaceImage(int userId, String base64Image) throws SQLException {
+        String sql = "UPDATE user SET face_image = ? WHERE id = ?";
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, base64Image);
+        ps.setInt(2, userId);
+        ps.executeUpdate();
+    }
+
+    // ── Récupérer l'image de visage ──────────────────────────────
+    public String getFaceImage(String email) throws SQLException {
+        String sql = "SELECT face_image FROM user WHERE email = ?";
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, email);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getString("face_image");
+        return null;
     }
 }
