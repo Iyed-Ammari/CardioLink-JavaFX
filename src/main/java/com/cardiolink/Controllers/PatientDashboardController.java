@@ -1,6 +1,7 @@
 package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.User;
+import com.cardiolink.Services.UserService;
 import com.cardiolink.utils.ManagerSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class PatientDashboardController implements UserAwareController {
 
@@ -17,6 +19,8 @@ public class PatientDashboardController implements UserAwareController {
     @FXML private Label  welcomeLabel;
     @FXML private Button btnSuivis;
     @FXML private Button btnDossier;
+
+    private UserService userService = new UserService();
 
     // ✅ Récupère l'user depuis ManagerSession
     public void init() {
@@ -95,14 +99,36 @@ public class PatientDashboardController implements UserAwareController {
 
     @FXML private void goRDV() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/MenuRDV.fxml"));
-            Scene scene = new Scene(loader.load(), 1100, 650);
-            Stage stage = (Stage) avatarLabel.getScene().getWindow();
-            stage.setTitle("CardioLink - RDV");
-            stage.setScene(scene);
-            stage.show();
+            int userId = ManagerSession.getInstance().getCurrentUserId();
+            User user  = null;
+            try {
+                user = userService.getUserById(userId);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            if (user.getRoleClean().equals("ROLE_PATIENT")){
+
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherRDV.fxml"));
+                Scene scene = new Scene(loader.load(), 1100, 650);
+
+                Stage stage = (Stage) avatarLabel.getScene().getWindow();
+                stage.setTitle("CardioLink - RDV");
+                stage.setScene(scene);
+                stage.show();
+            }else{
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/AfficherRDVMedecin.fxml"));
+                Scene scene = new Scene(loader.load(), 1100, 650);
+
+                Stage stage = (Stage) avatarLabel.getScene().getWindow();
+                stage.setTitle("CardioLink - Mes Rendez-vous");
+                stage.setScene(scene);
+                stage.show();
+            }
+
         } catch (IOException e) { e.printStackTrace(); }
     }
+
+
 
     @FXML private void goProfil() {
         try {

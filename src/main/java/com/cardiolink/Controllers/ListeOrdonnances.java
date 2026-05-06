@@ -53,7 +53,7 @@ public class ListeOrdonnances {
     @FXML
     void goToMenu(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/MenuRDV.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/dashboard_patient.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
         } catch (IOException e) {
@@ -64,7 +64,7 @@ public class ListeOrdonnances {
     @FXML
     void goToAdd(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/AjouterOrdonnance.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/OrdonnanceCRUD.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
         } catch (IOException e) {
@@ -77,7 +77,7 @@ public class ListeOrdonnances {
         Ordonnance selected = tableOrdonnances.getSelectionModel().getSelectedItem();
         if (selected != null) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterOrdonnance.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/OrdonnanceCRUD.fxml"));
                 Parent root = loader.load();
 
                 AjouterOrdonnance controller = loader.getController();

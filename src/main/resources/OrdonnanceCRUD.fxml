@@ -64,18 +64,22 @@
                             </children>
                         </GridPane>
 
-                        <HBox spacing="20.0" alignment="CENTER_RIGHT">
+                        <HBox spacing="10.0" alignment="CENTER_RIGHT">
                             <children>
-                                <Button onAction="#goToAfficher" prefHeight="50.0" prefWidth="120.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10; -fx-cursor: hand;" text="Annuler" />
+                                <Button onAction="#goToAfficher" prefHeight="50.0" prefWidth="100.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10; -fx-cursor: hand;" text="Annuler" />
 
-                                <Button onAction="#clearFields" prefHeight="50.0" prefWidth="150.0" style="-fx-background-color: transparent; -fx-text-fill: #b0b0b0; -fx-border-color: #3d3f58; -fx-border-radius: 10; -fx-cursor: hand;" text="Réinitialiser" />
+                                <Button onAction="#clearFields" prefHeight="50.0" prefWidth="100.0" style="-fx-background-color: transparent; -fx-text-fill: #b0b0b0; -fx-border-color: #3d3f58; -fx-border-radius: 10; -fx-cursor: hand;" text="Réinitialiser" />
+
+                                <Button fx:id="btnDelete" visible="false" onAction="#handleDelete" prefHeight="50.0" prefWidth="100.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-border-radius: 10; -fx-cursor: hand;" text="Supprimer" />
+
+                                <Button fx:id="btnPdf" visible="false" onAction="#handleGeneratePdf" prefHeight="50.0" prefWidth="150.0" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-border-radius: 10; -fx-cursor: hand;" text="📄 Générer PDF" />
 
                                 <Button fx:id="btnSave" onAction="#handleSave" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: linear-gradient(to right, #ff5f6d, #826cfd); -fx-background-radius: 10; -fx-cursor: hand;" text="Générer &amp; Enregistrer" textFill="WHITE">
                                     <font><Font name="System Bold" size="16.0" /></font>
                                 </Button>
                                 <Button onAction="#goToMenu"
                                         style="-fx-background-color: #25273c; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand;"
-                                        text="⬅ Retour au Menu">
+                                        text="⬅ Retour">
                                     <font>
                                         <Font name="System Bold" size="13.0" />
                                     </font>

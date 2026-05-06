@@ -22,13 +22,20 @@ module com.cardiolink {
     requires org.kordamp.bootstrapfx.core;
     requires com.almasb.fxgl.all;
 
-    // --- Security, APIs, WebSockets & JSON ---
+    // --- Security, WebSockets, JSON & HTTP ---
     requires jbcrypt;
     requires org.json;
-    requires com.fasterxml.jackson.databind; // Successfully brought over from File 1
+    requires com.fasterxml.jackson.databind;
     requires okhttp3;
     requires org.java_websocket;
+
+    // --- Google Calendar & Auth APIs ---
     requires com.google.api.client;
+    requires com.google.api.client.auth;
+    requires com.google.api.client.extensions.java6.auth;
+    requires com.google.api.client.extensions.jetty.auth;
+    requires com.google.api.client.json.gson;
+    requires com.google.api.services.calendar;
 
     // --- Media & Processing ---
     requires cloudinary.http44;
@@ -38,16 +45,14 @@ module com.cardiolink {
     // --- Mail ---
     requires jakarta.mail;
     requires jakarta.activation;
-    requires java.mail;
 
-    // --- iText PDF ---
+    // --- iText PDF (Modular) ---
     requires kernel;
     requires layout;
     requires io;
     requires commons;
 
     // --- Package Exports ---
-    // Allows other modules to use your classes (e.g., during compilation)
     exports com.cardiolink;
     exports com.cardiolink.Models;
     exports com.cardiolink.Services;

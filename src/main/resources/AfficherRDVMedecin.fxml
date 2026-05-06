@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1100.0" stylesheets="@css/rdv_style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.AfficherRDVMedecin">
+    <children>
+        <VBox spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="main-container">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#goToMenu" styleClass="action-button" text="🏠" />
+                        <VBox HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="subtitle-text" text="Espace Praticien" />
+                                <Label styleClass="title-text" text="Mes Consultations" />
+                            </children>
+                        </VBox>
+                        <HBox spacing="10.0">
+                           <children>
+                               <Button mnemonicParsing="false" onAction="#showPrediction" prefHeight="50.0" styleClass="info-button" text="📈 Voir Prédiction" />
+                               <Button mnemonicParsing="false" onAction="#syncWithGoogleCalendar" prefHeight="50.0" styleClass="google-btn" text="📅 Google Calendar" />
+                               <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="50.0" prefWidth="180.0" styleClass="gradient-button" text="+ Nouveau RDV" />
+                           </children>
+                        </HBox>
+                    </children>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="glass-pane" style="-fx-padding: 20;">
+                    <children>
+                        <VBox spacing="8.0">
+                            <Label styleClass="label-text" text="Recherche rapide" />
+                            <TextField fx:id="searchField" prefWidth="250.0" promptText="Patient, type, motif..." />
+                        </VBox>
+
+                        <VBox spacing="8.0">
+                            <Label styleClass="label-text" text="Filtrer par Statut" />
+                            <ComboBox fx:id="filterStatut" prefWidth="180.0" promptText="Tous les statuts" />
+                        </VBox>
+
+                        <HBox alignment="BOTTOM_CENTER" spacing="12.0">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#handleSortDate" styleClass="action-button" text="📅 Trier" />
+                                <Button mnemonicParsing="false" onAction="#resetFilters" styleClass="reset-btn" text="Réinitialiser" />
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tableRDV" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colDate" prefWidth="150.0" text="Date &amp; Heure" />
+                        <TableColumn fx:id="colPatient" prefWidth="180.0" text="Patient" />
+                        <TableColumn fx:id="colType" prefWidth="150.0" text="Type" />
+                        <TableColumn fx:id="colStatut" prefWidth="140.0" text="Statut" />
+                        <TableColumn fx:id="colOrdonnance" prefWidth="180.0" text="Ordonnance" />
+                        <TableColumn fx:id="colActions" prefWidth="180.0" text="Actions" />
+                        <TableColumn fx:id="colLienVisio" prefWidth="180.0" text="Téléconsultation" />
+                    </columns>
+                </TableView>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
