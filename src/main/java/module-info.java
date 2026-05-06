@@ -9,31 +9,50 @@ module com.cardiolink {
     requires javafx.graphics;
     requires javafx.base;
 
-    // --- Database & External Libraries ---
+    // --- Core Java Modules ---
     requires java.sql;
-    requires java.mail;
     requires java.net.http;
-    requires itextpdf;
+    requires jdk.httpserver;
+
+    // --- UI & External JavaFX Libraries ---
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires com.almasb.fxgl.all;
+
+    // --- Security, WebSockets, JSON & HTTP ---
     requires jbcrypt;
-    requires org.java_websocket;
     requires org.json;
+    requires com.fasterxml.jackson.databind;
+    requires okhttp3;
+    requires org.java_websocket;
+
+    // --- Google Calendar & Auth APIs ---
+    requires com.google.api.client;
     requires com.google.api.client.auth;
     requires com.google.api.client.extensions.java6.auth;
     requires com.google.api.client.extensions.jetty.auth;
-    requires google.api.client;
-    requires com.google.api.client;
     requires com.google.api.client.json.gson;
     requires com.google.api.services.calendar;
-    requires jdk.httpserver;
+
+    // --- Media & Processing ---
+    requires cloudinary.http44;
+    requires cloudinary.core;
+    requires opencv;
+
+    // --- Mail ---
+    requires jakarta.mail;
+    requires jakarta.activation;
+
+    // --- iText PDF (Modular) ---
+    requires kernel;
+    requires layout;
+    requires io;
+    requires commons;
 
     // --- Package Exports ---
-    // These allow other modules to use your classes (e.g., during compilation)
     exports com.cardiolink;
     exports com.cardiolink.Models;
     exports com.cardiolink.Services;
@@ -47,9 +66,9 @@ module com.cardiolink {
     opens com.cardiolink.Controllers to javafx.fxml;
     opens com.cardiolink.Services to javafx.fxml;
     opens com.cardiolink.utils to javafx.fxml;
+    opens com.cardiolink.WebSocket to javafx.fxml;
 
     // Models need 'javafx.base' for TableView/TableColumn property mapping
-    // Also opens to fxml in case you use models inside FXML files (like ChoiceBox)
     opens com.cardiolink.Models to javafx.base, javafx.fxml;
 
     // Opening Test to graphics allows the Application class to launch properly
