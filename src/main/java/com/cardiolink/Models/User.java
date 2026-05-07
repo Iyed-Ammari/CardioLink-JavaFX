@@ -13,6 +13,7 @@ public class User {
     private boolean isActive;
     private boolean isVerified;
     private String  imageUrl;
+    private String interestVector;
 
     public User() {}
 
@@ -31,6 +32,7 @@ public class User {
         this.isActive   = isActive;
         this.isVerified = isVerified;
         this.imageUrl   = imageUrl;
+        this.interestVector = interestVector;
     }
 
     public int     getId()                    { return id; }
@@ -57,11 +59,25 @@ public class User {
     public void    setVerified(boolean v)     { this.isVerified = v; }
     public String  getImageUrl()              { return imageUrl; }
     public void    setImageUrl(String i)      { this.imageUrl = i; }
+    public String getInterestVector() { return interestVector; }
+    public void setInterestVector(String interestVector) { this.interestVector = interestVector; }
 
     // Retourne le rôle propre sans les crochets JSON Symfony
     // ["ROLE_PATIENT"] → ROLE_PATIENT
     public String getRoleClean() {
         if (roles == null) return "";
         return roles.replace("[\"", "").replace("\"]", "").trim();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", nom='" + nom + '\'' +
+                ", prenom='" + prenom + '\'' +
+                ", interestVector='" + interestVector + '\'' +
+                ", roles='" + roles + '\'' +
+                '}';
     }
 }

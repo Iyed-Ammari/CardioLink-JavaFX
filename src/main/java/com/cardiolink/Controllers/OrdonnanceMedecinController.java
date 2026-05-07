@@ -80,7 +80,7 @@ public class OrdonnanceMedecinController {
 
     private void modifierOrdonnance(Ordonnance o) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterOrdonnance.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/OrdonnanceCRUD.fxml"));
             Parent root = loader.load();
 
             // Passer l'objet au contrôleur d'ajout
@@ -108,7 +108,7 @@ public class OrdonnanceMedecinController {
 
     private void ouvrirFormulaireAjout() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/AjouterOrdonnance.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/OrdonnanceCRUD.fxml"));
             Stage stage = (Stage) tableOrdonnances.getScene().getWindow();
             stage.setScene(new Scene(root));
         } catch (IOException e) {

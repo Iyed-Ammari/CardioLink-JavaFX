@@ -35,8 +35,8 @@ public class MenuRDV {
         String selectedRole = roleSelector.getValue();
 
         if ("Médecin".equals(selectedRole)) {
-            // Redirection vers l'interface de gestion des ordonnances du médecin
-            loadScene(event, "/OrdonnanceMedecin.fxml");
+            // Redirection vers l'interface des rendez-vous du médecin
+            loadScene(event, "/AfficherRDVMedecin.fxml");
         } else {
             // Redirection vers l'interface classique pour le patient
             loadScene(event, "/AfficherRDV.fxml");
@@ -71,7 +71,7 @@ public class MenuRDV {
     }
     @FXML
     void goToOrdonnances(ActionEvent event) throws IOException {
-        // Si c'est pour le médecin, on charge l'interface OrdonnanceMedecin
-        loadScene(event, "/OrdonnanceMedecin.fxml");
+        // Si c'est pour le médecin, on charge l'interface OrdonnanceMedecin (ou AfficherRDVMedecin)
+        loadScene(event, "/AfficherRDVMedecin.fxml");
     }
 }

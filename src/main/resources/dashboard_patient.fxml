@@ -27,12 +27,17 @@
             <!-- Boutons patient uniquement -->
             <Button fx:id="btnSuivis" text="📊 Mes Suivis" onAction="#goSuivis"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
-            <Button fx:id="btnMarketplace" text="🛒 Marketplace" onAction="#goMarketplace"
+            <Button fx:id="btnRDV" text="📄 Mes RDV" onAction="#goRDV"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
+
             <Button fx:id="btnDossier" text="🗂 Mon Dossier Médical" onAction="#goDossier"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
             <!-- Commun -->
             <Button text="👤 Mon Profil" onAction="#goProfil"
+                    style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
+            <Button text="🗨️ Chat" onAction="#goChat"
+                    style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
+            <Button text="🛒 Marketplace" onAction="#goMarketplace"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #333;"/>
             <Button text="🚪 Logout" onAction="#handleLogout"
                     style="-fx-background-color: transparent; -fx-font-size: 13px; -fx-cursor: hand; -fx-text-fill: #888;"/>
