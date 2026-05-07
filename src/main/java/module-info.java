@@ -13,6 +13,7 @@ module com.cardiolink {
     requires java.sql;
     requires java.net.http;
     requires jdk.httpserver;
+    requires java.desktop; // Added from File 1
 
     // --- UI & External JavaFX Libraries ---
     requires org.controlsfx.controls;
@@ -22,12 +23,16 @@ module com.cardiolink {
     requires org.kordamp.bootstrapfx.core;
     requires com.almasb.fxgl.all;
 
-    // --- Security, WebSockets, JSON & HTTP ---
+    // --- Security, WebSockets, JSON, Logging & HTTP ---
     requires jbcrypt;
     requires org.json;
     requires com.fasterxml.jackson.databind;
     requires okhttp3;
     requires org.java_websocket;
+    requires org.slf4j; // Added from File 1
+
+    // --- Payment APIs ---
+    requires stripe.java; // Added from File 1
 
     // --- Google Calendar & Auth APIs ---
     // These JARs are not proper JPMS modules (unnamed module / classpath).
@@ -41,12 +46,17 @@ module com.cardiolink {
     // --- Mail ---
     requires jakarta.mail;
     requires jakarta.activation;
+    // requires java.mail; // REMOVED to prevent conflict. Tell the team to use jakarta.mail!
 
-    // --- iText PDF (Modular) ---
+    // --- Documents (PDF) ---
+    // iText 7 (from File 2)
     requires kernel;
     requires layout;
     requires io;
     requires commons;
+    // Apache PDFBox (from File 1)
+    requires org.apache.pdfbox;
+    requires java.mail;
 
     // --- Package Exports ---
     exports com.cardiolink;

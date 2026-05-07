@@ -182,7 +182,7 @@ public class CommandeService implements Iservice<Commande> {
         return getAll();
     }
 
-    // ─── Méthodes métier ─────────────────────────────────────────────────────
+    // ─── Méthodes métier
     public Commande getOrCreatePanier(int userId) {
         Commande panier = findPanierByUser(userId);
         if (panier != null) {
@@ -219,7 +219,7 @@ public class CommandeService implements Iservice<Commande> {
 
     public List<Commande> findByUser(int userId) {
         List<Commande> commandes = new ArrayList<>();
-        String sql = "SELECT id, date_commande, statut, montant_total, user_id FROM commande WHERE user_id=? ORDER BY id DESC";
+        String sql = "SELECT id, date_commande, statut, montant_total, user_id FROM commande WHERE user_id=? ORDER BY date_commande DESC, id DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -420,10 +420,11 @@ public class CommandeService implements Iservice<Commande> {
             commande.marquerPayee();
 
             try (PreparedStatement ps = cnx.prepareStatement(
-                    "UPDATE commande SET statut=?, montant_total=? WHERE id=?")) {
+                    "UPDATE commande SET statut=?, montant_total=?, date_commande=? WHERE id=?")) {
                 ps.setString(1, commande.getStatut().name());
                 ps.setBigDecimal(2, commande.getMontantTotal());
-                ps.setInt(3, commande.getId());
+                ps.setString(3, LocalDateTime.now().format(DB_DATE_TIME_FORMATTER));
+                ps.setInt(4, commande.getId());
                 ps.executeUpdate();
             }
 
@@ -513,5 +514,51 @@ public class CommandeService implements Iservice<Commande> {
                 countByStatut(Commande.Statut.ANNULEE),
                 getChiffreAffaires().toPlainString()
         );
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // EXPIRATION AUTOMATIQUE — 3 jours sans paiement
+    // Retourne le nombre de commandes annulées
+    // ─────────────────────────────────────────────────────────
+    public int annulerCommandesExpirees(int userId) {
+        String sql =
+                "SELECT id, date_commande, statut, montant_total, user_id " +
+                        "FROM commande " +
+                        "WHERE user_id = ? " +
+                        "AND statut = 'EN_ATTENTE_PAIEMENT' " +
+                        "AND date_commande < NOW() - INTERVAL 3 DAY"; // PRODUCTION
+        // "AND date_commande < NOW() - INTERVAL 3 HOUR"; // TEST
+
+        List<Commande> expirees = new ArrayList<>();
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    expirees.add(mapResultSet(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ annulerCommandesExpirees : " + e.getMessage());
+            return 0;
+        }
+
+        int count = 0;
+        for (Commande c : expirees) {
+            try {
+                c.annuler();
+                update(c);
+                count++;
+            } catch (Exception e) {
+                System.err.println("❌ Impossible d'annuler commande #" + c.getId() + " : " + e.getMessage());
+            }
+        }
+        return count;
+    }
+
+    public long heuresAvantExpiration(Commande commande) {
+        if (commande.getDateCommande() == null) return -1;
+        LocalDateTime expiration = commande.getDateCommande().plusDays(3); // PRODUCTION
+        // LocalDateTime expiration = commande.getDateCommande().plusHours(3); // TEST
+        return java.time.Duration.between(LocalDateTime.now(), expiration).toHours();
     }
 }

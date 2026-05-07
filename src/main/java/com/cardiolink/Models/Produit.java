@@ -12,6 +12,13 @@ public class Produit {
     private Integer stock;
     private String  imageUrl;
     private String  categorie;
+    // Avis étoiles — 2 champs seulement
+    private Double  noteMoyenne = 0.0;
+    private Integer nbAvis      = 0;
+    // Promo auto — calculée en Java via ProduitService.isPromoAuto()
+    private boolean promoAuto   = false;
+    // Favoris — IDs des users séparés par virgule ex: "1,3,7"
+    private String  favorisUsers = null;
 
     public Produit() {}
 
@@ -36,42 +43,35 @@ public class Produit {
         setCategorie(categorie);
     }
 
-
     public Integer getId()           { return id; }
     public void    setId(Integer id) { this.id = id; }
 
     public String getNom() { return nom; }
 
-
     public void setNom(String nom) {
         if (nom == null || nom.trim().isEmpty())
             throw new IllegalArgumentException("Le nom du produit est obligatoire.");
-
         String v = nom.trim();
-
         if (v.length() < 2)
             throw new IllegalArgumentException("Le nom doit contenir au moins 2 caractères.");
-        if (v.length() > 255)
-            throw new IllegalArgumentException("Le nom ne doit pas dépasser 255 caractères.");
-
-        if (!v.matches("^[A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9\\s''()\\-+°%/]{1,254}$"))
-            throw new IllegalArgumentException(
-                    "Le nom doit commencer par une lettre ou un chiffre et ne contenir que des caractères valides."
-            );
-
+        if (v.length() > 100)
+            throw new IllegalArgumentException("Le nom ne doit pas dépasser 100 caractères.");
+        if (!Character.isLetter(v.charAt(0)))
+            throw new IllegalArgumentException("Le nom doit commencer par une lettre.");
+        if (v.matches("^[0-9\\s''()\\-+°%/]+$"))
+            throw new IllegalArgumentException("Le nom doit contenir au moins une lettre.");
+        if (!v.matches("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9\\s''()\\-+°%/]{1,99}$"))
+            throw new IllegalArgumentException("Le nom doit commencer par une lettre et ne contenir que des caractères valides.");
         this.nom = v;
     }
 
-
     public String getDescription() { return description; }
-
     public void setDescription(String description) {
         this.description = (description == null || description.trim().isEmpty())
                 ? null : description.trim();
     }
 
     public BigDecimal getPrix() { return prix; }
-
     public void setPrix(BigDecimal prix) {
         if (prix == null || prix.compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException("Le prix doit être strictement supérieur à 0.");
@@ -80,9 +80,7 @@ public class Produit {
         this.prix = prix.setScale(2, RoundingMode.HALF_UP);
     }
 
-
     public Integer getStock() { return stock; }
-
     public void setStock(Integer stock) {
         if (stock == null || stock < 0)
             throw new IllegalArgumentException("Le stock doit être >= 0.");
@@ -92,27 +90,19 @@ public class Produit {
     }
 
     public String getImageUrl() { return imageUrl; }
-
-
     public void setImageUrl(String imageUrl) {
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
             this.imageUrl = null;
             return;
         }
-
         String v = imageUrl.trim();
-
-        if (!v.matches("(?i)^(https?://.+|file:/{1,3}.+|/uploads/.+)$")) {
+        if (!v.matches("(?i)^(https?://.+|file:/{1,3}.+|/uploads/.+)$"))
             throw new IllegalArgumentException(
-                    "L'image doit être une URL http(s), un fichier local (file:/...) ou un chemin /uploads/..."
-            );
-        }
-
+                    "L'image doit être une URL http(s), un fichier local (file:/...) ou un chemin /uploads/...");
         this.imageUrl = v;
     }
 
     public String getCategorie() { return categorie; }
-
     public void setCategorie(String categorie) {
         if (categorie == null || categorie.trim().isEmpty())
             throw new IllegalArgumentException("La catégorie est obligatoire.");
@@ -121,9 +111,57 @@ public class Produit {
         this.categorie = categorie.trim().toUpperCase();
     }
 
-
     public String getStockStatus() {
         return (this.stock != null && this.stock == 0) ? "RUPTURE" : "DISPONIBLE";
+    }
+
+    // ── Avis étoiles ─────────────────────────────────────────
+    public Double  getNoteMoyenne() { return noteMoyenne != null ? noteMoyenne : 0.0; }
+    public void    setNoteMoyenne(Double noteMoyenne) { this.noteMoyenne = noteMoyenne; }
+
+    public Integer getNbAvis()      { return nbAvis != null ? nbAvis : 0; }
+    public void    setNbAvis(Integer nbAvis) { this.nbAvis = nbAvis; }
+
+    // ── Promo automatique ─────────────────────────────────────
+    // Positionné par ProduitService.isPromoAuto() après chargement
+    public boolean isPromoAuto()    { return promoAuto; }
+    public void    setPromoAuto(boolean promoAuto) { this.promoAuto = promoAuto; }
+
+    // Prix promo = prix - 20%
+    public BigDecimal getPrixPromo() {
+        if (!promoAuto || prix == null) return prix;
+        return prix.multiply(new BigDecimal("0.80")).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    // ── Favoris ──────────────────────────────────────────────
+    public String getFavorisUsers() { return favorisUsers; }
+    public void   setFavorisUsers(String favorisUsers) { this.favorisUsers = favorisUsers; }
+
+    // Vérifie si un user a mis ce produit en favori
+    public boolean isFavoriPour(int userId) {
+        if (favorisUsers == null || favorisUsers.isBlank()) return false;
+        for (String id : favorisUsers.split(",")) {
+            if (id.trim().equals(String.valueOf(userId))) return true;
+        }
+        return false;
+    }
+
+    // Ajoute ou retire un user des favoris
+    public void toggleFavoriPour(int userId) {
+        if (isFavoriPour(userId)) {
+            // Retirer
+            if (favorisUsers == null) return;
+            java.util.List<String> ids = new java.util.ArrayList<>(
+                    java.util.Arrays.asList(favorisUsers.split(","))
+            );
+            ids.removeIf(id -> id.trim().equals(String.valueOf(userId)));
+            favorisUsers = ids.isEmpty() ? null : String.join(",", ids);
+        } else {
+            // Ajouter
+            favorisUsers = (favorisUsers == null || favorisUsers.isBlank())
+                    ? String.valueOf(userId)
+                    : favorisUsers + "," + userId;
+        }
     }
 
     @Override

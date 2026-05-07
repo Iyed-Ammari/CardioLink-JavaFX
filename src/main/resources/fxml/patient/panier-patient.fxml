@@ -54,6 +54,12 @@
                         prefHeight="54"
                         maxWidth="1.7976931348623157E308"
                         style="-fx-background-color: #F3F4F6; -fx-text-fill: #111827; -fx-font-size: 16px; -fx-font-weight: 800; -fx-background-radius: 18; -fx-cursor: hand;"/>
+
+                <Button text="⬅  Retour Dashboard"
+                        onAction="#goToDashboard"
+                        prefHeight="44"
+                        maxWidth="1.7976931348623157E308"
+                        style="-fx-background-color: #F3F4F6; -fx-text-fill: #6B7280; -fx-font-size: 13px; -fx-font-weight: 700; -fx-background-radius: 18; -fx-cursor: hand;"/>
             </VBox>
 
             <Region VBox.vgrow="ALWAYS"/>
@@ -62,14 +68,14 @@
                   style="-fx-padding: 16 0 0 0; -fx-border-color: #E5E7EB; -fx-border-width: 1 0 0 0;">
                 <StackPane prefWidth="50" prefHeight="50"
                            style="-fx-background-color: linear-gradient(to bottom right, rgba(248,34,57,0.22), rgba(47,96,245,0.22)); -fx-background-radius: 18;">
-                    <Label text="P"
+                    <Label fx:id="sidebarInitial" text="?"
                            style="-fx-text-fill: #1F2937; -fx-font-size: 16px; -fx-font-weight: 900;"/>
                 </StackPane>
 
                 <VBox spacing="2">
-                    <Label text="Patient"
+                    <Label fx:id="sidebarNom" text="—"
                            style="-fx-text-fill: #111827; -fx-font-size: 15px; -fx-font-weight: 800;"/>
-                    <Label text="ROLE_USER"
+                    <Label fx:id="sidebarRole" text="—"
                            style="-fx-text-fill: #2F60F5; -fx-font-size: 13px; -fx-font-weight: 800;"/>
                 </VBox>
             </HBox>
@@ -151,7 +157,11 @@
                             prefHeight="48"
                             maxWidth="1.7976931348623157E308"
                             style="-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: 800; -fx-background-radius: 14; -fx-cursor: hand;"/>
-
+                    <Button text="Payer maintenant"
+                            onAction="#handlePayerCommande"
+                            prefHeight="48"
+                            maxWidth="1.7976931348623157E308"
+                            style="-fx-background-color: linear-gradient(to right, #F82239, #2F60F5); -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: 800; -fx-background-radius: 14; -fx-cursor: hand;"/>
                     <Button text="Vider le panier"
                             onAction="#handleViderPanier"
                             prefHeight="48"
