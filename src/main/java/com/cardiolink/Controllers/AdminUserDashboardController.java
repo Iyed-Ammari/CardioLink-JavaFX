@@ -233,7 +233,7 @@ public class AdminUserDashboardController implements UserAwareController {
                     getClass().getResource("/admin_edit_user.fxml"));
             Scene scene = new Scene(loader.load(), 1100, 650);
             AdminEditUserController ctrl = loader.getController();
-            ctrl.setData( u);
+            ctrl.setData(u);
             Stage stage = (Stage) btnHome.getScene().getWindow();
             stage.setScene(scene);
             stage.show();
@@ -456,6 +456,20 @@ public class AdminUserDashboardController implements UserAwareController {
             Scene scene = new Scene(loader.load(), 900, 560);
             Stage stage = (Stage) btnHome.getScene().getWindow();
             stage.setTitle("CardioLink - Login");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
+    @FXML private void goToMarketplace() {
+        try {
+            // Initialiser ManagerSession pour la marketplace admin
+            com.cardiolink.utils.ManagerSession.getInstance().setCurrentUser(currentUser);
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/admin/dashboard-admin.fxml"));
+            Scene scene = new Scene(loader.load(), 1400, 850);
+            Stage stage = (Stage) btnHome.getScene().getWindow();
+            stage.setTitle("CardioLink - Marketplace Admin");
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) { e.printStackTrace(); }

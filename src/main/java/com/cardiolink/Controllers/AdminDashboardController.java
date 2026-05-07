@@ -2,8 +2,11 @@ package com.cardiolink.Controllers;
 
 import com.cardiolink.Services.CommandeService;
 import com.cardiolink.Services.ProduitService;
+import com.cardiolink.Services.UserService;
 import com.cardiolink.Models.Commande;
 import com.cardiolink.Models.Produit;
+import com.cardiolink.Models.User;
+import com.cardiolink.utils.ManagerSession;
 import com.cardiolink.utils.NavigationUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -12,6 +15,8 @@ import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -27,12 +32,36 @@ public class AdminDashboardController implements Initializable {
     @FXML private Label nbPayeesLabel;
     @FXML private Label nbLivreesLabel;
     @FXML private Label nbAnnuleesLabel;
+    @FXML private Label sidebarInitial;
+    @FXML private Label sidebarNom;
+    @FXML private Label sidebarRole;
 
     private final CommandeService commandeService = new CommandeService();
     private final ProduitService produitService = new ProduitService();
+    private final UserService userService = new UserService();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        int userId = ManagerSession.getInstance().getCurrentUserId();
+        try {
+            User user = userService.getById(userId);
+            System.out.println("userId: " + userId);
+            if (user != null) {
+                String initial = user.getNom() != null && !user.getNom().isEmpty()
+                        ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+                if (sidebarInitial != null) sidebarInitial.setText(initial);
+                if (sidebarNom != null) sidebarNom.setText(
+                        (user.getNom() != null ? user.getNom() : "") + " " +
+                        (user.getPrenom() != null ? user.getPrenom() : ""));
+                if (sidebarRole != null) sidebarRole.setText(
+                        user.getRoleClean() != null ? user.getRoleClean() : "—");
+            }
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
+        }
+
+        // ✅ TON CODE ORIGINAL (inchangé)
         chargerStats();
     }
 
@@ -119,6 +148,16 @@ public class AdminDashboardController implements Initializable {
             NavigationUtil.navigate(stage, "/fxml/admin/commande-list-admin.fxml");
         } catch (Exception e) {
             System.err.println("❌ AdminDashboard → Commandes : " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void goToPredictionIA() {
+        try {
+            Stage stage = (Stage) heroTitleLabel.getScene().getWindow();
+            NavigationUtil.navigate(stage, "/fxml/admin/prediction-ia.fxml");
+        } catch (Exception e) {
+            System.err.println("❌ AdminDashboard → Prédiction IA : " + e.getMessage());
         }
     }
 }

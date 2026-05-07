@@ -1,7 +1,10 @@
 package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Commande;
+import com.cardiolink.Models.User;
 import com.cardiolink.Services.CommandeService;
+import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.ManagerSession;
 import com.cardiolink.utils.NavigationUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -16,6 +19,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.SQLDataException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -32,14 +36,44 @@ public class CommandeListAdminController implements Initializable {
     @FXML private Label totalCALabel;
     @FXML private Label nbPayeesLabel;
     @FXML private Label countLabel;
+    @FXML private Label sidebarInitial;
+    @FXML private Label sidebarNom;
+    @FXML private Label sidebarRole;
+    @FXML private javafx.scene.layout.HBox paginationBox;
+    @FXML private Button btnPrev;
+    @FXML private Button btnNext;
+    @FXML private Label pageInfoLabel;
 
     private final CommandeService commandeService = new CommandeService();
+    private final UserService userService = new UserService();
+
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy  HH:mm");
+    private static final int PAGE_SIZE = 50;
 
     private List<Commande> toutesLesCommandes;
+    private int currentPage = 0;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+        int userId = ManagerSession.getInstance().getCurrentUserId();
+        try {
+            User user = userService.getById(userId);
+            System.out.println("userId: " + userId);
+            if (user != null) {
+                String initial = user.getNom() != null && !user.getNom().isEmpty()
+                        ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+                if (sidebarInitial != null) sidebarInitial.setText(initial);
+                if (sidebarNom != null) sidebarNom.setText(
+                        (user.getNom() != null ? user.getNom() : "") + " " +
+                        (user.getPrenom() != null ? user.getPrenom() : ""));
+                if (sidebarRole != null) sidebarRole.setText(
+                        user.getRoleClean() != null ? user.getRoleClean() : "—");
+            }
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
+        }
+
         if (statutFilterBox != null) {
             statutFilterBox.setItems(FXCollections.observableArrayList("Tous", "EN_ATTENTE_PAIEMENT", "PAYEE", "LIVREE", "ANNULEE"));
             statutFilterBox.setValue("Tous");
@@ -61,13 +95,24 @@ public class CommandeListAdminController implements Initializable {
     }
 
     private void chargerCommandes() {
-        try {
-            toutesLesCommandes = commandeService.getAllNonPanier();
-            mettreAJourStats(toutesLesCommandes);
-            afficherCommandes(toutesLesCommandes);
-        } catch (Exception e) {
-            showError("Erreur : " + e.getMessage());
-        }
+        new Thread(() -> {
+            try {
+                List<Commande> liste = commandeService.getAllNonPanier();
+                String ca = commandeService.getChiffreAffaires().toPlainString() + " DT";
+                String nbPayees = String.valueOf(commandeService.countByStatut(Commande.Statut.PAYEE));
+                javafx.application.Platform.runLater(() -> {
+                    toutesLesCommandes = liste;
+                    currentPage = 0;
+                    if (totalCommandesLabel != null) totalCommandesLabel.setText(String.valueOf(liste.size()));
+                    if (totalCALabel != null) totalCALabel.setText(ca);
+                    if (nbPayeesLabel != null) nbPayeesLabel.setText(nbPayees);
+                    afficherCommandes(toutesLesCommandes);
+                    if (messageLabel != null) messageLabel.setText("");
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> showError("Erreur : " + e.getMessage()));
+            }
+        }, "load-commandes").start();
     }
 
     private void mettreAJourStats(List<Commande> liste) {
@@ -84,39 +129,53 @@ public class CommandeListAdminController implements Initializable {
             VBox empty = new VBox(12);
             empty.setAlignment(Pos.CENTER);
             empty.setPadding(new Insets(40));
-
             Label ico = new Label("📋");
             ico.setStyle("-fx-font-size: 48px;");
-
             Label msg = new Label("Aucune commande trouvée.");
             msg.setStyle("-fx-text-fill: #9CA3AF; -fx-font-size: 14px; -fx-font-weight: 700;");
-
             empty.getChildren().addAll(ico, msg);
             commandeContainer.getChildren().add(empty);
-
             if (countLabel != null) countLabel.setText("0 commande");
-
+            if (paginationBox != null) paginationBox.setVisible(false);
             Platform.runLater(() -> {
-                if (commandeScrollPane != null) {
-                    commandeScrollPane.setVvalue(0);
-                    commandeScrollPane.setHvalue(0);
-                }
+                if (commandeScrollPane != null) { commandeScrollPane.setVvalue(0); commandeScrollPane.setHvalue(0); }
             });
             return;
         }
 
-        if (countLabel != null) countLabel.setText(commandes.size() + " commande(s)");
+        // Pagination : afficher seulement la page courante
+        int total = commandes.size();
+        int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
+        int from = currentPage * PAGE_SIZE;
+        int to = Math.min(from + PAGE_SIZE, total);
+        List<Commande> page = commandes.subList(from, to);
 
-        for (Commande c : commandes) {
+        if (countLabel != null) countLabel.setText(total + " commande(s)");
+
+        for (Commande c : page) {
             commandeContainer.getChildren().add(creerCarteCommande(c));
         }
 
+        // Mettre à jour les boutons de pagination FXML
+        if (paginationBox != null) paginationBox.setVisible(totalPages > 1);
+        if (pageInfoLabel != null) pageInfoLabel.setText("Page " + (currentPage + 1) + " / " + totalPages);
+        if (btnPrev != null) btnPrev.setDisable(currentPage == 0);
+        if (btnNext != null) btnNext.setDisable(currentPage >= totalPages - 1);
+
         Platform.runLater(() -> {
-            if (commandeScrollPane != null) {
-                commandeScrollPane.setVvalue(0);
-                commandeScrollPane.setHvalue(0);
-            }
+            if (commandeScrollPane != null) { commandeScrollPane.setVvalue(0); commandeScrollPane.setHvalue(0); }
         });
+    }
+
+    @FXML
+    private void handlePrevPage() {
+        if (currentPage > 0) { currentPage--; afficherCommandes(toutesLesCommandes); }
+    }
+
+    @FXML
+    private void handleNextPage() {
+        int totalPages = (int) Math.ceil((double) toutesLesCommandes.size() / PAGE_SIZE);
+        if (currentPage < totalPages - 1) { currentPage++; afficherCommandes(toutesLesCommandes); }
     }
 
     private HBox creerCarteCommande(Commande commande) {
@@ -307,6 +366,7 @@ public class CommandeListAdminController implements Initializable {
                 .collect(Collectors.toList());
 
         afficherCommandes(result);
+        currentPage = 0;
 
         if (result.isEmpty()) showError("Aucun résultat.");
         else showInfo(result.size() + " commande(s) trouvée(s).");
@@ -368,6 +428,18 @@ public class CommandeListAdminController implements Initializable {
     @FXML
     private void goToCommandes() {
         chargerCommandes();
+    }
+
+    @FXML
+    private void goToPredictionIA() {
+        try {
+            NavigationUtil.navigate(
+                    (Stage) commandeContainer.getScene().getWindow(),
+                    "/fxml/admin/prediction-ia.fxml"
+            );
+        } catch (IOException e) {
+            showError("Navigation impossible.");
+        }
     }
 
     private void showError(String msg) {

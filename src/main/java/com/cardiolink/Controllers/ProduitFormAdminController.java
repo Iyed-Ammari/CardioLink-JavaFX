@@ -1,7 +1,10 @@
 package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Produit;
+import com.cardiolink.Models.User;
 import com.cardiolink.Services.ProduitService;
+import com.cardiolink.Services.UserService;
+import com.cardiolink.utils.ManagerSession;
 import com.cardiolink.utils.NavigationUtil;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -14,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -33,12 +37,16 @@ public class ProduitFormAdminController implements Initializable {
     @FXML private TextArea descriptionArea;
     @FXML private Label messageLabel;
     @FXML private Label imageHintLabel;
+    @FXML private Label sidebarInitial;
+    @FXML private Label sidebarNom;
+    @FXML private Label sidebarRole;
 
     private final ProduitService produitService = new ProduitService();
+    private final UserService userService = new UserService();
     private Produit produitEnCours = null;
 
     private static final Pattern NOM_PATTERN = Pattern.compile(
-            "^[A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9\\s''()\\-+°%/]{1,254}$"
+            "^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9\\s''()\\-+°%/]{1,99}$"
     );
 
     private static final Pattern URL_PATTERN = Pattern.compile(
@@ -63,6 +71,25 @@ public class ProduitFormAdminController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+        int userId = ManagerSession.getInstance().getCurrentUserId();
+        try {
+            User user = userService.getById(userId);
+            System.out.println("userId: " + userId);
+            if (user != null) {
+                String initial = user.getNom() != null && !user.getNom().isEmpty()
+                        ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+                if (sidebarInitial != null) sidebarInitial.setText(initial);
+                if (sidebarNom != null) sidebarNom.setText(
+                        (user.getNom() != null ? user.getNom() : "") + " " +
+                        (user.getPrenom() != null ? user.getPrenom() : ""));
+                if (sidebarRole != null) sidebarRole.setText(
+                        user.getRoleClean() != null ? user.getRoleClean() : "—");
+            }
+        } catch (SQLDataException e) {
+            throw new RuntimeException(e);
+        }
+
         List<String> cats = new ArrayList<>(produitService.findExistingCategories());
         for (String fixed : List.of("MEDICAL", "ACCESSOIRE", "AUTRE")) {
             if (!cats.contains(fixed)) cats.add(fixed);
@@ -77,22 +104,41 @@ public class ProduitFormAdminController implements Initializable {
     }
 
     private void configurerTextFormatters() {
+        // Prix : chiffres uniquement, pas de zéros en tête (ex: "007" → refusé), max 99999.99
         prixField.setTextFormatter(new TextFormatter<>(change -> {
             String t = change.getControlNewText();
-            return t.matches("\\d{0,8}(\\.\\d{0,2})?") ? change : null;
+            // Autorise vide, ou un nombre décimal valide sans zéros en tête
+            if (t.isEmpty()) return change;
+            if (t.matches("0\\.\\d{0,2}")) return change;       // "0.5", "0.99" OK
+            if (t.matches("0")) return change;                   // "0" seul temporairement OK
+            if (t.matches("[1-9]\\d{0,7}(\\.\\d{0,2})?")) return change; // "1" à "99999999.99"
+            return null; // tout le reste refusé (ex: "00", "007", "0123")
         }));
 
-        stockField.setTextFormatter(new TextFormatter<>(change ->
-                change.getControlNewText().matches("\\d{0,6}") ? change : null
-        ));
+        // Stock : pas de zéros en tête, max 999999
+        stockField.setTextFormatter(new TextFormatter<>(change -> {
+            String t = change.getControlNewText();
+            if (t.isEmpty()) return change;
+            if (t.equals("0")) return change;                    // "0" seul OK
+            if (t.matches("[1-9]\\d{0,5}")) return change;       // "1" à "999999"
+            return null; // "00", "007" refusés
+        }));
 
+        // Description : max 500 caractères, pas que des espaces
         descriptionArea.setTextFormatter(new TextFormatter<>(change ->
                 change.getControlNewText().length() <= 500 ? change : null
         ));
 
-        nomField.setTextFormatter(new TextFormatter<>(change ->
-                change.getControlNewText().length() <= 255 ? change : null
-        ));
+        // Nom : max 100 caractères, doit commencer par une lettre (bloqué à la saisie)
+        nomField.setTextFormatter(new TextFormatter<>(change -> {
+            String t = change.getControlNewText();
+            if (t.isEmpty()) return change;
+            // Bloque si le premier caractère n'est pas une lettre
+            if (t.length() == 1 && !Character.isLetter(t.charAt(0))) return null;
+            // Bloque si dépasse 100 caractères
+            if (t.length() > 100) return null;
+            return change;
+        }));
     }
 
     public void setProduit(Produit produit) {
@@ -157,17 +203,28 @@ public class ProduitFormAdminController implements Initializable {
 
         boolean valid = true;
 
+        // ── Validation NOM ──────────────────────────────────────────
         if (nom.isEmpty()) {
             erreur(nomField, "Le nom est obligatoire.");
+            valid = false;
+        } else if (!Character.isLetter(nom.charAt(0))) {
+            erreur(nomField, "Le nom doit commencer par une lettre.");
             valid = false;
         } else if (nom.length() < 2) {
             erreur(nomField, "Le nom doit contenir au moins 2 caractères.");
             valid = false;
+        } else if (nom.length() > 100) {
+            erreur(nomField, "Le nom ne doit pas dépasser 100 caractères.");
+            valid = false;
+        } else if (nom.matches("^[0-9\\s''()\\-+°%/]+$")) {
+            erreur(nomField, "Le nom doit contenir au moins une lettre.");
+            valid = false;
         } else if (!NOM_PATTERN.matcher(nom).matches()) {
-            erreur(nomField, "Nom invalide : lettres, chiffres, espaces autorisés.");
+            erreur(nomField, "Nom invalide : doit commencer par une lettre.");
             valid = false;
         }
 
+        // ── Validation PRIX ─────────────────────────────────────────
         BigDecimal prix = null;
         if (prixTxt.isEmpty()) {
             erreur(prixField, "Le prix est obligatoire.");
@@ -176,7 +233,7 @@ public class ProduitFormAdminController implements Initializable {
             try {
                 prix = new BigDecimal(prixTxt);
                 if (prix.compareTo(BigDecimal.ZERO) <= 0) {
-                    erreur(prixField, "Le prix doit être > 0.");
+                    erreur(prixField, "Le prix doit être supérieur à 0.");
                     valid = false;
                 } else if (prix.compareTo(new BigDecimal("99999.99")) > 0) {
                     erreur(prixField, "Maximum 99 999.99 DT.");
@@ -188,6 +245,7 @@ public class ProduitFormAdminController implements Initializable {
             }
         }
 
+        // ── Validation STOCK ────────────────────────────────────────
         int stock = 0;
         if (stockTxt.isEmpty()) {
             erreur(stockField, "Le stock est obligatoire.");
@@ -198,6 +256,9 @@ public class ProduitFormAdminController implements Initializable {
                 if (stock < 0) {
                     erreur(stockField, "Le stock doit être >= 0.");
                     valid = false;
+                } else if (stock > 999999) {
+                    erreur(stockField, "Le stock ne peut pas dépasser 999 999.");
+                    valid = false;
                 }
             } catch (NumberFormatException e) {
                 erreur(stockField, "Entier valide requis.");
@@ -205,12 +266,23 @@ public class ProduitFormAdminController implements Initializable {
             }
         }
 
+        // ── Validation CATÉGORIE ────────────────────────────────────
         if (categorie == null || categorie.trim().isEmpty()) {
             categorieBox.setStyle(COMBO_ERROR);
-            showError("La catégorie est obligatoire.");
+            showError("⚠ La catégorie est obligatoire.");
             valid = false;
         }
 
+        // ── Validation DESCRIPTION (optionnelle mais pas que des espaces) ──
+        if (!desc.isEmpty() && desc.isBlank()) {
+            showError("⚠ La description ne peut pas contenir uniquement des espaces.");
+            valid = false;
+        } else if (desc.length() > 500) {
+            showError("⚠ La description ne doit pas dépasser 500 caractères.");
+            valid = false;
+        }
+
+        // ── Validation IMAGE URL (optionnelle) ──────────────────────
         if (!imageUrl.isEmpty() && !URL_PATTERN.matcher(imageUrl).matches()) {
             erreur(imageUrlField, "URL invalide : http(s) ou fichier local requis.");
             valid = false;

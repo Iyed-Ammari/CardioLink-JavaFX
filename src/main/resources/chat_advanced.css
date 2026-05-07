@@ -1,0 +1,503 @@
+/* ═══════════════════════════════════════════════════════════════════
+   chat_advanced.css — CardioLink Messagerie Avancée
+   Palette Light Theme : #f8f8ff (fond) · white (panels) · #E24B4A (rouge) · #7F77DD (bleu)
+════════════════════════════════════════════════════════════════════ */
+
+* {
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+}
+
+.root-adv {
+    -fx-background-color: #f8f8ff;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PANNEAU GAUCHE — Liste des conversations
+══════════════════════════════════════════════════════════════════ */
+
+.left-panel {
+    -fx-background-color: white;
+    -fx-border-color: #ececec;
+    -fx-border-width: 0 1 0 0;
+}
+
+.conv-header {
+    -fx-background-color: white;
+    -fx-padding: 16 14 12 14;
+    -fx-border-color: #ececec;
+    -fx-border-width: 0 0 1 0;
+}
+
+.conv-title {
+    -fx-text-fill: #1a1a2e;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+/* Bouton "+" nouvelle conversation */
+.new-conv-btn {
+    -fx-background-color: #7F77DD;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-min-width: 28px;
+    -fx-min-height: 28px;
+    -fx-max-width: 28px;
+    -fx-max-height: 28px;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+    -fx-border-color: transparent;
+}
+.new-conv-btn:hover {
+    -fx-background-color: #6a62c7;
+    -fx-effect: dropshadow(gaussian, rgba(127,119,221,0.4), 6, 0, 0, 0);
+}
+
+.notif-badge {
+    -fx-background-color: #E24B4A;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10px;
+    -fx-padding: 2 6 2 6;
+    -fx-min-width: 20px;
+    -fx-alignment: center;
+}
+
+.search-field {
+    -fx-background-color: #f4f4f9;
+    -fx-background-radius: 20px;
+    -fx-border-color: #ececec;
+    -fx-border-radius: 20px;
+    -fx-text-fill: #333;
+    -fx-prompt-text-fill: #888;
+    -fx-padding: 8 14 8 14;
+    -fx-font-size: 13px;
+}
+.search-field:focused {
+    -fx-border-color: #7F77DD;
+    -fx-background-color: white;
+}
+
+.sort-combo {
+    -fx-background-color: #f4f4f9;
+    -fx-background-radius: 8px;
+    -fx-border-color: #ececec;
+    -fx-border-radius: 8px;
+    -fx-text-fill: #333;
+    -fx-font-size: 12px;
+    -fx-padding: 4 8;
+}
+.sort-combo .list-cell {
+    -fx-background-color: white;
+    -fx-text-fill: #333;
+    -fx-padding: 6 10;
+}
+.sort-combo:hover {
+    -fx-border-color: #7F77DD;
+}
+
+.conv-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.conv-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.conv-list .list-cell:filled:selected,
+.conv-list .list-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+}
+
+.conv-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 10 14;
+    -fx-cursor: hand;
+}
+.conv-cell:hover {
+    -fx-background-color: #f0f0f5;
+}
+.conv-cell-selected {
+    -fx-background-color: #e8e8ff;
+    -fx-border-color: #7F77DD;
+    -fx-border-width: 0 0 0 3;
+}
+
+/* Avatars dans la liste */
+.conv-avatar {
+    -fx-background-radius: 22px;
+    -fx-min-width: 44px;
+    -fx-min-height: 44px;
+    -fx-max-width: 44px;
+    -fx-max-height: 44px;
+    -fx-alignment: center;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+.avatar-patient { -fx-background-color: #7F77DD; }
+.avatar-medecin { -fx-background-color: #E24B4A; }
+
+.conv-name {
+    -fx-text-fill: #1a1a2e;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+.conv-preview {
+    -fx-text-fill: #555;
+    -fx-font-size: 12px;
+}
+.conv-time {
+    -fx-text-fill: #888;
+    -fx-font-size: 11px;
+}
+
+.unread-badge {
+    -fx-background-color: #E24B4A;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 9px;
+    -fx-padding: 1 5;
+    -fx-min-width: 18px;
+    -fx-alignment: center;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PANNEAU DROIT — Zone de chat
+══════════════════════════════════════════════════════════════════ */
+
+.right-panel {
+    -fx-background-color: #f8f8ff;
+}
+
+.chat-header-adv {
+    -fx-background-color: white;
+    -fx-padding: 12 18;
+    -fx-border-color: #ececec;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);
+}
+
+.contact-name {
+    -fx-text-fill: #1a1a2e;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+.contact-status {
+    -fx-text-fill: #777;
+    -fx-font-size: 12px;
+}
+.typing-indicator {
+    -fx-text-fill: #7F77DD;
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+}
+
+.back-btn-adv {
+    -fx-background-color: transparent;
+    -fx-text-fill: #333;
+    -fx-font-size: 20px;
+    -fx-cursor: hand;
+    -fx-padding: 0 10 0 0;
+    -fx-border-color: transparent;
+}
+.back-btn-adv:hover {
+    -fx-text-fill: #E24B4A;
+}
+
+.filter-bar {
+    -fx-background-color: white;
+    -fx-padding: 6 14;
+    -fx-spacing: 8;
+    -fx-border-color: #ececec;
+    -fx-border-width: 0 0 1 0;
+}
+
+.filter-btn {
+    -fx-background-color: #f4f4f9;
+    -fx-text-fill: #555;
+    -fx-font-size: 12px;
+    -fx-background-radius: 14px;
+    -fx-padding: 4 12;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+.filter-btn:hover {
+    -fx-background-color: #e8e8ff;
+    -fx-text-fill: #7F77DD;
+}
+.filter-btn-active {
+    -fx-background-color: #7F77DD;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 14px;
+    -fx-padding: 4 12;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(127,119,221,0.3), 4, 0, 0, 2);
+}
+
+.msg-list-adv {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 10 0;
+}
+.msg-list-adv .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 3 16 3 16;
+}
+.msg-list-adv .list-cell:filled:selected,
+.msg-list-adv .list-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+}
+
+/* Bulle de l'utilisateur (dégradé CardioLink rouge/bleu) */
+.bubble-me {
+    -fx-background-color: linear-gradient(to bottom right, #E24B4A, #7F77DD);
+    -fx-text-fill: white;
+    -fx-background-radius: 16px 16px 2px 16px;
+    -fx-padding: 10 14;
+    -fx-font-size: 14px;
+    -fx-max-width: 320px;
+    -fx-effect: dropshadow(gaussian, rgba(127,119,221,0.3), 6, 0, 0, 2);
+}
+
+/* Bulle du contact */
+.bubble-other {
+    -fx-background-color: white;
+    -fx-text-fill: #1a1a2e;
+    -fx-background-radius: 16px 16px 16px 2px;
+    -fx-padding: 10 14;
+    -fx-font-size: 14px;
+    -fx-max-width: 320px;
+    -fx-border-color: #ececec;
+    -fx-border-radius: 16px 16px 16px 2px;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 4, 0, 0, 1);
+}
+
+.msg-time {
+    -fx-text-fill: #888;
+    -fx-font-size: 11px;
+    -fx-padding: 2 4 0 4;
+}
+
+.badge-pinned {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-background-radius: 6px;
+    -fx-padding: 1 5;
+}
+.badge-urgent {
+    -fx-background-color: #E24B4A;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 1 5;
+}
+.badge-archived {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-background-radius: 6px;
+    -fx-padding: 1 5;
+}
+
+.msg-action-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #888;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-padding: 2 4;
+    -fx-border-color: transparent;
+}
+.msg-action-btn:hover {
+    -fx-text-fill: #E24B4A;
+}
+
+.reaction-bar {
+    -fx-background-color: transparent;
+    -fx-padding: 2 0 0 0;
+    -fx-spacing: 4;
+}
+.reaction-chip {
+    -fx-background-color: white;
+    -fx-border-color: #ececec;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-text-fill: #555;
+    -fx-font-size: 12px;
+    -fx-padding: 2 8;
+    -fx-cursor: hand;
+}
+.reaction-chip:hover {
+    -fx-background-color: #f8f8ff;
+    -fx-border-color: #7F77DD;
+    -fx-text-fill: #7F77DD;
+}
+.reaction-chip-mine {
+    -fx-background-color: #e8e8ff;
+    -fx-border-color: #7F77DD;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-text-fill: #7F77DD;
+    -fx-font-size: 12px;
+    -fx-padding: 2 8;
+    -fx-cursor: hand;
+}
+
+.emoji-picker-popup {
+    -fx-background-color: white;
+    -fx-border-color: #ececec;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 16, 0, 0, 4);
+}
+.emoji-btn {
+    -fx-background-color: transparent;
+    -fx-font-size: 22px;
+    -fx-cursor: hand;
+    -fx-padding: 4 8;
+    -fx-border-color: transparent;
+    -fx-background-radius: 8px;
+}
+.emoji-btn:hover {
+    -fx-background-color: #f4f4f9;
+}
+
+.input-area {
+    -fx-background-color: white;
+    -fx-padding: 12 16;
+    -fx-border-color: #ececec;
+    -fx-border-width: 1 0 0 0;
+}
+
+.msg-input-adv {
+    -fx-background-color: #f4f4f9;
+    -fx-background-radius: 22px;
+    -fx-border-color: #ececec;
+    -fx-border-radius: 22px;
+    -fx-text-fill: #333;
+    -fx-prompt-text-fill: #888;
+    -fx-padding: 10 16;
+    -fx-font-size: 14px;
+}
+.msg-input-adv:focused {
+    -fx-border-color: #7F77DD;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(127,119,221,0.2), 6, 0, 0, 0);
+}
+
+.send-btn-adv {
+    -fx-background-color: linear-gradient(to right, #E24B4A, #7F77DD);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 22px;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(127,119,221,0.4), 6, 0, 0, 2);
+}
+.send-btn-adv:hover {
+    -fx-background-color: linear-gradient(to right, #d13d3c, #6a62c7);
+    -fx-effect: dropshadow(gaussian, rgba(127,119,221,0.6), 8, 0, 0, 2);
+}
+.send-btn-adv:pressed {
+    -fx-scale-x: 0.96;
+    -fx-scale-y: 0.96;
+}
+
+.emoji-toggle-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #777;
+    -fx-font-size: 20px;
+    -fx-cursor: hand;
+    -fx-padding: 4 8;
+    -fx-border-color: transparent;
+}
+.emoji-toggle-btn:hover {
+    -fx-text-fill: #E24B4A;
+}
+
+.classify-combo {
+    -fx-background-color: #f4f4f9;
+    -fx-background-radius: 8px;
+    -fx-border-color: #ececec;
+    -fx-border-radius: 8px;
+    -fx-text-fill: #333;
+    -fx-font-size: 12px;
+}
+.classify-combo:hover { -fx-border-color: #7F77DD; }
+
+.suggestion-bar {
+    -fx-background-color: transparent;
+    -fx-padding: 6 14;
+    -fx-spacing: 8;
+    -fx-border-color: #ececec;
+    -fx-border-width: 1 0 0 0;
+}
+
+.suggestion-label {
+    -fx-text-fill: #777;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+}
+
+.suggestion-btn {
+    -fx-background-color: white;
+    -fx-border-color: #7F77DD;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-text-fill: #7F77DD;
+    -fx-font-size: 12px;
+    -fx-padding: 4 12;
+    -fx-cursor: hand;
+    -fx-border-width: 1;
+}
+.suggestion-btn:hover {
+    -fx-background-color: #7F77DD;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6px;
+}
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #ccc;
+    -fx-background-radius: 3px;
+}
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #7F77DD;
+}
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+}
+
+.empty-state {
+    -fx-alignment: center;
+    -fx-spacing: 14;
+}
+.empty-icon {
+    -fx-text-fill: #ececec;
+    -fx-font-size: 64px;
+}
+.empty-text {
+    -fx-text-fill: #888;
+    -fx-font-size: 15px;
+}
