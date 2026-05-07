@@ -1,12 +1,12 @@
 package com.cardiolink.Services;
 
-import javax.mail.*;
-import javax.mail.internet.*;
+import jakarta.mail.*;
+import jakarta.mail.internet.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
-public class EmailService {
+public class EmailServiceChaima {
 
     // IMPORTANT: Remplacez par votre adresse Gmail
     private static final String SENDER_EMAIL = "chaymakamel3@gmail.com";

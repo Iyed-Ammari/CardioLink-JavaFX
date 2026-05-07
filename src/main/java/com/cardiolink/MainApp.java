@@ -26,8 +26,8 @@ public class MainApp extends Application {
         stage.setScene(scene);
         stage.show();
 
-        // Démarrer le planificateur de rappels
-        reminderScheduler = new com.cardiolink.Services.ReminderScheduler();
+        // Démarrer le planificateur de rappels (singleton – une seule instance)
+        reminderScheduler = com.cardiolink.Services.ReminderScheduler.getInstance();
         reminderScheduler.start();
     }
 

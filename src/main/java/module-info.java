@@ -30,12 +30,8 @@ module com.cardiolink {
     requires org.java_websocket;
 
     // --- Google Calendar & Auth APIs ---
-    requires com.google.api.client;
-    requires com.google.api.client.auth;
-    requires com.google.api.client.extensions.java6.auth;
-    requires com.google.api.client.extensions.jetty.auth;
-    requires com.google.api.client.json.gson;
-    requires com.google.api.services.calendar;
+    // These JARs are not proper JPMS modules (unnamed module / classpath).
+    // Access is granted via --add-reads in pom.xml compiler args.
 
     // --- Media & Processing ---
     requires cloudinary.http44;

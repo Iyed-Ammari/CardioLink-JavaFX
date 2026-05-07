@@ -13,15 +13,32 @@ import java.util.concurrent.TimeUnit;
 
 public class ReminderScheduler {
 
+    // --- Singleton ---
+    private static ReminderScheduler instance;
+
+    public static synchronized ReminderScheduler getInstance() {
+        if (instance == null) {
+            instance = new ReminderScheduler();
+        }
+        return instance;
+    }
+
+    private ReminderScheduler() {} // private constructor
+    // -----------------
+
     private static final String SENT_REMINDERS_FILE = "sent_reminders.txt";
     private ScheduledExecutorService scheduler;
     private ServiceRendezvous serviceRendezvous = new ServiceRendezvous();
     private UserService userService = new UserService();
-    private EmailService emailService = new EmailService();
+    private EmailServiceChaima emailServiceChaima = new EmailServiceChaima();
 
     private Set<Integer> sentReminders = new HashSet<>();
 
     public void start() {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            // Already running — do not start a second instance
+            return;
+        }
         loadSentReminders();
 
         scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -58,7 +75,7 @@ public class ReminderScheduler {
                 String patientName = patient.getPrenom() + " " + patient.getNom();
                 String doctorName = "Dr. " + medecin.getNom();
                 
-                boolean success = emailService.sendReminder(patient.getEmail(), patientName, doctorName, rv.getDateHeure(), rv.getLienVisio());
+                boolean success = emailServiceChaima.sendReminder(patient.getEmail(), patientName, doctorName, rv.getDateHeure(), rv.getLienVisio());
                 
                 if (success) {
                     // Marquer comme envoyé uniquement si l'envoi a réussi

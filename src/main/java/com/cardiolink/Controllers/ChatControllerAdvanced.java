@@ -4,6 +4,7 @@ import com.cardiolink.Models.*;
 import com.cardiolink.Services.*;
 import com.cardiolink.WebSocket.ChatWebSocketClientAdvanced;
 import com.cardiolink.utils.ManagerSession;
+import jakarta.mail.Message;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -19,8 +20,8 @@ import javafx.stage.Stage;
 import org.json.JSONObject;
 
 // Imports pour l'envoi d'email
-import javax.mail.*;
-import javax.mail.internet.*;
+import jakarta.mail.*;
+import jakarta.mail.internet.*;
 import java.util.Properties;
 
 import java.io.IOException;
@@ -614,16 +615,16 @@ public class ChatControllerAdvanced implements Initializable {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
 
-        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+        Session session = Session.getInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(fromEmail, password);
             }
         });
 
         try {
-            javax.mail.Message emailMessage = new MimeMessage(session);
+            Message emailMessage = new MimeMessage(session);
             emailMessage.setFrom(new InternetAddress(fromEmail));
-            emailMessage.setRecipients(javax.mail.Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            emailMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             emailMessage.setSubject("🚨 URGENT : Alerte SOS de " + nomPatient + " (CardioLink)");
 
             String corpsMessage = "Bonjour Dr. " + nomMedecin + ",\n\n"

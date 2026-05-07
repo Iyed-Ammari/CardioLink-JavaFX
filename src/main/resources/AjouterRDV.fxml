@@ -26,7 +26,8 @@
                     <children>
                         <VBox spacing="8.0">
                             <Label styleClass="label-text" text="Médecin spécialisé" />
-                            <ComboBox fx:id="medecin" maxWidth="Infinity" prefHeight="45.0" promptText="Sélectionner un praticien" />
+                            <ComboBox fx:id="medecin" maxWidth="Infinity" prefHeight="45.0"
+                                      promptText="Chargement des médecins..." />
                         </VBox>
 
                         <HBox spacing="15.0">

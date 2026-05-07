@@ -29,13 +29,27 @@ import java.util.List;
 public class GoogleCalendarService {
 
     private static final String APPLICATION_NAME = "CardioLink Calendar Integration";
-    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR_EVENTS);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
 
+    // Grant read access to the unnamed module (Google API JARs) before any
+    // Google class is referenced, so the JPMS module boundary does not block them.
+    static {
+        try {
+            Module unnamedModule = ClassLoader.getSystemClassLoader().getUnnamedModule();
+            GoogleCalendarService.class.getModule().addReads(unnamedModule);
+        } catch (Exception e) {
+            System.err.println("[GoogleCalendarService] addReads failed: " + e.getMessage());
+        }
+    }
+
+    // Non-static: initialized in the constructor, after addReads has run.
+    private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+
     private Calendar service;
     private String initError = null;
+
 
     public GoogleCalendarService() {
         try {
