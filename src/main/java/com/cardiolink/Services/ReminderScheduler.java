@@ -30,7 +30,7 @@ public class ReminderScheduler {
     private ScheduledExecutorService scheduler;
     private ServiceRendezvous serviceRendezvous = new ServiceRendezvous();
     private UserService userService = new UserService();
-    private EmailServiceChaima emailServiceChaima = new EmailServiceChaima();
+    private EmailService emailService = new EmailService();
 
     private Set<Integer> sentReminders = new HashSet<>();
 
@@ -75,7 +75,7 @@ public class ReminderScheduler {
                 String patientName = patient.getPrenom() + " " + patient.getNom();
                 String doctorName = "Dr. " + medecin.getNom();
                 
-                boolean success = emailServiceChaima.sendReminder(patient.getEmail(), patientName, doctorName, rv.getDateHeure(), rv.getLienVisio());
+                boolean success = emailService.sendReminder(patient.getEmail(), patientName, doctorName, rv.getDateHeure(), rv.getLienVisio());
                 
                 if (success) {
                     // Marquer comme envoyé uniquement si l'envoi a réussi

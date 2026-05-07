@@ -13,7 +13,7 @@ import java.util.List;
 
 public class PredictionService {
 
-    private static final String API_URL = "http://127.0.0.1:8001/predict?month=";
+    private static final String API_URL = "http://127.0.0.1:8000/predict?month=";
 
     public PredictionResponse predict(String month) {
         if (month == null || month.isBlank()) {
