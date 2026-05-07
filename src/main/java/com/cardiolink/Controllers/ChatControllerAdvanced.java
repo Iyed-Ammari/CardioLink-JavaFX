@@ -660,6 +660,12 @@ public class ChatControllerAdvanced implements Initializable {
             return;
         }
 
+        // Vérification de la toxicité (bloquante)
+        if (!mlAvailable) {
+            // Si le service était hors ligne au démarrage, on re-tente une vérification rapide
+            mlAvailable = mlService.isAvailable();
+        }
+
         if (mlAvailable && mlService.checkToxicity(content)) {
             showAlert("Votre message contient des propos inappropriés et n'a pas pu être envoyé.");
             return;

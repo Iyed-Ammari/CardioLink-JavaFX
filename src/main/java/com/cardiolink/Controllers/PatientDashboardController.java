@@ -20,6 +20,8 @@ public class PatientDashboardController implements UserAwareController {
     @FXML private Button btnSuivis;
     @FXML private Button btnDossier;
     @FXML private Button btnMarketplace;
+    @FXML private Button btnIntervention;
+    @FXML private Button btnSOS;
 
     private UserService userService = new UserService();
 
@@ -37,12 +39,50 @@ public class PatientDashboardController implements UserAwareController {
                 ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
         avatarLabel.setText(initial);
         boolean isPatient = "ROLE_PATIENT".equals(user.getRoleClean());
+        boolean isMedecin = "ROLE_MEDECIN".equals(user.getRoleClean());
+
         btnSuivis.setVisible(isPatient);
         btnSuivis.setManaged(isPatient);
+
         btnDossier.setVisible(isPatient);
         btnDossier.setManaged(isPatient);
-    }
 
+        btnIntervention.setVisible(isMedecin);
+        btnIntervention.setManaged(isMedecin);
+
+        btnSOS.setVisible(isMedecin);
+        btnSOS.setManaged(isMedecin);
+    }
+    @FXML
+    public void ouvrirInterventions() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Intervention.fxml"));
+            Scene scene = new Scene(loader.load(), 1400, 900);
+
+            Stage stage = (Stage) Stage.getWindows().filtered(window -> window.isShowing()).get(0);
+            stage.setScene(scene);
+            stage.setTitle("CardioLink - Interventions Médecin");
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    public void ouvrirAlertesSOS() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AlertesSOS.fxml"));
+            Scene scene = new Scene(loader.load(), 1200, 850);
+
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.setTitle("CardioLink - Alertes SOS");
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @FXML private void viewDashboard() {
         User user = ManagerSession.getInstance().getCurrentUser();
         if (user == null) return;

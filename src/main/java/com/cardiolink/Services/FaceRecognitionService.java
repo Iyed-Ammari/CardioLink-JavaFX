@@ -9,7 +9,7 @@ import java.util.Base64;
 public class FaceRecognitionService {
 
     private static final String HF_TOKEN =
-            "hf_VOTRE_TOKEN_HUGGINGFACE";
+            "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";
 
     // ── URL correcte du modèle de comparaison de visages ─────
     private static final String HF_API_URL =

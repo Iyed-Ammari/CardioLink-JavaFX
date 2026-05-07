@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class MlClassificationService {
 
-    private static final String BASE_URL      = "http://localhost:5000";
+    private static final String BASE_URL      = "http://127.0.0.1:5000";
     private static final int    TIMEOUT_MS    = 3000; // 3 secondes max
 
     /* ── Suggestions statiques de fallback (si Flask indisponible) ─── */
@@ -110,6 +110,7 @@ public class MlClassificationService {
         try {
             HttpURLConnection conn = openConnection("/health", "GET");
             int code = conn.getResponseCode();
+            System.out.println("[MlService] Health check: " + code);
             conn.disconnect();
             return code == 200;
         } catch (Exception e) {
@@ -199,10 +200,11 @@ public class MlClassificationService {
 
             if (response != null && response.has("is_toxic")) {
                 boolean isToxic = response.getBoolean("is_toxic");
-                if (isToxic) {
-                    System.out.println("[MlService] Message détecté comme toxique ! Score : " + response.optDouble("toxicity_score", 0.0));
-                }
+                double score = response.optDouble("toxicity_score", 0.0);
+                System.out.println("[MlService] Résultat toxicité pour '" + (content.length() > 20 ? content.substring(0, 20) + "..." : content) + "' : " + isToxic + " (Score: " + score + ")");
                 return isToxic;
+            } else {
+                System.out.println("[MlService] Réponse invalide ou absente pour checkToxicity");
             }
         } catch (Exception e) {
             System.err.println("[MlService] checkToxicity error: " + e.getMessage());

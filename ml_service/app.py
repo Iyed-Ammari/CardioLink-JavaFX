@@ -319,31 +319,38 @@ def check_toxicity():
         return jsonify({"error": "Le champ 'content' est vide"}), 400
 
     try:
-        # Renvoie une liste de dict par label, on cherche 'toxic'
+        log.info(f"🔍 Requête de toxicité pour : '{content[:50]}'")
+        
+        # Renvoie une liste de dict par label, on cherche 'toxic', 'insult', 'obscene', etc.
         results = toxicity_pipeline(content)
         
         # Le paramètre top_k=None renvoie [[{'label': 'toxic', 'score': 0.9}, ...]]
-        # On extrait le score pour le label 'toxic'
+        # On extrait le score maximum parmi les catégories "négatives"
         toxic_score = 0.0
+        labels_found = []
+        
         if isinstance(results, list) and len(results) > 0:
-            if isinstance(results[0], list):
-                labels = results[0]
-            else:
-                labels = results
+            labels = results[0] if isinstance(results[0], list) else results
                 
             for r in labels:
-                if r.get('label') == 'toxic':
-                    toxic_score = r.get('score', 0.0)
-                    break
+                label = r.get('label', '').lower()
+                score = r.get('score', 0.0)
+                labels_found.append(f"{label}: {score:.2f}")
+                
+                # On considère n'importe quel score élevé dans ces catégories
+                if label in ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']:
+                    if score > toxic_score:
+                        toxic_score = score
         
         # Seuil de toxicité (0.5 est un seuil standard)
         is_toxic = bool(toxic_score > 0.5)
         
-        log.info(f"🛡️ Toxicité pour '{content[:20]}...' → Toxic: {is_toxic} (Score: {toxic_score:.2f})")
+        log.info(f"🛡️ Analyse : {is_toxic} (Max Score: {toxic_score:.2f}) | Détails: {', '.join(labels_found)}")
 
         return jsonify({
             "is_toxic": is_toxic,
-            "toxicity_score": round(float(toxic_score), 4)
+            "toxicity_score": round(float(toxic_score), 4),
+            "details": labels_found
         })
 
     except Exception as e:

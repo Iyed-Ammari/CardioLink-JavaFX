@@ -4,9 +4,9 @@ import java.nio.charset.StandardCharsets;
 public class AIService {
 
     // On reprend tes chemins exacts de la partie Web
-    private final String pythonBinary = "C:\\Users\\Mon Pc\\CardioLink\\ml_env\\Scripts\\python.exe";
-    private final String pythonScript = "C:\\Users\\Mon Pc\\CardioLink\\ml\\summarizer.py";
-
+    // Remplacez par votre chemin réel (probablement sous C:\Users\Asus\...)
+    private final String pythonBinary = "C:\\Users\\Asus\\IdeaProjects\\CardioLink\\ml_env\\Scripts\\python.exe";
+    private final String pythonScript = "C:\\Users\\Asus\\IdeaProjects\\CardioLink\\ml\\summarizer.py";
     public String getSummary(String content) {
         try {
             // Configuration du processus (comme proc_open)
