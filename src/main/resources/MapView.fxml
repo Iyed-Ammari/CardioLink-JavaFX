@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.web.WebView?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1000.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cardiolink.Controllers.MapViewController"
+            style="-fx-background-color: #11152f;">
+
+    <children>
+        <VBox spacing="10.0"
+              AnchorPane.topAnchor="15.0"
+              AnchorPane.bottomAnchor="15.0"
+              AnchorPane.leftAnchor="15.0"
+              AnchorPane.rightAnchor="15.0">
+
+            <children>
+                <Label fx:id="lblTitre"
+                       text="Localisation"
+                       style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+
+                <WebView fx:id="webView"
+                         VBox.vgrow="ALWAYS"
+                         prefHeight="620.0"
+                         prefWidth="970.0" />
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

@@ -28,20 +28,37 @@
                                        -fx-background-radius: 12;
                                        -fx-cursor: hand;"/>
 
+                        <Button text="Voir les archives"
+                                onAction="#ouvrirArchives"
+                                prefWidth="190"
+                                prefHeight="45"
+                                style="-fx-background-color: linear-gradient(to right, #ff9f43, #f6c667);
+                                       -fx-text-fill: white;
+                                       -fx-font-size: 16px;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 12;
+                                       -fx-cursor: hand;"/>
+
                         <TextField fx:id="txtRecherche"
                                    promptText="Rechercher par type..."
                                    prefWidth="240"
                                    prefHeight="40"/>
+
+                        <ComboBox fx:id="cbUrgence"
+                                  prefWidth="180"
+                                  prefHeight="40"
+                                  onAction="#filtrerParUrgence"
+                                  promptText="Filtrer par urgence"/>
                     </children>
                 </HBox>
 
                 <TableView fx:id="tableSuivis" VBox.vgrow="ALWAYS" prefHeight="550">
                     <columns>
-                        <TableColumn fx:id="colType" text="Type de donnée" prefWidth="220"/>
-                        <TableColumn fx:id="colValeur" text="Valeur / Unité" prefWidth="180"/>
-                        <TableColumn fx:id="colDate" text="Date de saisie" prefWidth="240"/>
-                        <TableColumn fx:id="colUrgence" text="Urgence" prefWidth="160"/>
-                        <TableColumn fx:id="colActions" text="Actions" prefWidth="220"/>
+                        <TableColumn fx:id="colType" text="Type de donnée" prefWidth="190"/>
+                        <TableColumn fx:id="colValeur" text="Valeur / Unité" prefWidth="170"/>
+                        <TableColumn fx:id="colDate" text="Date de saisie" prefWidth="220"/>
+                        <TableColumn fx:id="colUrgence" text="Urgence" prefWidth="140"/>
+                        <TableColumn fx:id="colActions" text="Actions" prefWidth="300"/>
                     </columns>
                 </TableView>
 

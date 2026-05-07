@@ -51,18 +51,6 @@
                                        -fx-font-weight: bold;
                                        -fx-background-radius: 14;
                                        -fx-cursor: hand;" />
-
-                        <Button fx:id="btnInterventions"
-                                text="Interventions"
-                                onAction="#ouvrirInterventions"
-                                prefWidth="180.0"
-                                prefHeight="50.0"
-                                style="-fx-background-color: linear-gradient(to right, #6a4df5, #4f7cff);
-                                       -fx-text-fill: white;
-                                       -fx-font-size: 16px;
-                                       -fx-font-weight: bold;
-                                       -fx-background-radius: 14;
-                                       -fx-cursor: hand;" />
                     </children>
                 </HBox>
 
