@@ -31,6 +31,8 @@ import com.cardiolink.Services.AIService;
 import java.sql.SQLException;
 import com.cardiolink.Services.ModerationService;
 import com.cardiolink.Services.RecommendationService;
+import com.cardiolink.Services.CloudinaryService;
+import javafx.application.Platform;
 import com.fasterxml.jackson.core.type.TypeReference;
 public class ForumController {
 
@@ -201,8 +203,34 @@ public class ForumController {
 
             // ⭐ IMAGE PROPRE MVC (Gardé tel quel)
             if (selectedImagePath != null) {
-                String imageName = saveImageToUploads(selectedImagePath);
-                p.setImage(imageName);
+                File imageFile = new File(selectedImagePath);
+                CloudinaryService cloudinary = new CloudinaryService();
+                
+                new Thread(() -> {
+                    try {
+                        String imageUrl = cloudinary.uploadImage(imageFile, "cardiolink/forum", "");
+                        p.setImage(imageUrl);
+                        
+                        Platform.runLater(() -> {
+                            try {
+                                servicePost.add(p);
+                                titleField.clear();
+                                contentField.clear();
+                                selectedImagePath = null;
+                                imageLabel.setText("Aucune image sélectionnée");
+                                loadPosts();
+                                loadStats();
+                                System.out.println("Publication réussie avec Cloudinary !");
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        });
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        Platform.runLater(() -> new Alert(Alert.AlertType.ERROR, "Erreur d'upload vers Cloudinary").show());
+                    }
+                }).start();
+                return; // Return immediately, insertion is done in thread
             } else {
                 p.setImage(null);
             }
@@ -360,27 +388,26 @@ public class ForumController {
         }
         // --- IMAGE (optionnelle) ---
         if (p.getImage() != null && !p.getImage().isEmpty()) {
+            Image image = null;
 
-            File file = new File("uploads", p.getImage());
+            if (p.getImage().startsWith("http")) {
+                image = new Image(p.getImage(), true);
+            } else {
+                File file = new File("uploads", p.getImage());
+                if (file.exists()) {
+                    image = new Image(file.toURI().toString(), true);
+                } else {
+                    System.out.println("❌ Image introuvable sur disque");
+                }
+            }
 
-            System.out.println("IMAGE PATH = " + file.getAbsolutePath());
-            System.out.println("EXISTS = " + file.exists());
-
-            if (file.exists()) {
-
-                Image image = new Image(file.toURI().toString(), false);
-
+            if (image != null) {
                 ImageView img = new ImageView(image);
-
                 img.setFitWidth(400);
                 img.setPreserveRatio(true);
                 img.setSmooth(true);
                 img.setCache(true);
-
                 body.getChildren().add(img);
-
-            } else {
-                System.out.println("❌ Image introuvable sur disque");
             }
         }
         // ================= LIKE / DISLIKE =================

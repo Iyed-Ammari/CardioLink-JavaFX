@@ -18,20 +18,38 @@ public class CloudinaryService {
     }
 
     /**
+     * Upload une image de manière générique et retourne son URL sécurisée.
+     *
+     * @param imageFile Fichier image à uploader
+     * @param folder Le dossier cible sur Cloudinary (ex: "cardiolink/forum")
+     * @param transformation La transformation à appliquer (ex: "w_500,c_fit", ou null)
+     * @return URL publique de l'image
+     * @throws Exception si l'upload échoue
+     */
+    public String uploadImage(File imageFile, String folder, String transformation) throws Exception {
+        Map<String, Object> params = new java.util.HashMap<>();
+        if (folder != null && !folder.isEmpty()) {
+            params.put("folder", folder);
+        }
+        if (transformation != null && !transformation.isEmpty()) {
+            params.put("transformation", transformation);
+        }
+
+        Map<?, ?> result = cloudinary.uploader().upload(imageFile, params);
+        return (String) result.get("secure_url");
+    }
+
+    /**
      * Upload une image et retourne son URL sécurisée.
      * L'image est redimensionnée à 200x200, crop fill avec gravité sur le visage.
+     * (Gardée pour compatibilité avec le profil patient)
      *
      * @param imageFile Fichier image à uploader
      * @return URL publique de l'image transformée
      * @throws Exception si l'upload échoue
      */
     public String uploadImage(File imageFile) throws Exception {
-        Map<?, ?> result = cloudinary.uploader().upload(imageFile,
-                ObjectUtils.asMap(
-                        "folder", "cardiolink/profiles",
-                        "transformation", "w_200,h_200,c_fill,g_face"   // ✅ correction
-                ));
-        return (String) result.get("secure_url");
+        return uploadImage(imageFile, "cardiolink/profiles", "w_200,h_200,c_fill,g_face");
     }
 
     /**

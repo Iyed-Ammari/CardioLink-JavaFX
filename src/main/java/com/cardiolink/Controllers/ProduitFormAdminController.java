@@ -4,6 +4,8 @@ import com.cardiolink.Models.Produit;
 import com.cardiolink.Models.User;
 import com.cardiolink.Services.ProduitService;
 import com.cardiolink.Services.UserService;
+import com.cardiolink.Services.CloudinaryService;
+import javafx.application.Platform;
 import com.cardiolink.utils.ManagerSession;
 import com.cardiolink.utils.NavigationUtil;
 import javafx.collections.FXCollections;
@@ -44,6 +46,7 @@ public class ProduitFormAdminController implements Initializable {
     private final ProduitService produitService = new ProduitService();
     private final UserService userService = new UserService();
     private Produit produitEnCours = null;
+    private File selectedImageFile = null;
 
     private static final Pattern NOM_PATTERN = Pattern.compile(
             "^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9\\s''()\\-+°%/]{1,99}$"
@@ -184,6 +187,7 @@ public class ProduitFormAdminController implements Initializable {
         File f = fc.showOpenDialog(stage);
 
         if (f != null) {
+            selectedImageFile = f;
             imageUrlField.setText(f.toURI().toString());
             if (imageHintLabel != null) imageHintLabel.setText("✅ Image : " + f.getName());
             imageUrlField.setStyle(STYLE_NORMAL);
@@ -290,59 +294,89 @@ public class ProduitFormAdminController implements Initializable {
 
         if (!valid) return;
 
-        try {
-            if (produitEnCours == null) {
-                if (produitService.existsByNom(nom)) {
-                    erreur(nomField, "Un produit avec ce nom existe déjà.");
-                    return;
+        saveButton.setDisable(true);
+        saveButton.setText("Enregistrement...");
+
+        BigDecimal finalPrix = prix;
+        int finalStock = stock;
+        new Thread(() -> {
+            try {
+                String finalImageUrl = imageUrl;
+                if (selectedImageFile != null) {
+                    CloudinaryService cloudinary = new CloudinaryService();
+                    finalImageUrl = cloudinary.uploadImage(selectedImageFile, "cardiolink/produits", "");
                 }
+                final String urlToSave = finalImageUrl;
 
-                Produit p = new Produit(
-                        nom,
-                        desc.isEmpty() ? null : desc,
-                        prix,
-                        stock,
-                        imageUrl.isEmpty() ? null : imageUrl,
-                        categorie
-                );
+                Platform.runLater(() -> {
+                    try {
+                        if (produitEnCours == null) {
+                            if (produitService.existsByNom(nom)) {
+                                erreur(nomField, "Un produit avec ce nom existe déjà.");
+                                saveButton.setDisable(false);
+                                saveButton.setText("Enregistrer");
+                                return;
+                            }
 
-                produitService.add2(p);
-                showSuccess("✅ Produit « " + nom + " » créé (ID=" + p.getId() + ").");
+                            Produit p = new Produit(
+                                    nom,
+                                    desc.isEmpty() ? null : desc,
+                                    finalPrix,
+                                    finalStock,
+                                    urlToSave.isEmpty() ? null : urlToSave,
+                                    categorie
+                            );
 
-            } else {
-                if (produitService.existsByNomExcludingId(nom, produitEnCours.getId())) {
-                    erreur(nomField, "Un autre produit avec ce nom existe déjà.");
-                    return;
-                }
+                            produitService.add2(p);
+                            showSuccess("✅ Produit « " + nom + " » créé (ID=" + p.getId() + ").");
 
-                produitEnCours.setNom(nom);
-                produitEnCours.setDescription(desc.isEmpty() ? null : desc);
-                produitEnCours.setPrix(prix);
-                produitEnCours.setStock(stock);
-                produitEnCours.setImageUrl(imageUrl.isEmpty() ? null : imageUrl);
-                produitEnCours.setCategorie(categorie);
+                        } else {
+                            if (produitService.existsByNomExcludingId(nom, produitEnCours.getId())) {
+                                erreur(nomField, "Un autre produit avec ce nom existe déjà.");
+                                saveButton.setDisable(false);
+                                saveButton.setText("Enregistrer");
+                                return;
+                            }
 
-                produitService.update(produitEnCours);
-                showSuccess("✅ Produit « " + nom + " » mis à jour.");
+                            produitEnCours.setNom(nom);
+                            produitEnCours.setDescription(desc.isEmpty() ? null : desc);
+                            produitEnCours.setPrix(finalPrix);
+                            produitEnCours.setStock(finalStock);
+                            produitEnCours.setImageUrl(urlToSave.isEmpty() ? null : urlToSave);
+                            produitEnCours.setCategorie(categorie);
+
+                            produitService.update(produitEnCours);
+                            showSuccess("✅ Produit « " + nom + " » mis à jour.");
+                        }
+
+                        javafx.animation.PauseTransition pause =
+                                new javafx.animation.PauseTransition(javafx.util.Duration.millis(900));
+
+                        pause.setOnFinished(e -> {
+                            try {
+                                Stage stage = (Stage) nomField.getScene().getWindow();
+                                NavigationUtil.navigate(stage, "/fxml/admin/produit-list-admin.fxml");
+                            } catch (IOException ex) {
+                                System.err.println("Navigation : " + ex.getMessage());
+                            }
+                        });
+
+                        pause.play();
+
+                    } catch (Exception e) {
+                        showError("❌ " + (e.getMessage() != null ? e.getMessage() : "Erreur inconnue."));
+                        saveButton.setDisable(false);
+                        saveButton.setText("Enregistrer");
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    showError("❌ Erreur lors de l'upload de l'image.");
+                    saveButton.setDisable(false);
+                    saveButton.setText("Enregistrer");
+                });
             }
-
-            javafx.animation.PauseTransition pause =
-                    new javafx.animation.PauseTransition(javafx.util.Duration.millis(900));
-
-            pause.setOnFinished(e -> {
-                try {
-                    Stage stage = (Stage) nomField.getScene().getWindow();
-                    NavigationUtil.navigate(stage, "/fxml/admin/produit-list-admin.fxml");
-                } catch (IOException ex) {
-                    System.err.println("Navigation : " + ex.getMessage());
-                }
-            });
-
-            pause.play();
-
-        } catch (Exception e) {
-            showError("❌ " + (e.getMessage() != null ? e.getMessage() : "Erreur inconnue."));
-        }
+        }).start();
     }
 
     @FXML
@@ -354,6 +388,7 @@ public class ProduitFormAdminController implements Initializable {
             prixField.clear();
             stockField.clear();
             imageUrlField.clear();
+            selectedImageFile = null;
             descriptionArea.clear();
             categorieBox.setValue(null);
 
