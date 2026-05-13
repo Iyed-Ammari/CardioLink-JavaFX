@@ -8,7 +8,9 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.json.JSONObject;
@@ -17,9 +19,14 @@ import java.util.UUID;
 
 public class LoginController {
 
-    @FXML private TextField     emailField;
-    @FXML private PasswordField passwordField;
-    @FXML private Label         errorLabel;
+    @FXML
+    private TextField emailField;
+
+    @FXML
+    private PasswordField passwordField;
+
+    @FXML
+    private Label errorLabel;
 
     private final UserService       userService  = new UserService();
     private final GoogleAuthService googleAuth   = new GoogleAuthService();
@@ -27,17 +34,22 @@ public class LoginController {
     // ── Login classique ──────────────────────────────────────
     @FXML
     private void handleLogin() {
-        String email    = emailField.getText().trim();
+        String email = emailField.getText().trim();
         String password = passwordField.getText().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
-            showError("Veuillez remplir tous les champs !"); return;
+            showError("Veuillez remplir tous les champs !");
+            return;
         }
+
         if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            showError("Format d'email invalide !"); return;
+            showError("Format d'email invalide !");
+            return;
         }
+
         if (password.length() < 4) {
-            showError("Mot de passe minimum 4 caractères !"); return;
+            showError("Mot de passe minimum 4 caractères !");
+            return;
         }
 
         try {
@@ -180,11 +192,15 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/register.fxml"));
             Scene scene = new Scene(loader.load(), 900, 650);
+
             Stage stage = (Stage) emailField.getScene().getWindow();
             stage.setTitle("CardioLink - Register");
             stage.setScene(scene);
             stage.show();
-        } catch (Exception e) { e.printStackTrace(); }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void showError(String msg) {

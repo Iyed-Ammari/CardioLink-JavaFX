@@ -2,6 +2,7 @@ package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Suivi;
 import com.cardiolink.Services.SuiviService;
+import com.cardiolink.utils.ManagerSession;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +23,9 @@ public class ConsulterSuiviController {
 
     @FXML
     private TextField txtRecherche;
+
+    @FXML
+    private ComboBox<String> cbUrgence;
 
     @FXML
     private TableView<Suivi> tableSuivis;
@@ -50,6 +54,10 @@ public class ConsulterSuiviController {
     @FXML
     public void initialize() {
         configurerColonnes();
+
+        cbUrgence.getItems().addAll("Tous", "Normal", "Stable", "Critique", "Valeur invalide");
+        cbUrgence.setValue("Tous");
+
         chargerSuivis();
     }
 
@@ -98,6 +106,7 @@ public class ConsulterSuiviController {
             case "Normal" -> "-fx-background-color: #dff3e6; -fx-text-fill: #26a65b; -fx-padding: 8 18; -fx-background-radius: 10;";
             case "Stable" -> "-fx-background-color: #f7eadf; -fx-text-fill: #ff7a00; -fx-padding: 8 18; -fx-background-radius: 10;";
             case "Critique" -> "-fx-background-color: #f8dede; -fx-text-fill: #e74c3c; -fx-padding: 8 18; -fx-background-radius: 10;";
+            case "Valeur invalide" -> "-fx-background-color: #e6d9ff; -fx-text-fill: #7b2cbf; -fx-padding: 8 18; -fx-background-radius: 10;";
             default -> "-fx-background-color: #e0e0e0; -fx-text-fill: #333333; -fx-padding: 8 18; -fx-background-radius: 10;";
         };
     }
@@ -107,12 +116,14 @@ public class ConsulterSuiviController {
             private final Button btnVoir = new Button("👁");
             private final Button btnModifier = new Button("✏");
             private final Button btnSupprimer = new Button("🗑");
-            private final HBox box = new HBox(8, btnVoir, btnModifier, btnSupprimer);
+            private final Button btnArchiver = new Button("📦");
+            private final HBox box = new HBox(8, btnVoir, btnModifier, btnSupprimer, btnArchiver);
 
             {
                 btnVoir.setStyle("-fx-background-color: transparent; -fx-font-size: 16px; -fx-cursor: hand;");
                 btnModifier.setStyle("-fx-background-color: transparent; -fx-font-size: 16px; -fx-cursor: hand;");
                 btnSupprimer.setStyle("-fx-background-color: linear-gradient(to right, #d9416c, #5b6fff); -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand;");
+                btnArchiver.setStyle("-fx-background-color: linear-gradient(to right, #ff9f43, #f6c667); -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand;");
 
                 btnVoir.setOnAction(event -> {
                     Suivi suivi = getTableView().getItems().get(getIndex());
@@ -128,6 +139,11 @@ public class ConsulterSuiviController {
                     Suivi suivi = getTableView().getItems().get(getIndex());
                     supprimerSuivi(suivi);
                 });
+
+                btnArchiver.setOnAction(event -> {
+                    Suivi suivi = getTableView().getItems().get(getIndex());
+                    archiverSuivi(suivi);
+                });
             }
 
             @Override
@@ -140,10 +156,11 @@ public class ConsulterSuiviController {
 
     private void chargerSuivis() {
         try {
-            List<Suivi> suivis = suiviService.getAll();
+            int patientId = ManagerSession.getInstance().getCurrentUser().getId();
+            List<Suivi> suivis = suiviService.getByPatientId(patientId);
             data.setAll(suivis);
             tableSuivis.setItems(data);
-            lblMessage.setText("Nombre de suivis : " + suivis.size());
+            lblMessage.setText("Nombre de suivis actifs : " + suivis.size());
         } catch (Exception e) {
             lblMessage.setText("Erreur de chargement des suivis : " + e.getMessage());
             e.printStackTrace();
@@ -153,9 +170,10 @@ public class ConsulterSuiviController {
     @FXML
     public void rechercherSuivis() {
         try {
+            int patientId = ManagerSession.getInstance().getCurrentUser().getId();
             String recherche = txtRecherche.getText() == null ? "" : txtRecherche.getText().trim().toLowerCase();
 
-            List<Suivi> suivis = suiviService.getAll();
+            List<Suivi> suivis = suiviService.getByPatientId(patientId);
 
             if (recherche.isEmpty()) {
                 data.setAll(suivis);
@@ -173,6 +191,33 @@ public class ConsulterSuiviController {
 
         } catch (Exception e) {
             lblMessage.setText("Erreur lors de la recherche.");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void filtrerParUrgence() {
+        try {
+            int patientId = ManagerSession.getInstance().getCurrentUser().getId();
+            String urgenceChoisie = cbUrgence.getValue();
+
+            List<Suivi> suivis = suiviService.getByPatientId(patientId);
+
+            if (urgenceChoisie == null || urgenceChoisie.equals("Tous")) {
+                data.setAll(suivis);
+            } else {
+                data.setAll(
+                        suivis.stream()
+                                .filter(s -> urgenceChoisie.equalsIgnoreCase(s.getNiveauUrgence()))
+                                .collect(Collectors.toList())
+                );
+            }
+
+            tableSuivis.setItems(data);
+            lblMessage.setText("Filtre urgence : " + urgenceChoisie + " | Résultats : " + data.size());
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur filtre urgence : " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -232,6 +277,41 @@ public class ConsulterSuiviController {
                 lblMessage.setText("Erreur suppression : " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void archiverSuivi(Suivi suivi) {
+        try {
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmation.setTitle("Archivage");
+            confirmation.setHeaderText("Archiver le suivi");
+            confirmation.setContentText("Voulez-vous vraiment archiver ce suivi ?");
+
+            if (confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                suiviService.archive(suivi);
+                lblMessage.setText("Suivi archivé avec succès.");
+                chargerSuivis();
+            }
+        } catch (Exception e) {
+            lblMessage.setText("Erreur archivage : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void ouvrirArchives() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/SuiviArchive.fxml"));
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = new Stage();
+            stage.setTitle("Suivis Archivés");
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur ouverture archives : " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

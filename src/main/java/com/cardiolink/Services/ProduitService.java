@@ -60,6 +60,22 @@ public class ProduitService implements Iservice<Produit> {
             }
         }
 
+        // Nouveaux champs
+        try {
+            double note = rs.getDouble("note_moyenne");
+            p.setNoteMoyenne(note);
+        } catch (Exception ignored) {}
+
+        try {
+            int nbAvis = rs.getInt("nb_avis");
+            p.setNbAvis(nbAvis);
+        } catch (Exception ignored) {}
+
+        try {
+            String fav = rs.getString("favoris_users");
+            p.setFavorisUsers(fav);
+        } catch (Exception ignored) {}
+
         return p;
     }
 
@@ -76,18 +92,33 @@ public class ProduitService implements Iservice<Produit> {
     private void valider(Produit p) {
         if (p == null)
             throw new IllegalArgumentException("Le produit ne peut pas être null.");
+
+        // ── Nom ──
         if (p.getNom() == null || p.getNom().trim().isEmpty())
             throw new IllegalArgumentException("Le nom est obligatoire.");
-        if (p.getNom().trim().length() < 2)
+        String nom = p.getNom().trim();
+        if (nom.length() < 2)
             throw new IllegalArgumentException("Le nom doit contenir au moins 2 caractères.");
-        if (p.getNom().trim().length() > 255)
-            throw new IllegalArgumentException("Le nom ne doit pas dépasser 255 caractères.");
+        if (nom.length() > 100)
+            throw new IllegalArgumentException("Le nom ne doit pas dépasser 100 caractères.");
+        if (!Character.isLetter(nom.charAt(0)))
+            throw new IllegalArgumentException("Le nom doit commencer par une lettre.");
+        if (!nom.matches("^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9\\s''()\\-+°%/]{1,99}$"))
+            throw new IllegalArgumentException("Le nom doit commencer par une lettre et ne contenir que des caractères valides.");
+
+        // ── Prix ──
         if (p.getPrix() == null || p.getPrix().compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException("Le prix doit être > 0.");
         if (p.getPrix().compareTo(new BigDecimal("99999.99")) > 0)
             throw new IllegalArgumentException("Le prix ne peut pas dépasser 99 999.99 DT.");
+
+        // ── Stock ──
         if (p.getStock() == null || p.getStock() < 0)
             throw new IllegalArgumentException("Le stock doit être >= 0.");
+        if (p.getStock() > 999999)
+            throw new IllegalArgumentException("Le stock ne peut pas dépasser 999 999.");
+
+        // ── Catégorie ──
         if (p.getCategorie() == null || p.getCategorie().trim().isEmpty())
             throw new IllegalArgumentException("La catégorie est obligatoire.");
         if (p.getCategorie().trim().length() > 50)
@@ -214,12 +245,14 @@ public class ProduitService implements Iservice<Produit> {
     @Override
     public List<Produit> getAll() {
         List<Produit> list = new ArrayList<>();
-        String sql = "SELECT id, nom, description, prix, stock, image_url, categorie FROM produit ORDER BY id DESC";
+        String sql = "SELECT id, nom, description, prix, stock, image_url, categorie, note_moyenne, nb_avis, favoris_users FROM produit ORDER BY id DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                list.add(mapResultSet(rs));
+                Produit p = mapResultSet(rs);
+                p.setPromoAuto(isPromoAuto(p.getId()));
+                list.add(p);
             }
         } catch (SQLException e) {
             System.err.println("❌ getAll : " + e.getMessage());
@@ -230,17 +263,19 @@ public class ProduitService implements Iservice<Produit> {
 
     @Override
     public Produit getById(int id) {
-        String sql = "SELECT id, nom, description, prix, stock, image_url, categorie FROM produit WHERE id=?";
+        String sql = "SELECT id, nom, description, prix, stock, image_url, categorie, note_moyenne, nb_avis, favoris_users FROM produit WHERE id=?";
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, id);
-
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return mapResultSet(rs);
+                if (rs.next()) {
+                    Produit p = mapResultSet(rs);
+                    p.setPromoAuto(isPromoAuto(p.getId()));
+                    return p;
+                }
             }
         } catch (SQLException e) {
             System.err.println("❌ getById : " + e.getMessage());
         }
-
         return null;
     }
 
@@ -343,7 +378,7 @@ public class ProduitService implements Iservice<Produit> {
 
     public List<Produit> getProduitsEnRupture() {
         List<Produit> list = new ArrayList<>();
-        String sql = "SELECT id, nom, description, prix, stock, image_url, categorie FROM produit WHERE stock = 0 ORDER BY nom ASC";
+        String sql = "SELECT id, nom, description, prix, stock, image_url, categorie, note_moyenne, nb_avis FROM produit WHERE stock = 0 ORDER BY nom ASC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -353,5 +388,79 @@ public class ProduitService implements Iservice<Produit> {
         }
 
         return list;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // FAVORIS
+    // Toggle favori pour un user — persiste en base
+    // ─────────────────────────────────────────────────────────
+    public void toggleFavori(int produitId, int userId) {
+        Produit p = getById(produitId);
+        if (p == null) throw new RuntimeException("Produit introuvable.");
+
+        p.toggleFavoriPour(userId);
+
+        String sql = "UPDATE produit SET favoris_users = ? WHERE id = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            if (p.getFavorisUsers() == null) ps.setNull(1, Types.VARCHAR);
+            else ps.setString(1, p.getFavorisUsers());
+            ps.setInt(2, produitId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur toggle favori : " + e.getMessage(), e);
+        }
+    }
+
+    // Retourne tous les produits favoris d'un user
+    public List<Produit> getFavorisByUser(int userId) {
+        List<Produit> tous = getAll();
+        return tous.stream()
+                .filter(p -> p.isFavoriPour(userId))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // PROMO AUTOMATIQUE
+    // Retourne true si le produit n'a eu aucune vente PAYÉE
+    // dans les 5 derniers jours → promo -20% automatique
+    // ─────────────────────────────────────────────────────────
+    public boolean isPromoAuto(int produitId) {
+        String sql =
+                "SELECT COUNT(*) FROM ligne_commande lc " +
+                        "JOIN commande c ON c.id = lc.commande_id " +
+                        "WHERE lc.produit_id = ? " +
+                        "AND c.statut = 'PAYEE' " +
+                        "AND c.date_commande >= NOW() - INTERVAL 5 DAY";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, produitId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) == 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ isPromoAuto : " + e.getMessage());
+        }
+        return false;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // AVIS ÉTOILES
+    // Enregistre la note d'un patient et recalcule la moyenne
+    // ─────────────────────────────────────────────────────────
+    public void noterProduit(int produitId, int note) {
+        if (note < 1 || note > 5)
+            throw new IllegalArgumentException("La note doit être entre 1 et 5.");
+
+        String sql =
+                "UPDATE produit " +
+                        "SET note_moyenne = ROUND(((note_moyenne * nb_avis) + ?) / (nb_avis + 1), 1), " +
+                        "    nb_avis = nb_avis + 1 " +
+                        "WHERE id = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, note);
+            ps.setInt(2, produitId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur notation produit : " + e.getMessage(), e);
+        }
     }
 }

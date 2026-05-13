@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="700.0" prefWidth="1100.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cardiolink.Controllers.SuiviArchiveController"
+            style="-fx-background-color: #f3f3f3;">
+
+    <children>
+        <VBox spacing="20.0"
+              AnchorPane.topAnchor="20.0"
+              AnchorPane.leftAnchor="30.0"
+              AnchorPane.rightAnchor="30.0"
+              AnchorPane.bottomAnchor="20.0">
+
+            <children>
+
+                <Label text="Suivis Archivés"
+                       style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #333333;" />
+
+                <TableView fx:id="tableArchives" VBox.vgrow="ALWAYS" prefHeight="550">
+                    <columns>
+                        <TableColumn fx:id="colType" text="Type de donnée" prefWidth="220"/>
+                        <TableColumn fx:id="colValeur" text="Valeur / Unité" prefWidth="180"/>
+                        <TableColumn fx:id="colDate" text="Date de saisie" prefWidth="240"/>
+                        <TableColumn fx:id="colUrgence" text="Urgence" prefWidth="160"/>
+                    </columns>
+                </TableView>
+
+                <Label fx:id="lblMessage"
+                       text="Chargement..."
+                       style="-fx-font-size: 16px; -fx-text-fill: #333333;"/>
+
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

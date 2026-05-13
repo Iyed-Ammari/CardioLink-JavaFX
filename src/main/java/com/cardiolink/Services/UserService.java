@@ -240,8 +240,22 @@ public class UserService implements Iservice<User> {
         return null;
     }
 
+    /**
+     * Retourne tous les utilisateurs ayant le rôle ROLE_MEDECIN.
+     * La colonne roles stocke la valeur sous la forme : ["ROLE_MEDECIN"]
+     */
+    public List<User> getMedecins() throws SQLException {
+        String sql = "SELECT * FROM user WHERE roles LIKE '%ROLE_MEDECIN%' AND is_active = 1";
+        Connection conn = DatabaseConnection.getConnection();
+        Statement st = conn.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        List<User> medecins = new ArrayList<>();
+        while (rs.next()) medecins.add(mapUser(rs));
+        return medecins;
+    }
+
     private User mapUser(ResultSet rs) throws SQLException {
-        return new User(
+        User user = new User(
                 rs.getInt("id"),
                 rs.getString("email"),
                 rs.getString("password"),
@@ -255,6 +269,11 @@ public class UserService implements Iservice<User> {
                 rs.getBoolean("is_verified"),
                 rs.getString("image_url")
         );
+
+       //ligne pour model ia matching
+        user.setInterestVector(rs.getString("interest_vector"));
+
+        return user;
     }
     // ── Sauvegarder l'image de visage ────────────────────────────
     public void saveFaceImage(int userId, String base64Image) throws SQLException {

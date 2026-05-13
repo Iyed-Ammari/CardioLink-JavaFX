@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1150.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cardiolink.Controllers.InterventionArchiveController"
+            style="-fx-background-color: linear-gradient(to bottom, #11152f, #17193a);">
+
+    <children>
+        <VBox spacing="18.0"
+              AnchorPane.topAnchor="20.0"
+              AnchorPane.leftAnchor="20.0"
+              AnchorPane.rightAnchor="20.0"
+              AnchorPane.bottomAnchor="20.0">
+
+            <children>
+
+                <Label text="Interventions Archivées"
+                       style="-fx-text-fill: white; -fx-font-size: 38px; -fx-font-weight: bold;" />
+
+                <TableView fx:id="tableArchives" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colType" text="TYPE" prefWidth="150"/>
+                        <TableColumn fx:id="colDescription" text="DESCRIPTION" prefWidth="300"/>
+                        <TableColumn fx:id="colDatePlanifiee" text="DATE PLANIFIÉE" prefWidth="220"/>
+                        <TableColumn fx:id="colStatut" text="STATUT" prefWidth="150"/>
+                        <TableColumn fx:id="colMedecin" text="MÉDECIN" prefWidth="150"/>
+                    </columns>
+                </TableView>
+
+                <Label fx:id="lblMessage"
+                       text="Chargement..."
+                       style="-fx-text-fill: white; -fx-font-size: 15px;" />
+
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

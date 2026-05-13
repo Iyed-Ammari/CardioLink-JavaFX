@@ -2,6 +2,7 @@ package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Intervention;
 import com.cardiolink.Services.InterventionService;
+import com.cardiolink.Services.MaterielSuggestionService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,6 +13,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
+import java.awt.Desktop;
+import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +26,9 @@ public class InterventionController {
 
     @FXML
     private TableView<Intervention> tableInterventions;
+
+    @FXML
+    private TableColumn<Intervention, String> colId;
 
     @FXML
     private TableColumn<Intervention, String> colType;
@@ -46,6 +52,7 @@ public class InterventionController {
     private Label lblMessage;
 
     private final InterventionService interventionService = new InterventionService();
+    private final MaterielSuggestionService materielSuggestionService = new MaterielSuggestionService();
     private final ObservableList<Intervention> data = FXCollections.observableArrayList();
 
     @FXML
@@ -55,6 +62,9 @@ public class InterventionController {
     }
 
     private void configurerColonnes() {
+        colId.setCellValueFactory(cell ->
+                new SimpleStringProperty(String.valueOf(cell.getValue().getId())));
+
         colType.setCellValueFactory(cell ->
                 new SimpleStringProperty(cell.getValue().getType()));
 
@@ -100,7 +110,10 @@ public class InterventionController {
 
         colActions.setCellFactory(param -> new TableCell<>() {
             private final Button btnVoir = new Button("👁 Voir");
-            private final HBox box = new HBox(btnVoir);
+            private final Button btnArchiver = new Button("📦 Archiver");
+            private final Button btnLocalisation = new Button("📍 Localisation");
+            private final Button btnMateriel = new Button("🧰 Matériel");
+            private final HBox box = new HBox(8, btnVoir, btnArchiver, btnLocalisation, btnMateriel);
 
             {
                 btnVoir.setStyle("-fx-background-color: linear-gradient(to right, #5d73f1, #7587ff);"
@@ -110,16 +123,69 @@ public class InterventionController {
                         + "-fx-background-radius: 12;"
                         + "-fx-cursor: hand;");
 
+                btnArchiver.setStyle("-fx-background-color: linear-gradient(to right, #ff8a00, #ffb347);"
+                        + "-fx-text-fill: white;"
+                        + "-fx-font-size: 14px;"
+                        + "-fx-font-weight: bold;"
+                        + "-fx-background-radius: 12;"
+                        + "-fx-cursor: hand;");
+
+                btnLocalisation.setStyle("-fx-background-color: linear-gradient(to right, #1abc9c, #16a085);"
+                        + "-fx-text-fill: white;"
+                        + "-fx-font-size: 14px;"
+                        + "-fx-font-weight: bold;"
+                        + "-fx-background-radius: 12;"
+                        + "-fx-cursor: hand;");
+
+                btnMateriel.setStyle("-fx-background-color: linear-gradient(to right, #8e44ad, #c56cf0);"
+                        + "-fx-text-fill: white;"
+                        + "-fx-font-size: 14px;"
+                        + "-fx-font-weight: bold;"
+                        + "-fx-background-radius: 12;"
+                        + "-fx-cursor: hand;");
+
                 btnVoir.setOnAction(event -> {
                     Intervention intervention = getTableView().getItems().get(getIndex());
                     afficherDetails(intervention);
+                });
+
+                btnArchiver.setOnAction(event -> {
+                    Intervention intervention = getTableView().getItems().get(getIndex());
+                    archiverIntervention(intervention);
+                });
+
+                btnLocalisation.setOnAction(event -> {
+                    Intervention intervention = getTableView().getItems().get(getIndex());
+                    ouvrirLocalisation(intervention);
+                });
+
+                btnMateriel.setOnAction(event -> {
+                    Intervention intervention = getTableView().getItems().get(getIndex());
+                    afficherMaterielSuggere(intervention);
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : box);
+
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+
+                Intervention intervention = getTableView().getItems().get(getIndex());
+
+                btnArchiver.setDisable(intervention == null || !"Effectuée".equals(intervention.getStatut()));
+
+                boolean hasLocation = intervention != null
+                        && intervention.getLatitude() != null
+                        && intervention.getLongitude() != null;
+
+                btnLocalisation.setDisable(!hasLocation);
+                btnLocalisation.setOpacity(hasLocation ? 1.0 : 0.45);
+
+                setGraphic(box);
             }
         });
     }
@@ -138,7 +204,7 @@ public class InterventionController {
             List<Intervention> interventions = interventionService.getAll();
             data.setAll(interventions);
             tableInterventions.setItems(data);
-            lblMessage.setText("Nombre d'interventions : " + interventions.size());
+            lblMessage.setText("Nombre d'interventions actives : " + interventions.size());
         } catch (Exception e) {
             lblMessage.setText("Erreur de chargement : " + e.getMessage());
             e.printStackTrace();
@@ -179,15 +245,81 @@ public class InterventionController {
         alert.setTitle("Détails Intervention");
         alert.setHeaderText(intervention.getType());
         alert.setContentText(
-                "Description : " + intervention.getDescription() + "\n\n" +
+                "ID : " + intervention.getId() + "\n" +
+                        "Description : " + intervention.getDescription() + "\n\n" +
                         "Statut : " + intervention.getStatut() + "\n" +
                         "Date planifiée : " +
                         (intervention.getDatePlanifiee() != null
                                 ? intervention.getDatePlanifiee().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                                 : "-") + "\n" +
-                        "Médecin : " + intervention.getMedecinId()
+                        "Médecin : " + intervention.getMedecinId() + "\n" +
+                        "Latitude : " + (intervention.getLatitude() != null ? intervention.getLatitude() : "-") + "\n" +
+                        "Longitude : " + (intervention.getLongitude() != null ? intervention.getLongitude() : "-")
         );
         alert.showAndWait();
+    }
+
+    private void afficherMaterielSuggere(Intervention intervention) {
+        try {
+            List<String> materiels = materielSuggestionService.suggererMateriel(intervention);
+            String contenu = "• " + String.join("\n• ", materiels);
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Matériel suggéré");
+            alert.setHeaderText("Assistant de préparation - " + intervention.getType());
+            alert.setContentText("Matériel recommandé :\n\n" + contenu);
+            alert.showAndWait();
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur suggestion matériel : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void archiverIntervention(Intervention intervention) {
+        try {
+            if (!"Effectuée".equals(intervention.getStatut())) {
+                lblMessage.setText("Seules les interventions effectuées peuvent être archivées.");
+                return;
+            }
+
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmation.setTitle("Archivage");
+            confirmation.setHeaderText("Archiver l'intervention");
+            confirmation.setContentText("Voulez-vous vraiment archiver cette intervention ?");
+
+            if (confirmation.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                interventionService.archive(intervention);
+                lblMessage.setText("Intervention archivée avec succès.");
+                chargerInterventions();
+            }
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur archivage : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void ouvrirLocalisation(Intervention intervention) {
+        try {
+            if (intervention.getLatitude() == null || intervention.getLongitude() == null) {
+                lblMessage.setText("Aucune localisation disponible pour cette intervention.");
+                return;
+            }
+
+            double lat = intervention.getLatitude();
+            double lng = intervention.getLongitude();
+
+            String url = "https://www.google.com/maps?q=" + lat + "," + lng;
+
+            Desktop.getDesktop().browse(new URI(url));
+
+            lblMessage.setText("Localisation ouverte dans le navigateur.");
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur ouverture localisation : " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -203,6 +335,23 @@ public class InterventionController {
 
         } catch (Exception e) {
             lblMessage.setText("Erreur ouverture alertes SOS : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void ouvrirArchives() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/InterventionArchive.fxml"));
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = new Stage();
+            stage.setTitle("Interventions Archivées");
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur ouverture archives : " + e.getMessage());
             e.printStackTrace();
         }
     }

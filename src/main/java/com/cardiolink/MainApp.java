@@ -1,11 +1,18 @@
 package com.cardiolink;
 
+import com.cardiolink.Models.Rendezvous;
+import com.cardiolink.Services.ServiceRendezvous;
+import com.cardiolink.utils.ManagerSession;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.List;
+
 public class MainApp extends Application {
+    
+    private com.cardiolink.Services.ReminderScheduler reminderScheduler;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -18,6 +25,18 @@ public class MainApp extends Application {
         stage.setMinHeight(700);
         stage.setScene(scene);
         stage.show();
+
+        // Démarrer le planificateur de rappels (singleton – une seule instance)
+        reminderScheduler = com.cardiolink.Services.ReminderScheduler.getInstance();
+        reminderScheduler.start();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        if (reminderScheduler != null) {
+            reminderScheduler.stop();
+        }
+        super.stop();
     }
 
     public static void main(String[] args) {

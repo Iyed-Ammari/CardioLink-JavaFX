@@ -78,30 +78,6 @@ public class AjouterSuivi {
         }
     }
 
-    @FXML
-    public void ouvrirInterventions() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Intervention.fxml"));
-
-            if (loader.getLocation() == null) {
-                lblMessage.setText("Fichier Intervention.fxml introuvable.");
-                return;
-            }
-
-            Scene scene = new Scene(loader.load());
-
-            Stage stage = new Stage();
-            stage.setTitle("Interventions");
-            stage.setScene(scene);
-            stage.setResizable(true);
-            stage.show();
-
-        } catch (Exception e) {
-            lblMessage.setText("Erreur ouverture interventions : " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
     public void chargerSuivis() {
         listSuivis.getItems().clear();
 
