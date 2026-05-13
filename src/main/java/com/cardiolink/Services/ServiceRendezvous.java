@@ -18,7 +18,7 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
     @Override
     public void add(Rendezvous rv) throws SQLDataException {
         // Changement du nom de la table ici
-        String query = "INSERT INTO rendez_vous (date_heure, statut, type, lien_visio, remarques, patient_id, medecin_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO rendezvous (date_heure, statut, type, lien_visio, remarques, patient_id, medecin_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setTimestamp(1, Timestamp.valueOf(rv.getDateHeure()));
             pst.setString(2, rv.getStatut());
@@ -37,7 +37,7 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
     @Override
     public List<Rendezvous> getAll() throws SQLDataException {
         List<Rendezvous> liste = new ArrayList<>();
-        String query = "SELECT * FROM rendez_vous";
+        String query = "SELECT * FROM rendezvous";
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(query)) {
             while (rs.next()) {
@@ -61,7 +61,7 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
 
     @Override
     public void update(Rendezvous rv) throws SQLDataException {
-        String query = "UPDATE rendez_vous SET date_heure=?, statut=?, type=?, lien_visio=?, remarques=? WHERE id=?";
+        String query = "UPDATE rendezvous SET date_heure=?, statut=?, type=?, lien_visio=?, remarques=? WHERE id=?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setTimestamp(1, Timestamp.valueOf(rv.getDateHeure()));
             pst.setString(2, rv.getStatut());
@@ -77,7 +77,7 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
 
     @Override
     public void delete(Rendezvous rv) throws SQLDataException {
-        String query = "DELETE FROM rendez_vous WHERE id = ?";
+        String query = "DELETE FROM rendezvous WHERE id = ?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, rv.getId());
             pst.executeUpdate();
@@ -88,7 +88,7 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
 
     @Override
     public Rendezvous getById(int id) throws SQLDataException {
-        String query = "SELECT * FROM rendez_vous WHERE id = ?";
+        String query = "SELECT * FROM rendezvous WHERE id = ?";
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, id);
             ResultSet rs = pst.executeQuery();
@@ -114,7 +114,7 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
     public List<Rendezvous> getByPatientId(int patientId) throws SQLDataException {
         List<Rendezvous> liste = new ArrayList<>();
         // La requête sélectionne tous les records correspondants au patient
-        String query = "SELECT * FROM rendez_vous WHERE patient_id = ?";
+        String query = "SELECT * FROM rendezvous WHERE patient_id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, patientId);
@@ -149,7 +149,7 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
     public List<Rendezvous> getByMedecinId(int medecinId) throws SQLDataException {
         List<Rendezvous> liste = new ArrayList<>();
         // La requête sélectionne tous les records correspondants au patient
-        String query = "SELECT * FROM rendez_vous WHERE medecin_id = ?";
+        String query = "SELECT * FROM rendezvous WHERE medecin_id = ?";
 
         try (PreparedStatement pst = connection.prepareStatement(query)) {
             pst.setInt(1, medecinId);
@@ -184,7 +184,7 @@ public class ServiceRendezvous implements Iservice<Rendezvous> {
     public List<Rendezvous> getAppointmentsForTomorrow() {
         List<Rendezvous> liste = new ArrayList<>();
         // Sélectionne les rendez-vous dont la date est exactement demain
-        String query = "SELECT * FROM rendez_vous WHERE DATE(date_heure) = CURDATE() + INTERVAL 1 DAY";
+        String query = "SELECT * FROM rendezvous WHERE DATE(date_heure) = CURDATE() + INTERVAL 1 DAY";
 
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(query)) {

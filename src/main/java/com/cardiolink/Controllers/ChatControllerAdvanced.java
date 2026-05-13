@@ -1091,8 +1091,8 @@ public class ChatControllerAdvanced implements Initializable {
         try {
             User user = ManagerSession.getInstance().getCurrentUser();
             String fxml = (user != null && user.getRoleClean().contains("MEDECIN"))
-                    ? "/dashboard_admin.fxml"
-                    : "/dashboard_patient.fxml";
+                    ?"/dashboard_patient.fxml"
+                    : "/dashboard_admin.fxml";
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.setScene(new Scene(FXMLLoader.load(getClass().getResource(fxml))));
         } catch (IOException e) {
