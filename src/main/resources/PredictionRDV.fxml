@@ -1,80 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1000.0" stylesheets="@css/rdv_style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.PredictionRDVController">
-    <children>
-        <VBox spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="main-container">
-            <children>
-                <HBox alignment="CENTER_LEFT" spacing="20.0">
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#goBack" styleClass="action-button" text="⬅" />
-                        <VBox HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="subtitle-text" text="Analyse Prédictive" />
-                                <Label styleClass="title-text" text="Prévisions des Rendez-vous" />
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
+<BorderPane prefHeight="720.0" prefWidth="1100.0" 
+            stylesheets="@css/rdv_style.css" 
+            xmlns="http://javafx.com/javafx/21" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.cardiolink.Controllers.PredictionRDVController">
 
-                <HBox spacing="20.0">
-                    <children>
-                        <VBox alignment="CENTER" spacing="10.0" styleClass="glass-pane" HBox.hgrow="ALWAYS" style="-fx-padding: 20;">
-                            <children>
-                                <Label styleClass="label-text" text="Moyenne Mensuelle" />
-                                <Label fx:id="lblAvg" text="0" textFill="WHITE">
-                                    <font>
-                                        <Font name="System Bold" size="36.0" />
-                                    </font>
-                                </Label>
-                            </children>
-                        </VBox>
-                        <VBox alignment="CENTER" spacing="10.0" styleClass="glass-pane" HBox.hgrow="ALWAYS" style="-fx-padding: 20;">
-                            <children>
-                                <Label styleClass="label-text" text="Taux de Croissance" />
-                                <Label fx:id="lblGrowth" text="0%" textFill="#10b981">
-                                    <font>
-                                        <Font name="System Bold" size="36.0" />
-                                    </font>
-                                </Label>
-                            </children>
-                        </VBox>
-                        <VBox alignment="CENTER" spacing="10.0" styleClass="glass-pane" HBox.hgrow="ALWAYS" style="-fx-padding: 20; -fx-border-color: #826cfd;">
-                            <children>
-                                <Label styleClass="label-text" text="Prédiction Mois Prochain" textFill="#826cfd" />
-                                <Label fx:id="lblPredicted" text="0" textFill="#826cfd">
-                                    <font>
-                                        <Font name="System Bold" size="48.0" />
-                                    </font>
-                                </Label>
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
+    <!-- NAVBAR -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="30" styleClass="navbar">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label styleClass="navbar-brand-heart" text="❤" />
+                <Label styleClass="navbar-brand-text" text="CardioLink" />
+            </HBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#goHome" styleClass="nav-button" text="🏠 Home" />
+            <Button onAction="#goCommunity" styleClass="nav-button" text="👥 Community" />
+            <Button onAction="#goSuivis" styleClass="nav-button" text="📊 Mes Suivis" />
+            <Button onAction="#goRDV" styleClass="nav-button" text="📅 Mes RDV" />
+            <Button onAction="#goDossier" styleClass="nav-button" text="🗂 Mon Dossier" />
+            <Button onAction="#goProfil" styleClass="nav-button" text="👤 Mon Profil" />
+            <Button onAction="#handleLogout" styleClass="nav-button, nav-logout" text="🚪 Logout" />
+            <StackPane>
+                <Circle fx:id="avatarCircle" radius="18" styleClass="avatar-circle" />
+                <Label fx:id="avatarLabel" styleClass="avatar-label" text="?" />
+            </StackPane>
+        </HBox>
+    </top>
 
-                <VBox spacing="10.0" styleClass="glass-pane" VBox.vgrow="ALWAYS" style="-fx-padding: 20;">
-                    <children>
-                        <Label styleClass="label-text" text="Évolution Réelle vs Prédictions" />
-                        <LineChart fx:id="chartPrediction" style="-fx-background-color: transparent;">
-                            <xAxis>
-                                <CategoryAxis side="BOTTOM" tickLabelFill="WHITE" />
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis side="LEFT" tickLabelFill="WHITE" />
-                            </yAxis>
-                        </LineChart>
-                    </children>
-                </VBox>
-            </children>
-        </VBox>
-    </children>
-</AnchorPane>
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="25.0" styleClass="content-area">
+                <children>
+                    <HBox alignment="CENTER_LEFT" spacing="20.0">
+                        <children>
+                            <Button mnemonicParsing="false" onAction="#goBack" styleClass="action-button" text="⬅" />
+                            <VBox HBox.hgrow="ALWAYS">
+                                <children>
+                                    <Label styleClass="subtitle-text" text="Analyse Prédictive" />
+                                    <Label styleClass="title-text" text="Prévisions des Rendez-vous" />
+                                </children>
+                            </VBox>
+                        </children>
+                    </HBox>
+
+                    <HBox spacing="20.0">
+                        <children>
+                            <VBox alignment="CENTER" spacing="10.0" styleClass="card" HBox.hgrow="ALWAYS">
+                                <children>
+                                    <Label styleClass="label-text" text="Moyenne Mensuelle" />
+                                    <Label fx:id="lblAvg" text="0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;" />
+                                </children>
+                            </VBox>
+                            <VBox alignment="CENTER" spacing="10.0" styleClass="card" HBox.hgrow="ALWAYS">
+                                <children>
+                                    <Label styleClass="label-text" text="Taux de Croissance" />
+                                    <Label fx:id="lblGrowth" text="0%" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #10b981;" />
+                                </children>
+                            </VBox>
+                            <VBox alignment="CENTER" spacing="10.0" styleClass="card" HBox.hgrow="ALWAYS" style="-fx-border-color: #7F77DD;">
+                                <children>
+                                    <Label styleClass="label-text" text="Prédiction Mois Prochain" style="-fx-text-fill: #7F77DD;" />
+                                    <Label fx:id="lblPredicted" text="0" style="-fx-font-size: 40px; -fx-font-weight: bold; -fx-text-fill: #7F77DD;" />
+                                </children>
+                            </VBox>
+                        </children>
+                    </HBox>
+
+                    <VBox spacing="15.0" styleClass="card" VBox.vgrow="ALWAYS">
+                        <children>
+                            <Label styleClass="label-text" text="Évolution Réelle vs Prédictions" />
+                            <LineChart fx:id="chartPrediction" prefHeight="350.0" style="-fx-background-color: transparent;">
+                                <xAxis>
+                                    <CategoryAxis side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis side="LEFT" />
+                                </yAxis>
+                            </LineChart>
+                        </children>
+                    </VBox>
+                </children>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
+

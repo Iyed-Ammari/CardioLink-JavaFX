@@ -1,94 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.shape.Line?>
+<?import javafx.scene.shape.*?>
 
-<AnchorPane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #131420;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.AjouterOrdonnance">
-    <children>
-        <HBox spacing="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+<BorderPane prefHeight="720.0" prefWidth="1100.0" 
+            stylesheets="@css/rdv_style.css" 
+            xmlns="http://javafx.com/javafx/21" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.cardiolink.Controllers.AjouterOrdonnance">
+
+    <!-- NAVBAR -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="30" styleClass="navbar">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label styleClass="navbar-brand-heart" text="❤" />
+                <Label styleClass="navbar-brand-text" text="CardioLink" />
+            </HBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#goHome" styleClass="nav-button" text="🏠 Home" />
+            <Button onAction="#goCommunity" styleClass="nav-button" text="👥 Community" />
+            <Button onAction="#goSuivis" styleClass="nav-button" text="📊 Mes Suivis" />
+            <Button onAction="#goRDV" styleClass="nav-button" text="📅 Mes RDV" />
+            <Button onAction="#goDossier" styleClass="nav-button" text="🗂 Mon Dossier" />
+            <Button onAction="#goProfil" styleClass="nav-button" text="👤 Mon Profil" />
+            <Button onAction="#handleLogout" styleClass="nav-button, nav-logout" text="🚪 Logout" />
+            <StackPane>
+                <Circle fx:id="avatarCircle" radius="18" styleClass="avatar-circle" />
+                <Label fx:id="avatarLabel" styleClass="avatar-label" text="?" />
+            </StackPane>
+        </HBox>
+    </top>
+
+    <center>
+        <HBox spacing="0.0">
             <children>
-                <VBox prefWidth="400.0" style="-fx-background-color: #1a1c2e; -fx-border-color: #3d3f58; -fx-border-width: 0 1 0 0;" spacing="25.0">
-                    <padding><Insets bottom="40.0" left="40.0" right="40.0" top="40.0" /></padding>
+                <!-- Preview Panel -->
+                <VBox prefWidth="350.0" style="-fx-background-color: white; -fx-border-color: #ececec; -fx-border-width: 0 1 0 0;" spacing="25.0">
+                    <padding><Insets bottom="40.0" left="30.0" right="30.0" top="40.0" /></padding>
                     <children>
-                        <Label text="Aperçu Rapide" textFill="#826cfd">
-                            <font><Font name="System Bold" size="14.0" /></font>
-                        </Label>
-                        <VBox spacing="10.0" style="-fx-background-color: #131420; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #3d3f58;">
+                        <Label styleClass="subtitle-text" text="Aperçu Rapide" />
+                        <VBox spacing="15.0" styleClass="card" style="-fx-background-color: #f8f8ff;">
                             <children>
-                                <Label fx:id="lblPreviewRef" text="REF: ----" textFill="WHITE"><font><Font name="System Bold" size="18.0" /></font></Label>
-                                <Line endX="280.0" stroke="#3d3f58" />
-                                <Label text="DIAGNOSTIC :" textFill="#b0b0b0" />
-                                <Label fx:id="lblPreviewDiag" text="En attente..." textFill="WHITE" wrapText="true" />
-                                <Label text="PRESCRIPTION :" textFill="#b0b0b0">
+                                <Label fx:id="lblPreviewRef" styleClass="label-text" text="REF: ----" style="-fx-font-size: 16px;" />
+                                <Line endX="200.0" stroke="#ececec" />
+                                <Label styleClass="label-text" text="DIAGNOSTIC :" style="-fx-text-fill: #888;" />
+                                <Label fx:id="lblPreviewDiag" styleClass="label-text" text="En attente..." wrapText="true" />
+                                <Label styleClass="label-text" text="PRESCRIPTION :" style="-fx-text-fill: #888;">
                                     <VBox.margin><Insets top="10.0" /></VBox.margin>
                                 </Label>
-                                <Label fx:id="lblPreviewPrescr" text="..." textFill="WHITE" wrapText="true" />
+                                <Label fx:id="lblPreviewPrescr" styleClass="label-text" text="..." wrapText="true" />
                             </children>
                         </VBox>
                     </children>
                 </VBox>
 
-                <VBox HBox.hgrow="ALWAYS" spacing="30.0">
-                    <padding><Insets bottom="40.0" left="50.0" right="50.0" top="40.0" /></padding>
-                    <children>
-                        <Label text="Détails de l'ordonnance" textFill="WHITE">
-                            <font><Font name="System Bold" size="24.0" /></font>
-                        </Label>
+                <!-- Form Panel -->
+                <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <VBox spacing="30.0" styleClass="content-area">
+                        <children>
+                            <Label styleClass="title-text" text="Détails de l'ordonnance" />
 
-                        <GridPane vgap="20.0">
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                            </columnConstraints>
-                            <children>
-                                <VBox spacing="8.0">
-                                    <children>
-                                        <Label text="Référence" textFill="#b0b0b0" />
-                                        <TextField fx:id="txtReference" prefHeight="45.0" promptText="Ex: ORD-2024-001" style="-fx-background-color: #1a1c2e; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10;" />
-                                    </children>
-                                </VBox>
-                                <VBox spacing="8.0" GridPane.rowIndex="1">
-                                    <children>
-                                        <Label text="Diagnostic" textFill="#b0b0b0" />
-                                        <TextArea fx:id="txtDiagnostic" prefHeight="100.0" promptText="Saisir le diagnostic..." style="-fx-control-inner-background: #1a1c2e; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10;" wrapText="true" />
-                                    </children>
-                                </VBox>
-                                <VBox spacing="8.0" GridPane.rowIndex="2">
-                                    <children>
-                                        <Label text="Prescription / Médicaments" textFill="#b0b0b0" />
-                                        <TextArea fx:id="txtPrescription" prefHeight="150.0" promptText="Détails des médicaments..." style="-fx-control-inner-background: #1a1c2e; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10;" wrapText="true" />
-                                    </children>
-                                </VBox>
-                            </children>
-                        </GridPane>
+                            <VBox spacing="20.0" styleClass="card">
+                                <children>
+                                    <VBox spacing="8.0">
+                                        <Label styleClass="label-text" text="Référence" />
+                                        <TextField fx:id="txtReference" promptText="Ex: ORD-2024-001" />
+                                    </VBox>
+                                    <VBox spacing="8.0">
+                                        <Label styleClass="label-text" text="Diagnostic" />
+                                        <TextArea fx:id="txtDiagnostic" prefHeight="100.0" promptText="Saisir le diagnostic..." wrapText="true" />
+                                    </VBox>
+                                    <VBox spacing="8.0">
+                                        <Label styleClass="label-text" text="Prescription / Médicaments" />
+                                        <TextArea fx:id="txtPrescription" prefHeight="150.0" promptText="Détails des médicaments..." wrapText="true" />
+                                    </VBox>
+                                </children>
+                            </VBox>
 
-                        <HBox spacing="10.0" alignment="CENTER_RIGHT">
-                            <children>
-                                <Button onAction="#goToAfficher" prefHeight="50.0" prefWidth="100.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: #3d3f58; -fx-border-radius: 10; -fx-cursor: hand;" text="Annuler" />
-
-                                <Button onAction="#clearFields" prefHeight="50.0" prefWidth="100.0" style="-fx-background-color: transparent; -fx-text-fill: #b0b0b0; -fx-border-color: #3d3f58; -fx-border-radius: 10; -fx-cursor: hand;" text="Réinitialiser" />
-
-                                <Button fx:id="btnDelete" visible="false" onAction="#handleDelete" prefHeight="50.0" prefWidth="100.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-border-radius: 10; -fx-cursor: hand;" text="Supprimer" />
-
-                                <Button fx:id="btnPdf" visible="false" onAction="#handleGeneratePdf" prefHeight="50.0" prefWidth="150.0" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-border-radius: 10; -fx-cursor: hand;" text="📄 Générer PDF" />
-
-                                <Button fx:id="btnSave" onAction="#handleSave" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: linear-gradient(to right, #ff5f6d, #826cfd); -fx-background-radius: 10; -fx-cursor: hand;" text="Générer &amp; Enregistrer" textFill="WHITE">
-                                    <font><Font name="System Bold" size="16.0" /></font>
-                                </Button>
-                                <Button onAction="#goToMenu"
-                                        style="-fx-background-color: #25273c; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand;"
-                                        text="⬅ Retour">
-                                    <font>
-                                        <Font name="System Bold" size="13.0" />
-                                    </font>
-                                </Button>
-                            </children>
-                        </HBox>
-                    </children>
-                </VBox>
+                            <HBox spacing="12.0" alignment="CENTER_RIGHT">
+                                <children>
+                                    <Button onAction="#goToAfficher" styleClass="action-button" text="Annuler" />
+                                    <Button onAction="#clearFields" styleClass="action-button" text="Réinitialiser" />
+                                    <Button fx:id="btnDelete" visible="false" onAction="#handleDelete" styleClass="action-button, delete-button" text="Supprimer" />
+                                    <Button fx:id="btnPdf" visible="false" onAction="#handleGeneratePdf" styleClass="action-button" text="📄 PDF" style="-fx-border-color: #f39c12; -fx-text-fill: #f39c12;" />
+                                    <Button fx:id="btnSave" onAction="#handleSave" styleClass="gradient-button" text="Générer &amp; Enregistrer" />
+                                </children>
+                            </HBox>
+                        </children>
+                    </VBox>
+                </ScrollPane>
             </children>
         </HBox>
-    </children>
-</AnchorPane>
+    </center>
+</BorderPane>
+

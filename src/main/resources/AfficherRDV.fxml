@@ -1,78 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1000.0" stylesheets="@css/rdv_style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cardiolink.Controllers.AfficherRDV">
-    <children>
-        <VBox spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="main-container">
-            <children>
-                <HBox alignment="CENTER_LEFT" spacing="20.0">
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#goToMenu" styleClass="action-button" text="🏠" />
-                        <VBox HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="subtitle-text" text="Tableau de bord patient" />
-                                <Label styleClass="title-text" text="Mes Rendez-vous" />
-                            </children>
-                        </VBox>
-                        <Button mnemonicParsing="false" onAction="#goToAdd" prefHeight="50.0" prefWidth="200.0" styleClass="gradient-button" text="+ Nouveau RDV" />
-                    </children>
-                </HBox>
+<BorderPane prefHeight="720.0" prefWidth="1100.0" 
+            stylesheets="@css/rdv_style.css" 
+            xmlns="http://javafx.com/javafx/21" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.cardiolink.Controllers.AfficherRDV">
 
-                <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="glass-pane" style="-fx-padding: 20;">
-                    <children>
-                        <VBox spacing="8.0">
-                            <Label styleClass="label-text" text="Recherche" />
-                            <TextField fx:id="searchField" prefWidth="220.0" promptText="Nom du médecin, motif..." />
-                        </VBox>
+    <!-- NAVBAR -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="30" styleClass="navbar">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label styleClass="navbar-brand-heart" text="❤" />
+                <Label styleClass="navbar-brand-text" text="CardioLink" />
+            </HBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#goHome" styleClass="nav-button" text="🏠 Home" />
+            <Button onAction="#goCommunity" styleClass="nav-button" text="👥 Community" />
+            <Button onAction="#goSuivis" styleClass="nav-button" text="📊 Mes Suivis" />
+            <Button onAction="#goRDV" styleClass="nav-button, nav-button-active" text="📅 Mes RDV" />
+            <Button onAction="#goDossier" styleClass="nav-button" text="🗂 Mon Dossier" />
+            <Button onAction="#goProfil" styleClass="nav-button" text="👤 Mon Profil" />
+            <Button onAction="#handleLogout" styleClass="nav-button, nav-logout" text="🚪 Logout" />
+            <StackPane>
+                <Circle fx:id="avatarCircle" radius="18" styleClass="avatar-circle" />
+                <Label fx:id="avatarLabel" styleClass="avatar-label" text="?" />
+            </StackPane>
+        </HBox>
+    </top>
 
-                        <VBox spacing="8.0">
-                            <Label styleClass="label-text" text="Statut" />
-                            <ComboBox fx:id="filterStatut" prefWidth="160.0" promptText="Tous les statuts" />
-                        </VBox>
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="25.0" styleClass="content-area">
+                <children>
+                    <HBox alignment="CENTER_LEFT" spacing="20.0">
+                        <children>
+                            <VBox HBox.hgrow="ALWAYS">
+                                <children>
+                                    <Label styleClass="subtitle-text" text="Tableau de bord patient" />
+                                    <Label styleClass="title-text" text="Mes Rendez-vous" />
+                                </children>
+                            </VBox>
+                            <Button mnemonicParsing="false" onAction="#goToAdd" styleClass="gradient-button" text="+ Nouveau RDV" />
+                        </children>
+                    </HBox>
 
-                        <VBox spacing="8.0">
-                            <Label styleClass="label-text" text="Type" />
-                            <ComboBox fx:id="filterType" prefWidth="180.0" promptText="Types de RDV" />
-                        </VBox>
+                    <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="card">
+                        <children>
+                            <VBox spacing="8.0">
+                                <Label styleClass="label-text" text="Recherche" />
+                                <TextField fx:id="searchField" prefWidth="220.0" promptText="Nom du médecin, motif..." />
+                            </VBox>
 
-                        <HBox alignment="BOTTOM_CENTER" spacing="12.0">
-                            <children>
-                                <Button mnemonicParsing="false" onAction="#handleSortDate" styleClass="action-button" text="📅 Trier" />
-                                <Button mnemonicParsing="false" onAction="#resetFilters" styleClass="reset-btn" text="Réinitialiser" />
-                            </children>
-                        </HBox>
-                    </children>
-                </HBox>
+                            <VBox spacing="8.0">
+                                <Label styleClass="label-text" text="Statut" />
+                                <ComboBox fx:id="filterStatut" prefWidth="160.0" promptText="Tous les statuts" />
+                            </VBox>
 
-                <TableView fx:id="tableRDV" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="colDate" prefWidth="160.0" text="Date &amp; Heure" />
-                        <TableColumn fx:id="colMedecin" prefWidth="150.0" text="Médecin" />
-                        <TableColumn fx:id="colType" prefWidth="160.0" text="Type" />
-                        <TableColumn fx:id="colStatut" prefWidth="120.0" text="Statut" />
-                        <TableColumn fx:id="colMotif" prefWidth="270.0" text="Motif / Remarques" />
-                        <TableColumn fx:id="colVisio" prefWidth="110.0" text="Lien Visio" />
-                    </columns>
-                </TableView>
+                            <VBox spacing="8.0">
+                                <Label styleClass="label-text" text="Type" />
+                                <ComboBox fx:id="filterType" prefWidth="180.0" promptText="Types de RDV" />
+                            </VBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="15.0">
-                    <children>
-                        <Button onAction="#handleUpdate" prefHeight="45.0" prefWidth="160.0" styleClass="action-button" text="Modifier" />
-                        <Button onAction="#handleDelete" prefHeight="45.0" prefWidth="160.0" styleClass="action-button delete-button" text="Supprimer" />
-                    </children>
-                </HBox>
-            </children>
-        </VBox>
-    </children>
-</AnchorPane>
+                            <HBox alignment="BOTTOM_CENTER" spacing="12.0">
+                                <children>
+                                    <Button mnemonicParsing="false" onAction="#handleSortDate" styleClass="action-button" text="📅 Trier" />
+                                    <Button mnemonicParsing="false" onAction="#resetFilters" styleClass="action-button" text="Réinitialiser" />
+                                </children>
+                            </HBox>
+                        </children>
+                    </HBox>
+
+                    <TableView fx:id="tableRDV" prefHeight="400.0" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colDate" prefWidth="160.0" text="Date &amp; Heure" />
+                            <TableColumn fx:id="colMedecin" prefWidth="150.0" text="Médecin" />
+                            <TableColumn fx:id="colType" prefWidth="160.0" text="Type" />
+                            <TableColumn fx:id="colStatut" prefWidth="120.0" text="Statut" />
+                            <TableColumn fx:id="colMotif" prefWidth="270.0" text="Motif / Remarques" />
+                            <TableColumn fx:id="colVisio" prefWidth="110.0" text="Lien Visio" />
+                        </columns>
+                    </TableView>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="15.0">
+                        <children>
+                            <Button onAction="#handleUpdate" styleClass="action-button" text="Modifier" />
+                            <Button onAction="#handleDelete" styleClass="action-button, delete-button" text="Supprimer" />
+                        </children>
+                    </HBox>
+                </children>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

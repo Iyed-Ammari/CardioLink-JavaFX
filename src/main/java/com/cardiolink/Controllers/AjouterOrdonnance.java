@@ -13,7 +13,10 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-public class AjouterOrdonnance {
+public class AjouterOrdonnance implements UserAwareController {
+
+    @FXML private Label avatarLabel;
+    @FXML private javafx.scene.shape.Circle avatarCircle;
 
     @FXML private TextField txtReference;
     @FXML private TextArea txtDiagnostic, txtPrescription;
@@ -37,6 +40,46 @@ public class AjouterOrdonnance {
                 lblPreviewDiag.setText(val.isEmpty() ? "En attente..." : val));
         txtPrescription.textProperty().addListener((obs, old, val) ->
                 lblPreviewPrescr.setText(val.isEmpty() ? "..." : val));
+
+        // Initialisation de l'utilisateur pour la navbar
+        setCurrentUser(com.cardiolink.utils.ManagerSession.getInstance().getCurrentUser());
+    }
+
+    @Override
+    public void setCurrentUser(com.cardiolink.Models.User user) {
+        if (user != null && avatarLabel != null) {
+            String initial = user.getNom() != null && !user.getNom().isEmpty()
+                    ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+            avatarLabel.setText(initial);
+        }
+    }
+
+    // --- NAVIGATION METHODS FOR NAVBAR ---
+    @FXML void goHome(ActionEvent event) throws IOException {
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/dashboard_patient.fxml");
+    }
+    @FXML void goCommunity(ActionEvent event) throws IOException {
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/post_view.fxml");
+    }
+    @FXML void goSuivis(ActionEvent event) throws IOException {
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/AjouterSuivi.fxml");
+    }
+    @FXML void goRDV(ActionEvent event) throws IOException {
+        com.cardiolink.Models.User user = com.cardiolink.utils.ManagerSession.getInstance().getCurrentUser();
+        String path = (user != null && "ROLE_MEDECIN".equals(user.getRoleClean())) 
+                ? "/AfficherRDVMedecin.fxml" 
+                : "/AfficherRDV.fxml";
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), path);
+    }
+    @FXML void goDossier(ActionEvent event) throws IOException {
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/dossier_medical.fxml");
+    }
+    @FXML void goProfil(ActionEvent event) throws IOException {
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/profil_patient.fxml");
+    }
+    @FXML void handleLogout(ActionEvent event) throws IOException {
+        com.cardiolink.utils.ManagerSession.getInstance().logout();
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/login.fxml");
     }
 
     @FXML
@@ -132,9 +175,11 @@ public class AjouterOrdonnance {
 
     @FXML
     void goToAfficher(ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/AfficherRDVMedecin.fxml"));
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
+        com.cardiolink.Models.User user = com.cardiolink.utils.ManagerSession.getInstance().getCurrentUser();
+        String path = (user != null && "ROLE_MEDECIN".equals(user.getRoleClean())) 
+                ? "/AfficherRDVMedecin.fxml" 
+                : "/AfficherRDV.fxml";
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), path);
     }
 
     @FXML

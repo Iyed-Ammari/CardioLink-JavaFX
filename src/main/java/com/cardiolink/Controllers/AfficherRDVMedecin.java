@@ -30,7 +30,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public class AfficherRDVMedecin {
+public class AfficherRDVMedecin implements UserAwareController {
+
+    @FXML private Label avatarLabel;
+    @FXML private javafx.scene.shape.Circle avatarCircle;
 
     @FXML private TableView<Rendezvous> tableRDV;
     @FXML private TableColumn<Rendezvous, LocalDateTime> colDate;
@@ -70,35 +73,21 @@ public class AfficherRDVMedecin {
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
 
         colStatut.setCellFactory(tc -> new TableCell<Rendezvous, String>() {
-            private final ComboBox<String> combo = new ComboBox<>(FXCollections.observableArrayList(
-                    "En attente", "Confirmé", "Annulé", "Terminé"
-            ));
-
-            {
-                combo.setOnAction(e -> {
-                    Rendezvous rv = getTableView().getItems().get(getIndex());
-                    String newStatut = combo.getValue();
-                    if (newStatut != null && !newStatut.equals(rv.getStatut())) {
-                        rv.setStatut(newStatut);
-                        try {
-                            serviceRV.update(rv);
-                            loadData(); 
-                        } catch (SQLDataException ex) {
-                            showAlert("Erreur", "Mise à jour du statut impossible", Alert.AlertType.ERROR);
-                        }
-                    }
-                });
-            }
-
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty) {
-                    setGraphic(null);
+                    setText(null);
                 } else {
                     Rendezvous rv = getTableView().getItems().get(getIndex());
-                    combo.setValue(rv.getStatut());
-                    setGraphic(combo);
+                    setText(rv.getStatut());
+                    
+                    // Style basé sur le statut
+                    getStyleClass().removeAll("statut-attente", "statut-confirme", "statut-annule", "statut-termine");
+                    if ("En attente".equals(rv.getStatut())) getStyleClass().add("statut-attente");
+                    else if ("Confirmé".equals(rv.getStatut())) getStyleClass().add("statut-confirme");
+                    else if ("Annulé".equals(rv.getStatut())) getStyleClass().add("statut-annule");
+                    else if ("Terminé".equals(rv.getStatut())) getStyleClass().add("statut-termine");
                 }
             }
         });
@@ -138,29 +127,8 @@ public class AfficherRDVMedecin {
             }
         });
 
-        colActions.setCellFactory(tc -> new TableCell<Rendezvous, Void>() {
-            private final Button btnModif = new Button("Modifier");
-            private final Button btnSuppr = new Button("Supprimer");
-            private final HBox pane = new HBox(10, btnModif, btnSuppr);
-
-            {
-                btnModif.getStyleClass().addAll("button-in-table", "edit-button");
-                btnSuppr.getStyleClass().addAll("button-in-table", "delete-button");
-                
-                btnModif.setOnAction(e -> modifierRendezvous(getTableView().getItems().get(getIndex()), e));
-                btnSuppr.setOnAction(e -> supprimerRendezvous(getTableView().getItems().get(getIndex())));
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(pane);
-                }
-            }
-        });
+        // Suppression de la colonne actions pour les médecins (seuls les patients modifient)
+        tableRDV.getColumns().remove(colActions);
 
         colLienVisio.setCellFactory(tc -> new TableCell<Rendezvous, Void>() {
             private final Button btnVisio = new Button("Rejoindre Visio");
@@ -197,6 +165,46 @@ public class AfficherRDVMedecin {
 
         loadData();
         setupFilterAndSort();
+
+        // Initialisation de l'utilisateur pour la navbar
+        setCurrentUser(ManagerSession.getInstance().getCurrentUser());
+    }
+
+    @Override
+    public void setCurrentUser(com.cardiolink.Models.User user) {
+        if (user != null && avatarLabel != null) {
+            String initial = user.getNom() != null && !user.getNom().isEmpty()
+                    ? String.valueOf(user.getNom().charAt(0)).toUpperCase() : "?";
+            avatarLabel.setText(initial);
+        }
+    }
+
+    // --- NAVIGATION METHODS FOR NAVBAR ---
+    @FXML void goHome(ActionEvent event) throws IOException {
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/dashboard_patient.fxml");
+    }
+    @FXML void goCommunity(ActionEvent event) throws IOException {
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/post_view.fxml");
+    }
+    @FXML void goSuivis(ActionEvent event) throws IOException {
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/AjouterSuivi.fxml");
+    }
+    @FXML void goRDV(ActionEvent event) throws IOException {
+        com.cardiolink.Models.User user = com.cardiolink.utils.ManagerSession.getInstance().getCurrentUser();
+        String path = (user != null && "ROLE_MEDECIN".equals(user.getRoleClean())) 
+                ? "/AfficherRDVMedecin.fxml" 
+                : "/AfficherRDV.fxml";
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), path);
+    }
+    @FXML void goDossier(ActionEvent event) throws IOException {
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/dossier_medical.fxml");
+    }
+    @FXML void goProfil(ActionEvent event) throws IOException {
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/profil_patient.fxml");
+    }
+    @FXML void handleLogout(ActionEvent event) throws IOException {
+        com.cardiolink.utils.ManagerSession.getInstance().logout();
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/login.fxml");
     }
 
     private void loadData() {
@@ -404,9 +412,7 @@ public class AfficherRDVMedecin {
 
     @FXML
     void goToMenu(ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/dashboard_patient.fxml"));
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
+        com.cardiolink.utils.NavigationUtil.navigate((Stage) ((Node) event.getSource()).getScene().getWindow(), "/dashboard_patient.fxml");
     }
 
     private void openUrl(String url) {
