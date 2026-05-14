@@ -27,6 +27,27 @@ public class AjouterSuivi {
         chargerSuivis();
     }
 
+    // ✅ RETOUR VERS LE DASHBOARD PATIENT
+    @FXML
+    public void retourPagePrecedente() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard_patient.fxml"));
+            Scene scene = new Scene(loader.load(), 1100, 650);
+
+            Stage stage = (Stage) listSuivis.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("CardioLink - Dashboard");
+            stage.show();
+
+            PatientDashboardController ctrl = loader.getController();
+            ctrl.init();
+
+        } catch (Exception e) {
+            lblMessage.setText("Erreur retour dashboard : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     @FXML
     public void ouvrirFenetreAjout() {
         try {

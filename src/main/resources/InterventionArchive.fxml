@@ -7,7 +7,7 @@
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cardiolink.Controllers.InterventionArchiveController"
-            style="-fx-background-color: linear-gradient(to bottom, #11152f, #17193a);">
+            style="-fx-background-color: white;">
 
     <children>
         <VBox spacing="18.0"
@@ -19,7 +19,7 @@
             <children>
 
                 <Label text="Interventions Archivées"
-                       style="-fx-text-fill: white; -fx-font-size: 38px; -fx-font-weight: bold;" />
+                       style="-fx-text-fill: #1a1a2e; -fx-font-size: 38px; -fx-font-weight: bold;" />
 
                 <TableView fx:id="tableArchives" VBox.vgrow="ALWAYS">
                     <columns>
@@ -33,7 +33,7 @@
 
                 <Label fx:id="lblMessage"
                        text="Chargement..."
-                       style="-fx-text-fill: white; -fx-font-size: 15px;" />
+                       style="-fx-text-fill: #444444; -fx-font-size: 15px;" />
 
             </children>
         </VBox>

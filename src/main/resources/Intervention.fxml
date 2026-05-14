@@ -8,7 +8,7 @@
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cardiolink.Controllers.InterventionController"
-            style="-fx-background-color: linear-gradient(to bottom, #11152f, #17193a);">
+            style="-fx-background-color: white;">
 
     <children>
         <VBox spacing="18.0"
@@ -19,8 +19,22 @@
 
             <children>
 
+                <!-- FLÈCHE RETOUR -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <children>
+                        <Button text="← Retour"
+                                onAction="#retourPagePrecedente"
+                                style="-fx-background-color: transparent;
+                                       -fx-text-fill: #5b6fff;
+                                       -fx-font-size: 16px;
+                                       -fx-font-weight: bold;
+                                       -fx-cursor: hand;
+                                       -fx-border-color: transparent;" />
+                    </children>
+                </HBox>
+
                 <Label text="Interventions"
-                       style="-fx-text-fill: white; -fx-font-size: 38px; -fx-font-weight: bold;" />
+                       style="-fx-text-fill: #1a1a2e; -fx-font-size: 38px; -fx-font-weight: bold;" />
 
                 <HBox spacing="12">
                     <children>
@@ -29,7 +43,7 @@
                                 prefWidth="240"
                                 prefHeight="54"
                                 style="-fx-background-color: linear-gradient(to right, #e63d63, #ff5b6e);
-                                       -fx-text-fill: #3d146b;
+                                       -fx-text-fill: white;
                                        -fx-font-size: 16px;
                                        -fx-font-weight: bold;
                                        -fx-background-radius: 14;
@@ -51,11 +65,11 @@
                 <TextField fx:id="txtRecherche"
                            promptText="Rechercher une intervention (Type, description...)"
                            prefHeight="50"
-                           style="-fx-background-color: #162654;
-                                  -fx-text-fill: white;
-                                  -fx-prompt-text-fill: #8e94b3;
+                           style="-fx-background-color: #f5f5f5;
+                                  -fx-text-fill: #1a1a2e;
+                                  -fx-prompt-text-fill: #9aa7c7;
                                   -fx-background-radius: 12;
-                                  -fx-border-color: white;
+                                  -fx-border-color: #d0d0d0;
                                   -fx-border-radius: 12;" />
 
                 <HBox spacing="10">
@@ -87,7 +101,7 @@
 
                 <Label fx:id="lblMessage"
                        text="Chargement..."
-                       style="-fx-text-fill: white; -fx-font-size: 15px;" />
+                       style="-fx-text-fill: #444444; -fx-font-size: 15px;" />
             </children>
         </VBox>
     </children>

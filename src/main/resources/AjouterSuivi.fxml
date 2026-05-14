@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="650.0" prefWidth="1000.0"
-            style="-fx-background-color: linear-gradient(to bottom, #11152f, #17193a);"
+            style="-fx-background-color: white;"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cardiolink.Controllers.AjouterSuivi">
@@ -20,7 +20,21 @@
 
             <children>
 
-                <Label text="Mes Suivis Cardiaques" textFill="WHITE">
+                <!-- FLÈCHE RETOUR -->
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <Button text="← Retour"
+                                onAction="#retourPagePrecedente"
+                                style="-fx-background-color: transparent;
+                                       -fx-text-fill: #5b6fff;
+                                       -fx-font-size: 16px;
+                                       -fx-font-weight: bold;
+                                       -fx-cursor: hand;
+                                       -fx-border-color: transparent;" />
+                    </children>
+                </HBox>
+
+                <Label text="Mes Suivis Cardiaques" textFill="#1a1a2e">
                     <font>
                         <Font size="30.0" />
                     </font>
@@ -57,7 +71,7 @@
                 <HBox alignment="CENTER_LEFT"
                       prefHeight="50.0"
                       spacing="10.0"
-                      style="-fx-background-color: #1e2555;
+                      style="-fx-background-color: #e8f0fe;
                              -fx-background-radius: 10;
                              -fx-border-color: #2f6fff;
                              -fx-border-radius: 10;
@@ -68,24 +82,24 @@
                     <children>
                         <Label fx:id="lblMessage"
                                text="Chargement..."
-                               style="-fx-text-fill: #b9c6ff; -fx-font-size: 16px;" />
+                               style="-fx-text-fill: #1a1a2e; -fx-font-size: 16px;" />
                     </children>
                 </HBox>
 
                 <VBox spacing="10" VBox.vgrow="ALWAYS">
                     <children>
                         <Label text="Liste des suivis"
-                               style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+                               style="-fx-text-fill: #1a1a2e; -fx-font-size: 22px; -fx-font-weight: bold;" />
 
                         <ListView fx:id="listSuivis"
                                   VBox.vgrow="ALWAYS"
                                   prefHeight="380.0"
-                                  style="-fx-control-inner-background: #1b2046;
-                                         -fx-background-color: #1b2046;
+                                  style="-fx-control-inner-background: #f5f5f5;
+                                         -fx-background-color: #f5f5f5;
                                          -fx-background-radius: 12;
                                          -fx-border-radius: 12;
-                                         -fx-border-color: #2a3470;
-                                         -fx-text-fill: white;" />
+                                         -fx-border-color: #d0d0d0;
+                                         -fx-text-fill: #1a1a2e;" />
                     </children>
                 </VBox>
 

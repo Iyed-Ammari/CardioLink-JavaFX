@@ -61,6 +61,23 @@ public class InterventionController {
         chargerInterventions();
     }
 
+    // ✅ RETOUR VERS LE DASHBOARD
+    @FXML
+    public void retourPagePrecedente() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard_medecin.fxml"));
+            Scene scene = new Scene(loader.load(), 1280, 720);
+
+            Stage stage = (Stage) tableInterventions.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("CardioLink - Dashboard Médecin");
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void configurerColonnes() {
         colId.setCellValueFactory(cell ->
                 new SimpleStringProperty(String.valueOf(cell.getValue().getId())));
@@ -311,9 +328,7 @@ public class InterventionController {
             double lng = intervention.getLongitude();
 
             String url = "https://www.google.com/maps?q=" + lat + "," + lng;
-
             Desktop.getDesktop().browse(new URI(url));
-
             lblMessage.setText("Localisation ouverte dans le navigateur.");
 
         } catch (Exception e) {
@@ -326,7 +341,7 @@ public class InterventionController {
     public void ouvrirAlertesSOS() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AlertesSOS.fxml"));
-            Scene scene = new Scene(loader.load());
+            Scene scene = new Scene(loader.load(), 1200, 850);
 
             Stage stage = new Stage();
             stage.setTitle("Alertes SOS Urgentes");

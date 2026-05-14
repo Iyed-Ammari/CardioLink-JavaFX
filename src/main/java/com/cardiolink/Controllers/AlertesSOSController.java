@@ -45,29 +45,29 @@ public class AlertesSOSController {
                 card.setStyle("-fx-padding: 10 0 14 0;");
 
                 Label type = new Label(i.getType());
-                type.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
+                type.setStyle("-fx-text-fill: #1a1a2e; -fx-font-size: 18px; -fx-font-weight: bold;");
 
                 Label descTitle = new Label("Description");
-                descTitle.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;");
+                descTitle.setStyle("-fx-text-fill: #444444; -fx-font-size: 13px; -fx-font-weight: bold;");
 
                 Label desc = new Label(i.getDescription());
                 desc.setWrapText(true);
-                desc.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+                desc.setStyle("-fx-text-fill: #1a1a2e; -fx-font-size: 16px;");
 
                 Label statutTitle = new Label("Statut");
-                statutTitle.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;");
+                statutTitle.setStyle("-fx-text-fill: #444444; -fx-font-size: 13px; -fx-font-weight: bold;");
 
                 Label statut = new Label(i.getStatut());
-                statut.setStyle("-fx-text-fill: white; -fx-font-size: 15px;");
+                statut.setStyle("-fx-text-fill: #1a1a2e; -fx-font-size: 15px;");
 
                 Label urgenceTitle = new Label("Urgence");
-                urgenceTitle.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;");
+                urgenceTitle.setStyle("-fx-text-fill: #444444; -fx-font-size: 13px; -fx-font-weight: bold;");
 
                 Label urgence = new Label("URGENT");
-                urgence.setStyle("-fx-text-fill: white; -fx-font-size: 15px;");
+                urgence.setStyle("-fx-text-fill: #e63d63; -fx-font-size: 15px; -fx-font-weight: bold;");
 
                 Label origineTitle = new Label("Origine du déclenchement");
-                origineTitle.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;");
+                origineTitle.setStyle("-fx-text-fill: #444444; -fx-font-size: 13px; -fx-font-weight: bold;");
 
                 String origineTexte = "Intervention planifiée : " +
                         (i.getDatePlanifiee() != null
@@ -75,7 +75,7 @@ public class AlertesSOSController {
                                 : "-");
 
                 Label origine = new Label(origineTexte);
-                origine.setStyle("-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;");
+                origine.setStyle("-fx-text-fill: #1a1a2e; -fx-font-size: 15px; -fx-font-weight: bold;");
 
                 Hyperlink voirDetails = new Hyperlink("Voir les détails");
                 voirDetails.setStyle("-fx-text-fill: #2f5fff; -fx-font-size: 15px;");

@@ -8,15 +8,15 @@
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cardiolink.Controllers.AlertesSOSController"
-            style="-fx-background-color: linear-gradient(to bottom, #11152f, #17193a);">
+            style="-fx-background-color: white;">
 
     <children>
         <VBox spacing="18" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="25" AnchorPane.rightAnchor="25" AnchorPane.bottomAnchor="20">
             <children>
                 <Label text="🚨 ALERTES SOS URGENTES"
-                       style="-fx-text-fill: #ff4b57; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                       style="-fx-text-fill: #e63d63; -fx-font-size: 28px; -fx-font-weight: bold;" />
 
-                <HBox style="-fx-background-color: rgba(120,0,35,0.25);
+                <HBox style="-fx-background-color: #fdecea;
                              -fx-border-color: #ff3653;
                              -fx-border-width: 0 0 0 3;
                              -fx-padding: 14 20;
@@ -25,12 +25,12 @@
                     <children>
                         <Label fx:id="lblResume"
                                text="Chargement..."
-                               style="-fx-text-fill: #ff2d3d; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                               style="-fx-text-fill: #cc0000; -fx-font-size: 16px; -fx-font-weight: bold;" />
                     </children>
                 </HBox>
 
                 <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
-                            style="-fx-background: transparent; -fx-background-color: transparent;">
+                            style="-fx-background: white; -fx-background-color: white;">
                     <content>
                         <VBox fx:id="containerAlertes" spacing="20" style="-fx-padding: 10;" />
                     </content>
