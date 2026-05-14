@@ -1,7 +1,10 @@
 package com.cardiolink.Controllers;
 
 import com.cardiolink.Models.Suivi;
+import com.cardiolink.Models.User;           // ✅ bon package
 import com.cardiolink.Services.SuiviService;
+import com.cardiolink.Services.UserService;  // ✅ bon package
+import com.cardiolink.utils.ManagerSession;  // ✅ bon package (à vérifier)
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -21,6 +24,7 @@ public class EnregistrerSuivi {
     private Label lblInfo;
 
     private final SuiviService suiviService = new SuiviService();
+    private final UserService userService = new UserService(); // ✅ ajouté
 
     @FXML
     public void initialize() {
@@ -46,10 +50,12 @@ public class EnregistrerSuivi {
             }
 
             float valeur = Float.parseFloat(valeurText);
-
             String unite = determinerUnite(type);
 
-            int patientId = 4; // temporaire pour test
+            // ✅ Récupération dynamique du patient connecté
+            int userId = ManagerSession.getInstance().getCurrentUserId();
+            User user = userService.getUserById(userId);
+            int patientId = user.getId();
 
             Suivi suivi = new Suivi(0, type, valeur, unite, patientId);
             suiviService.add(suivi);
@@ -71,18 +77,12 @@ public class EnregistrerSuivi {
 
     private String determinerUnite(String type) {
         switch (type) {
-            case "Fréquence Cardiaque":
-                return "bpm";
-            case "SpO2":
-                return "%";
-            case "Température":
-                return "°C";
-            case "Glycémie":
-                return "mg/dL";
-            case "Tension":
-                return "mmHg";
-            default:
-                return "";
+            case "Fréquence Cardiaque": return "bpm";
+            case "SpO2": return "%";
+            case "Température": return "°C";
+            case "Glycémie": return "mg/dL";
+            case "Tension": return "mmHg";
+            default: return "";
         }
     }
 
